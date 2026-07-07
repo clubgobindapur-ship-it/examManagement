@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "User profile document",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "username", "email", "createdAt"]
+    },
+    "exam": {
+      "title": "Exam",
+      "description": "Exam metadata",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "slNo": { "type": "number" },
+        "name": { "type": "string" },
+        "tabName": { "type": "string" },
+        "timeLimit": { "type": "number" },
+        "status": { "type": "string", "enum": ["live", "draft"] }
+      },
+      "required": ["id", "slNo", "name", "tabName", "timeLimit", "status"]
+    },
+    "attempt": {
+      "title": "Attempt",
+      "description": "Exam taking attempt for leaderboard and results",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "examId": { "type": "string" },
+        "examName": { "type": "string" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "score": { "type": "number" },
+        "totalQuestions": { "type": "number" },
+        "timeTaken": { "type": "number" },
+        "completedAt": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "examId", "examName", "username", "email", "score", "totalQuestions", "timeTaken", "completedAt"]
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Application level settings like Apps Script URL",
+      "type": "object",
+      "properties": {
+        "googleAppsScriptUrl": { "type": "string" }
+      },
+      "required": []
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "user",
+      "description": "Users collections"
+    },
+    "/exams/{examId}": {
+      "schema": "exam",
+      "description": "Exams list"
+    },
+    "/attempts/{attemptId}": {
+      "schema": "attempt",
+      "description": "Leaderboard and score history entries"
+    },
+    "/settings/{settingId}": {
+      "schema": "settings",
+      "description": "Global application settings"
+    }
+  }
+}
