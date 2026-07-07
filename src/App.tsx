@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { auth, db, handleFirestoreError, OperationType } from "./firebase";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { onAuthStateChanged, User, signOut } from "firebase/auth";
 import { collection, getDocs, getDoc, setDoc, doc, query, where } from "firebase/firestore";
 import { Exam, Attempt } from "./types";
 import { DEFAULT_EXAMS } from "./data";
@@ -15,9 +15,11 @@ import UserPerformanceChart from "./components/UserPerformanceChart";
 import AdCarousel from "./components/AdCarousel";
 import AdminLogin from "./components/AdminLogin";
 import AdminSettings from "./components/AdminSettings";
+import UserManagement from "./components/UserManagement";
+import AdManagement from "./components/AdManagement";
 
 // Analytics
-import { trackEvent } from "./lib/analytics";
+import { trackEvent, initGA } from "./lib/analytics";
 
 // Icons
 import { 
@@ -72,6 +74,7 @@ export default function App() {
     return "home";
   });
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [activeAdminTab, setActiveAdminTab] = useState<"users" | "ads" | "exams">("users");
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   
   // App settings & Exams state
@@ -149,16 +152,52 @@ export default function App() {
     return unsubscribe;
   }, []);
 
-  // 2. Load Google Apps Script URL settings
+  // 1b. Auto-logout standard user when entering admin portal
+  useEffect(() => {
+    if (currentUser && (currentView === "admin" || window.location.pathname === "/admin")) {
+      signOut(auth)
+        .then(() => {
+          trackEvent("admin_portal_auto_logout_success", { email: currentUser.email });
+          setCurrentUser(null);
+        })
+        .catch((err) => {
+          console.error("Error signing out user for admin portal", err);
+        });
+    }
+  }, [currentUser, currentView]);
+
+  // 2. Load Google Apps Script URL settings & GA4 settings from Firestore and LocalStorage
   const loadSettings = async (): Promise<string> => {
     const defaultUrl = "https://script.google.com/macros/s/AKfycbyXX86SurWUbz4CXQFWdyqud8zxXKsJZ5ihu9Cr4kzhxip5a-teiHb17HpCKFTPX3v3/exec";
     try {
+      // 1. Check local storage first for quick boot
       const savedUrl = localStorage.getItem("googleAppsScriptUrl");
       const url = savedUrl || defaultUrl;
       setGoogleAppsScriptUrl(url);
-      return url;
+
+      const savedGaId = localStorage.getItem("gaMeasurementId") || "";
+      if (savedGaId) {
+        initGA(savedGaId);
+      }
+
+      // 2. Load fresh from Firestore settings/general
+      const docRef = doc(db, "settings", "general");
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.googleAppsScriptUrl) {
+          localStorage.setItem("googleAppsScriptUrl", data.googleAppsScriptUrl);
+          setGoogleAppsScriptUrl(data.googleAppsScriptUrl);
+        }
+        if (data.gaMeasurementId) {
+          localStorage.setItem("gaMeasurementId", data.gaMeasurementId);
+          initGA(data.gaMeasurementId);
+        }
+      }
+
+      return localStorage.getItem("googleAppsScriptUrl") || defaultUrl;
     } catch (err) {
-      console.error("Error loading Apps Script URL:", err);
+      console.error("Error loading settings from Firestore/LocalStorage:", err);
       setGoogleAppsScriptUrl(defaultUrl);
       return defaultUrl;
     }
@@ -293,29 +332,115 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F3F4F6] flex flex-col font-sans text-slate-900">
       {/* Navbar component */}
-      <Navbar 
-        currentUser={currentUser} 
-        onOpenAuth={() => setIsAuthOpen(true)} 
-        onViewChange={(view) => {
-          if (view === "home") {
-            trackEvent("home_click");
-          } else {
-            trackEvent(`${view}_click`);
-          }
-          if (activeExam) {
-            if (window.confirm("আপনি একটি সক্রিয় পরীক্ষা দিচ্ছেন। চলে গেলে আপনার অগ্রগতি হারিয়ে যাবে। আপনি কি নিশ্চিত?")) {
-              handleExitExam();
+      {currentView === "admin" && isAdminLoggedIn ? (
+        <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 flex-shrink-0 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16 gap-4">
+              {/* Brand Logo */}
+              <div 
+                onClick={() => {
+                  setIsAdminLoggedIn(false);
+                  setCurrentView("home");
+                  trackEvent("admin_navbar_logo_click");
+                }}
+                className="flex items-center gap-3 cursor-pointer hover:opacity-95 transition-opacity shrink-0"
+              >
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-sm font-black text-sm">
+                  A
+                </div>
+                <div className="hidden sm:block">
+                  <span className="text-sm font-black tracking-wider uppercase text-slate-100 flex items-center gap-1.5">
+                    <span>Admin Dashboard</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Navigation Items */}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <button
+                  onClick={() => {
+                    setActiveAdminTab("users");
+                    trackEvent("admin_nav_users_click");
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    activeAdminTab === "users"
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  User Management
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveAdminTab("ads");
+                    trackEvent("admin_nav_ads_click");
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    activeAdminTab === "ads"
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  Ad Management
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveAdminTab("exams");
+                    trackEvent("admin_nav_exams_click");
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    activeAdminTab === "exams"
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  Exam Settings
+                </button>
+
+                <div className="w-[1px] h-5 bg-slate-800 mx-1 shrink-0" />
+
+                <button
+                  onClick={() => {
+                    setIsAdminLoggedIn(false);
+                    setCurrentView("home");
+                    trackEvent("admin_logout_click");
+                  }}
+                  className="px-3 py-1.5 bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+      ) : (
+        <Navbar 
+          currentUser={currentUser} 
+          onOpenAuth={() => setIsAuthOpen(true)} 
+          onViewChange={(view) => {
+            if (view === "home") {
+              trackEvent("home_click");
+            } else {
+              trackEvent(`${view}_click`);
+            }
+            if (activeExam) {
+              if (window.confirm("আপনি একটি সক্রিয় পরীক্ষা দিচ্ছেন। চলে গেলে আপনার অগ্রগতি হারিয়ে যাবে। আপনি কি নিশ্চিত?")) {
+                handleExitExam();
+                setCurrentView(view as any);
+              }
+            } else {
               setCurrentView(view as any);
             }
-          } else {
-            setCurrentView(view as any);
-          }
-        }} 
-        currentView={currentView}
-        liveCount={liveExams.length}
-        routineCount={routineExams.length}
-        archiveCount={archiveExams.length}
-      />
+          }} 
+          currentView={currentView}
+          liveCount={liveExams.length}
+          routineCount={routineExams.length}
+          archiveCount={archiveExams.length}
+        />
+      )}
 
       {/* Main Container */}
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -568,7 +693,7 @@ export default function App() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              className="max-w-4xl mx-auto"
+              className="max-w-6xl mx-auto"
             >
               {!isAdminLoggedIn ? (
                 <AdminLogin 
@@ -581,32 +706,24 @@ export default function App() {
                 />
               ) : (
                 <div className="space-y-6">
-                  <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Admin Session Active</span>
-                    </div>
-                    <button 
-                      onClick={() => {
-                        setIsAdminLoggedIn(false);
-                        setCurrentView("home");
+                  {activeAdminTab === "users" && (
+                    <UserManagement />
+                  )}
+                  {activeAdminTab === "ads" && (
+                    <AdManagement />
+                  )}
+                  {activeAdminTab === "exams" && (
+                    <AdminSettings 
+                      onSettingsSaved={async () => {
+                        const url = await loadSettings();
+                        await loadExams(url);
                       }}
-                      className="text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 px-3 py-1.5 rounded-lg transition-all"
-                    >
-                      Logout Session
-                    </button>
-                  </div>
-                  <AdminSettings 
-                    onSettingsSaved={async () => {
-                      const url = await loadSettings();
-                      await loadExams(url);
-                    }}
-                    examsList={exams}
-                    onReloadExams={async () => {
-                      const url = await loadSettings();
-                      await loadExams(url);
-                    }}
-                  />
+                      onReloadExams={async () => {
+                        const url = await loadSettings();
+                        await loadExams(url);
+                      }}
+                    />
+                  )}
                 </div>
               )}
             </motion.div>

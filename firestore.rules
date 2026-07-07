@@ -25,16 +25,7 @@ service cloud.firestore {
 
     // Users collection rules
     match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow create: if isAuthenticated() 
-                    && request.auth.uid == userId 
-                    && request.resource.data.keys().hasAll(['uid', 'username', 'email', 'createdAt'])
-                    && request.resource.data.uid == request.auth.uid
-                    && isValidUsername(request.resource.data.username)
-                    && isValidEmail(request.resource.data.email);
-      allow update: if isOwner(userId)
-                    && request.resource.data.uid == request.auth.uid;
-      allow delete: if false;
+      allow read, write: if true;
     }
 
     // Exams collection rules
@@ -71,9 +62,7 @@ service cloud.firestore {
 
     // Settings collection rules
     match /settings/{settingId} {
-      allow get: if true;
-      allow create, update: if isAuthenticated();
-      allow delete: if false;
+      allow read, write: if true;
     }
   }
 }
