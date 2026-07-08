@@ -66,7 +66,7 @@ export default function ExamCard({
   return (
     <motion.div
       whileHover={isLive ? { y: -4 } : {}}
-      className={`bg-white dark:bg-slate-900 border transition-all overflow-hidden flex flex-col justify-between h-full font-sans ${
+      className={`bg-white dark:bg-slate-900 border transition-all overflow-hidden flex flex-col justify-between h-full font-sans rounded-2xl ${
         isLive 
           ? "border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md shadow-sm" 
           : "border-slate-200/50 dark:border-slate-800/50 bg-slate-50/40 dark:bg-slate-950/20 opacity-75"

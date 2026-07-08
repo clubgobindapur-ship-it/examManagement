@@ -21,6 +21,7 @@ import Pricing from "./components/Pricing";
 import PaymentModal from "./components/PaymentModal";
 import PendingPayments from "./components/PendingPayments";
 import AdminExamsSettings from "./components/AdminExamsSettings";
+import AdminPackagesSettings from "./components/AdminPackagesSettings";
 
 // Analytics
 import { trackEvent, initGA } from "./lib/analytics";
@@ -69,9 +70,16 @@ const parseExamDate = (dateStr?: string): number => {
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [currentView, setCurrentView] = useState<"home" | "live" | "routine" | "archive" | "leaderboard" | "active_exam" | "admin" | "pricing">("home");
+  const [currentView, setCurrentView] = useState<"home" | "live" | "routine" | "archive" | "leaderboard" | "active_exam" | "admin" | "pricing">(() => {
+    try {
+      if (typeof window !== "undefined" && window.location.pathname === "/admin") {
+        return "admin";
+      }
+    } catch (e) {}
+    return "home";
+  });
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const [activeAdminTab, setActiveAdminTab] = useState<"users" | "ads" | "exams" | "exam_configs" | "payments">("users");
+  const [activeAdminTab, setActiveAdminTab] = useState<"users" | "ads" | "exams" | "exam_configs" | "packages" | "payments">("users");
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   
   // Theme settings
@@ -97,7 +105,13 @@ export default function App() {
   const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
 
   // App settings & Exams state
-  const [googleAppsScriptUrl, setGoogleAppsScriptUrl] = useState("https://script.google.com/macros/s/AKfycbyXX86SurWUbz4CXQFWdyqud8zxXKsJZ5ihu9Cr4kzhxip5a-teiHb17HpCKFTPX3v3/exec");
+  const [googleAppsScriptUrl, setGoogleAppsScriptUrl] = useState(() => {
+    try {
+      return localStorage.getItem("googleAppsScriptUrl") || "";
+    } catch (e) {
+      return "";
+    }
+  });
   const [exams, setExams] = useState<Exam[]>([]);
   const [loadingExams, setLoadingExams] = useState(true);
   
@@ -267,12 +281,10 @@ export default function App() {
 
   // 2. Load Google Apps Script URL settings & GA4 settings from Firestore and LocalStorage
   const loadSettings = async (): Promise<string> => {
-    const defaultUrl = "https://script.google.com/macros/s/AKfycbyXX86SurWUbz4CXQFWdyqud8zxXKsJZ5ihu9Cr4kzhxip5a-teiHb17HpCKFTPX3v3/exec";
     try {
       // 1. Check local storage first for quick boot
-      const savedUrl = localStorage.getItem("googleAppsScriptUrl");
-      const url = savedUrl || defaultUrl;
-      setGoogleAppsScriptUrl(url);
+      const savedUrl = localStorage.getItem("googleAppsScriptUrl") || "";
+      setGoogleAppsScriptUrl(savedUrl);
 
       const savedGaId = localStorage.getItem("gaMeasurementId") || "";
       if (savedGaId) {
@@ -287,18 +299,14 @@ export default function App() {
         if (data.googleAppsScriptUrl) {
           localStorage.setItem("googleAppsScriptUrl", data.googleAppsScriptUrl);
           setGoogleAppsScriptUrl(data.googleAppsScriptUrl);
-        }
-        if (data.gaMeasurementId) {
-          localStorage.setItem("gaMeasurementId", data.gaMeasurementId);
-          initGA(data.gaMeasurementId);
+          return data.googleAppsScriptUrl;
         }
       }
 
-      return localStorage.getItem("googleAppsScriptUrl") || defaultUrl;
+      return savedUrl;
     } catch (err) {
       console.error("Error loading settings from Firestore/LocalStorage:", err);
-      setGoogleAppsScriptUrl(defaultUrl);
-      return defaultUrl;
+      return localStorage.getItem("googleAppsScriptUrl") || "";
     }
   };
 
@@ -306,94 +314,66 @@ export default function App() {
   const loadExams = async (currentUrl?: string) => {
     setLoadingExams(true);
     try {
-      const scriptUrl = currentUrl || googleAppsScriptUrl || "https://script.google.com/macros/s/AKfycbyXX86SurWUbz4CXQFWdyqud8zxXKsJZ5ihu9Cr4kzhxip5a-teiHb17HpCKFTPX3v3/exec";
       let fetchedExams: Exam[] = [];
 
-      if (scriptUrl) {
-        try {
-          const res = await fetch(`${scriptUrl}?action=getExams`);
-          const data = await res.json();
-          
-          let examsList: any[] = [];
-          if (Array.isArray(data)) {
-            examsList = data;
-          } else if (data && Array.isArray(data.exams)) {
-            examsList = data.exams;
-          }
-
-          if (examsList.length > 0) {
-            fetchedExams = examsList.map((exam: any, idx: number) => {
-              const rawStatus = String(exam.status || "draft").toLowerCase().trim();
-              const isLiveStatus = rawStatus === "live";
-              const isArchivedStatus = rawStatus === "archive" || rawStatus === "archived";
-              return {
-                id: exam.id || String(exam.tabName || `exam-${idx}`).toLowerCase().replace(/[^a-z0-9]/g, "-"),
-                slNo: Number(exam.slNo) || (idx + 1),
-                name: String(exam.name || exam.id || "Untitled Exam"),
-                tabName: String(exam.tabName || exam.name || ""),
-                timeLimit: Number(exam.timeLimit) || 15,
-                status: isLiveStatus ? "live" : isArchivedStatus ? "archived" : "draft",
-                examDate: exam.examDate || exam.examdate || exam.exam_date || exam.date ? String(exam.examDate || exam.examdate || exam.exam_date || exam.date).trim() : undefined
-              };
+      try {
+        const examListSnap = await getDocs(collection(db, "examList"));
+        if (!examListSnap.empty) {
+          examListSnap.forEach((docSnap) => {
+            const data = docSnap.data();
+            fetchedExams.push({
+              id: docSnap.id,
+              slNo: Number(data.slNo) || 1,
+              name: String(data.name || ""),
+              tabName: String(data.tabName || ""),
+              timeLimit: Number(data.timeLimit) || 15,
+              status: String(data.status || "draft"),
+              examDate: data.examDate ? String(data.examDate) : undefined,
+              markPerQuestion: data.markPerQuestion !== undefined ? Number(data.markPerQuestion) : 1,
+              penaltyMark: data.penaltyMark !== undefined ? Number(data.penaltyMark) : 0.25,
+              isFree: data.isFree !== undefined ? Boolean(data.isFree) : true,
+              price: data.price !== undefined ? Number(data.price) : 0
             });
-          }
-        } catch (scriptErr) {
-          console.warn("Could not load exams from Apps Script Web App:", scriptErr);
-        }
-      }
-
-      // Load custom exams from localStorage
-      let customExams: Exam[] = [];
-      try {
-        const customExamsStr = localStorage.getItem("customExams");
-        if (customExamsStr) {
-          customExams = JSON.parse(customExamsStr);
-        }
-      } catch (e) {
-        console.error("Error reading customExams from localStorage", e);
-      }
-
-      // Combine fetched exams and custom exams
-      let combinedExams = [...fetchedExams, ...customExams];
-      if (combinedExams.length === 0) {
-        combinedExams = [...DEFAULT_EXAMS];
-      }
-
-      // Query firestore exams collection to fetch custom pricing and scoring configs
-      try {
-        const snap = await getDocs(collection(db, "exams"));
-        const fsExams: { [key: string]: any } = {};
-        snap.forEach((docSnap) => {
-          fsExams[docSnap.id] = docSnap.data();
-        });
-
-        combinedExams = combinedExams.map((exam) => {
-          const config = fsExams[exam.id];
-          if (config) {
-            return {
-              ...exam,
-              markPerQuestion: config.markPerQuestion !== undefined ? Number(config.markPerQuestion) : 1,
-              penaltyMark: config.penaltyMark !== undefined ? Number(config.penaltyMark) : 0.25,
-              isFree: config.isFree !== undefined ? Boolean(config.isFree) : true,
-              price: config.price !== undefined ? Number(config.price) : 0
+          });
+        } else {
+          // Collection is empty, let's seed it with DEFAULT_EXAMS!
+          console.log("examList collection is empty, seeding with DEFAULT_EXAMS...");
+          for (const exam of DEFAULT_EXAMS) {
+            const examDocRef = doc(db, "examList", exam.id);
+            const examData = {
+              id: exam.id,
+              slNo: exam.slNo,
+              name: exam.name,
+              tabName: exam.tabName,
+              timeLimit: exam.timeLimit,
+              status: exam.status,
+              isFree: exam.isFree !== undefined ? exam.isFree : true,
+              price: exam.price !== undefined ? exam.price : 0,
+              markPerQuestion: exam.markPerQuestion !== undefined ? exam.markPerQuestion : 1,
+              penaltyMark: exam.penaltyMark !== undefined ? exam.penaltyMark : 0.25
             };
-          } else {
-            return {
-              ...exam,
-              markPerQuestion: 1,
-              penaltyMark: 0.25,
-              isFree: true,
-              price: 0
-            };
+            try {
+              await setDoc(examDocRef, examData);
+            } catch (err) {
+              console.warn(`Failed to seed exam ${exam.id}:`, err);
+            }
+            fetchedExams.push(examData);
           }
-        });
-      } catch (fsErr) {
-        console.warn("Could not load exam configs from Firestore:", fsErr);
+        }
+      } catch (fsListErr) {
+        console.error("Error loading examList from Firestore, falling back:", fsListErr);
+        fetchedExams = [...DEFAULT_EXAMS].map(exam => ({
+          ...exam,
+          markPerQuestion: exam.markPerQuestion !== undefined ? exam.markPerQuestion : 1,
+          penaltyMark: exam.penaltyMark !== undefined ? exam.penaltyMark : 0.25,
+          isFree: exam.isFree !== undefined ? exam.isFree : true,
+          price: exam.price !== undefined ? exam.price : 0
+        }));
       }
 
       // Sort by slNo
-      combinedExams.sort((a, b) => a.slNo - b.slNo);
-      setExams(combinedExams);
+      fetchedExams.sort((a, b) => a.slNo - b.slNo);
+      setExams(fetchedExams);
     } catch (err) {
       console.error("Error loading exams:", err);
       setExams(DEFAULT_EXAMS);
@@ -542,7 +522,21 @@ export default function App() {
                       : "text-slate-400 hover:text-white hover:bg-slate-800"
                   }`}
                 >
-                  Pricing & Marks
+                  Exams & Marking
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveAdminTab("packages");
+                    trackEvent("admin_nav_packages_click");
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                    activeAdminTab === "packages"
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  Premium Packages
                 </button>
 
                 <button
@@ -939,6 +933,9 @@ export default function App() {
                         await loadExams(url);
                       }}
                     />
+                  )}
+                  {activeAdminTab === "packages" && (
+                    <AdminPackagesSettings />
                   )}
                   {activeAdminTab === "payments" && (
                     <PendingPayments />

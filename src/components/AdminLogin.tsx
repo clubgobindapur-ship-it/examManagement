@@ -118,7 +118,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@examportal.com"
-                  className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
               <p className="text-[10px] text-gray-400">Default: <code className="font-mono bg-gray-100 p-0.5 rounded">admin@examportal.com</code></p>
@@ -134,7 +134,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
               <p className="text-[10px] text-gray-400">Default: <code className="font-mono bg-gray-100 p-0.5 rounded">adminpassword123</code></p>
@@ -176,7 +176,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                   value={inputOtp}
                   onChange={(e) => setInputOtp(e.target.value.replace(/[^0-9]/g, ""))}
                   placeholder="000000"
-                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-lg font-black tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-lg font-black tracking-widest text-center text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
             </div>

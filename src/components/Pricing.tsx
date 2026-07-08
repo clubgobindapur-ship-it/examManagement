@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { trackEvent } from "../lib/analytics";
 import { motion } from "motion/react";
-import { Check, Sparkles, Zap, ShieldAlert, ShieldCheck, Loader2 } from "lucide-react";
+import { Check, Sparkles, Zap, ShieldAlert, ShieldCheck, Loader2, Award } from "lucide-react";
 import PaymentModal from "./PaymentModal";
 
 interface PricingProps {
@@ -12,11 +12,46 @@ interface PricingProps {
   onSuccessPayment: () => void;
 }
 
-export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: PricingProps) {
-  const [pricingConfig, setPricingConfig] = useState({
-    monthlyPrice: 150,
-    yearlyPrice: 1200,
-    descriptions: [
+interface Package {
+  id: string;
+  packagetype: string;
+  packageTitle: string;
+  packageSubtitle: string;
+  baseprice: number;
+  discountType: "flat" | "percentage" | "none";
+  discountValue: number;
+  isActive: boolean;
+  discription: string[];
+}
+
+const DEFAULT_PACKAGES: Package[] = [
+  {
+    id: "premium_monthly",
+    packagetype: "monthly",
+    packageTitle: "মাসিক প্রিমিয়াম",
+    packageSubtitle: "প্রতি মাসের জন্য প্রিমিয়াম কন্টেন্ট অ্যাক্সেস করুন",
+    baseprice: 200,
+    discountType: "flat",
+    discountValue: 50,
+    isActive: true,
+    discription: [
+      "সকল প্রিমিয়াম পরীক্ষা আনলকড (Unlock All Exams)",
+      "প্রতিটি প্রশ্নের বিস্তারিত সমাধান ও ব্যাখ্যা (Explanations)",
+      "লাইভ মেধা তালিকায় নিজের অবস্থান যাচাই (Leaderboard)",
+      "পরীক্ষায় একাধিকবার অংশ নেওয়ার সুবিধা",
+      "১০০% বিজ্ঞাপন মুক্ত পোর্টাল (Ad-free Interface)"
+    ]
+  },
+  {
+    id: "premium_yearly",
+    packagetype: "yearly",
+    packageTitle: "বার্ষিক প্রিমিয়াম",
+    packageSubtitle: "১ বছরের জন্য আমাদের পূর্ণাঙ্গ প্রস্তুতি মেম্বারশিপ",
+    baseprice: 1500,
+    discountType: "percentage",
+    discountValue: 20,
+    isActive: true,
+    discription: [
       "সকল প্রিমিয়াম পরীক্ষা আনলকড (Unlock All Exams)",
       "প্রতিটি প্রশ্নের বিস্তারিত সমাধান ও ব্যাখ্যা (Explanations)",
       "লাইভ মেধা তালিকায় নিজের অবস্থান যাচাই (Leaderboard)",
@@ -25,11 +60,15 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
       "নতুন মডেল টেস্ট ও কুইজের ইনস্ট্যান্ট অ্যাক্সেস",
       "২৪/৭ ডেডিকেটেড লাইভ ও কাস্টমার সাপোর্ট"
     ]
-  });
+  }
+];
+
+export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: PricingProps) {
+  const [packagesList, setPackagesList] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<{
-    type: "premium_monthly" | "premium_yearly";
+    type: string;
     name: string;
     price: number;
   } | null>(null);
@@ -45,17 +84,38 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
     setLoading(true);
     trackEvent("load_pricing_start");
     try {
-      // 1. Fetch Pricing Config from Firestore
-      const priceDoc = await getDoc(doc(db, "settings", "pricing"));
-      if (priceDoc.exists()) {
-        const data = priceDoc.data();
-        setPricingConfig({
-          monthlyPrice: Number(data.monthlyPrice) || 150,
-          yearlyPrice: Number(data.yearlyPrice) || 1200,
-          descriptions: Array.isArray(data.descriptions) && data.descriptions.length > 0 
-            ? data.descriptions 
-            : pricingConfig.descriptions
-        });
+      // 1. Fetch Pricing Packages from Firestore
+      const snap = await getDocs(collection(db, "packages"));
+      const pkgs: Package[] = [];
+      snap.forEach((docSnap) => {
+        const data = docSnap.data();
+        if (data.isActive !== false) {
+          let fetchedDiscountType: "flat" | "percentage" | "none" = "none";
+          if (data.discountType === "percentage") {
+            fetchedDiscountType = "percentage";
+          } else if (data.discountType === "flat") {
+            fetchedDiscountType = "flat";
+          }
+
+          pkgs.push({
+            id: docSnap.id,
+            packagetype: String(data.packagetype || ""),
+            packageTitle: String(data.packageTitle || ""),
+            packageSubtitle: String(data.packageSubtitle || ""),
+            baseprice: Number(data.baseprice) || 0,
+            discountType: fetchedDiscountType,
+            discountValue: Number(data.discountValue) || 0,
+            isActive: data.isActive !== undefined ? Boolean(data.isActive) : true,
+            discription: Array.isArray(data.discription) ? data.discription : []
+          });
+        }
+      });
+
+      if (pkgs.length === 0) {
+        setPackagesList(DEFAULT_PACKAGES);
+      } else {
+        pkgs.sort((a, b) => a.baseprice - b.baseprice);
+        setPackagesList(pkgs);
       }
 
       // 2. Fetch User's Premium Status
@@ -69,8 +129,10 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
             if (until > now) {
               setSubscriptionStatus({
                 isPremium: true,
-                validUntil: until.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
-                type: uData.subscriptionType === "yearly" ? "Yearly Premium" : "Monthly Premium"
+                validUntil: until.toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" }),
+                type: uData.subscriptionType 
+                  ? String(uData.subscriptionType).toUpperCase() + " Premium" 
+                  : "Premium"
               });
             }
           }
@@ -78,6 +140,7 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
       }
     } catch (err) {
       console.error("Error loading pricing/subscription info:", err);
+      setPackagesList(DEFAULT_PACKAGES);
     } finally {
       setLoading(false);
     }
@@ -87,7 +150,7 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
     loadPricingAndUserSubscription();
   }, [currentUser]);
 
-  const handleSelectPlan = (type: "premium_monthly" | "premium_yearly", name: string, price: number) => {
+  const handleSelectPlan = (type: string, name: string, price: number) => {
     trackEvent("select_pricing_plan", { type, price });
 
     if (!currentUser) {
@@ -103,6 +166,16 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
 
     setSelectedPlan({ type, name, price });
     setIsPaymentOpen(true);
+  };
+
+  const getDiscountedPrice = (pkg: Package) => {
+    if (pkg.discountType === "none") {
+      return pkg.baseprice;
+    } else if (pkg.discountType === "flat") {
+      return Math.max(0, pkg.baseprice - pkg.discountValue);
+    } else {
+      return Math.max(0, Math.round(pkg.baseprice * (1 - pkg.discountValue / 100)));
+    }
   };
 
   if (loading) {
@@ -154,104 +227,85 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
       )}
 
       {/* Pricing Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-start">
-        {/* Monthly Plan */}
-        <motion.div
-          whileHover={{ y: -4 }}
-          className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-xs relative overflow-hidden transition-all flex flex-col justify-between h-full"
-        >
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <span className="text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 px-3 py-1 rounded-lg inline-block">
-                Monthly Package
-              </span>
-              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">মাসিক প্রিমিয়াম</h3>
-              <p className="text-xs text-slate-400">প্রতি মাসের জন্য প্রিমিয়াম কন্টেন্ট অ্যাক্সেস করুন</p>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
+        {packagesList.map((pkg) => {
+          const finalPrice = getDiscountedPrice(pkg);
+          const isYearly = pkg.packagetype === "yearly";
 
-            <div className="flex items-baseline gap-1 text-slate-900 dark:text-white">
-              <span className="text-4xl font-black">{pricingConfig.monthlyPrice}</span>
-              <span className="text-sm font-extrabold text-slate-500 dark:text-slate-400">৳ / মাস (Month)</span>
-            </div>
-
-            <div className="w-full h-[1px] bg-slate-100 dark:bg-slate-800" />
-
-            <ul className="space-y-3.5 text-xs">
-              {pricingConfig.descriptions.slice(0, 5).map((feature, idx) => (
-                <li key={idx} className="flex items-start gap-2 text-slate-600 dark:text-slate-400 leading-relaxed">
-                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="pt-8">
-            <button
-              onClick={() => handleSelectPlan("premium_monthly", "Monthly Premium Membership", pricingConfig.monthlyPrice)}
-              disabled={subscriptionStatus.isPremium}
-              className={`w-full py-3.5 px-4 font-bold text-xs rounded-2xl cursor-pointer transition-all ${
-                subscriptionStatus.isPremium
-                  ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900"
+          return (
+            <motion.div
+              key={pkg.id}
+              whileHover={{ y: -4 }}
+              className={`bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xs relative overflow-hidden transition-all flex flex-col justify-between border ${
+                isYearly 
+                  ? "border-2 border-indigo-600 dark:border-indigo-500 shadow-md" 
+                  : "border-slate-200 dark:border-slate-800"
               }`}
             >
-              মাসিক মেম্বারশিপ নিন
-            </button>
-          </div>
-        </motion.div>
+              {isYearly && (
+                <div className="absolute top-0 right-0 bg-indigo-600 text-white font-extrabold text-[9px] uppercase tracking-widest px-4 py-1.5 rounded-bl-2xl">
+                  Best Value • সাশ্রয়ী
+                </div>
+              )}
 
-        {/* Yearly Plan (Best Value) */}
-        <motion.div
-          whileHover={{ y: -4 }}
-          className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-indigo-600 dark:border-indigo-500 p-8 shadow-md relative overflow-hidden transition-all flex flex-col justify-between h-full"
-        >
-          {/* Best Value Tag */}
-          <div className="absolute top-0 right-0 bg-indigo-650 text-white font-extrabold font-mono text-[9px] uppercase tracking-widest px-4 py-1.5 rounded-bl-2xl">
-            Best Value • সাশ্রয়ী
-          </div>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <span className={`text-xs font-black uppercase tracking-widest px-3 py-1 rounded-lg inline-block ${
+                    isYearly 
+                      ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/20" 
+                      : "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20"
+                  }`}>
+                    {pkg.packagetype} Package
+                  </span>
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">{pkg.packageTitle}</h3>
+                  <p className="text-xs text-slate-400">{pkg.packageSubtitle}</p>
+                </div>
 
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <span className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/20 px-3 py-1 rounded-lg inline-block flex items-center gap-1.5 w-fit">
-                <Zap className="w-3.5 h-3.5 fill-indigo-500 text-indigo-500 shrink-0" />
-                <span>Yearly Package</span>
-              </span>
-              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">বার্ষিক প্রিমিয়াম</h3>
-              <p className="text-xs text-slate-400">১ বছরের জন্য আমাদের পূর্ণাঙ্গ প্রস্তুতি মেম্বারশিপ</p>
-            </div>
+                {/* Price block */}
+                <div className="flex items-baseline gap-2">
+                  <span className={`text-4xl font-black ${isYearly ? "text-indigo-600 dark:text-indigo-400" : "text-slate-900 dark:text-white"}`}>
+                    {finalPrice} ৳
+                  </span>
+                  {pkg.discountType !== "none" && pkg.discountValue > 0 && (
+                    <>
+                      <span className="text-sm text-slate-400 line-through font-medium">{pkg.baseprice} ৳</span>
+                      <span className="text-[10px] text-rose-600 font-extrabold">
+                        ({pkg.discountType === "flat" ? `${pkg.discountValue} ৳ ছাড়` : `${pkg.discountValue}% ছাড়`})
+                      </span>
+                    </>
+                  )}
+                </div>
 
-            <div className="flex items-baseline gap-1 text-slate-900 dark:text-white">
-              <span className="text-4xl font-black text-indigo-600 dark:text-indigo-400">{pricingConfig.yearlyPrice}</span>
-              <span className="text-sm font-extrabold text-slate-500 dark:text-slate-400">৳ / বছর (Year)</span>
-            </div>
+                <div className="w-full h-[1px] bg-slate-100 dark:bg-slate-800" />
 
-            <div className="w-full h-[1px] bg-slate-100 dark:bg-slate-800" />
+                <ul className="space-y-3.5 text-xs">
+                  {pkg.discription.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-slate-600 dark:text-slate-400 leading-relaxed">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-            <ul className="space-y-3.5 text-xs">
-              {pricingConfig.descriptions.map((feature, idx) => (
-                <li key={idx} className="flex items-start gap-2 text-slate-600 dark:text-slate-400 leading-relaxed">
-                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="pt-8">
-            <button
-              onClick={() => handleSelectPlan("premium_yearly", "Yearly Premium Membership", pricingConfig.yearlyPrice)}
-              disabled={subscriptionStatus.isPremium}
-              className={`w-full py-3.5 px-4 font-black text-xs rounded-2xl cursor-pointer transition-all shadow-md ${
-                subscriptionStatus.isPremium
-                  ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed"
-                  : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-100 hover:shadow-lg hover:shadow-indigo-200"
-              }`}
-            >
-              বার্ষিক মেম্বারশিপ নিন (সেরা অফার)
-            </button>
-          </div>
-        </motion.div>
+              <div className="pt-8">
+                <button
+                  onClick={() => handleSelectPlan(`premium_${pkg.packagetype}`, `${pkg.packageTitle} Membership`, finalPrice)}
+                  disabled={subscriptionStatus.isPremium}
+                  className={`w-full py-3.5 px-4 font-black text-xs rounded-2xl cursor-pointer transition-all shadow-md ${
+                    subscriptionStatus.isPremium
+                      ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed shadow-none"
+                      : isYearly
+                      ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-100 dark:shadow-none hover:shadow-lg hover:shadow-indigo-200"
+                      : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
+                  }`}
+                >
+                  {subscriptionStatus.isPremium ? "ইতিমধ্যে প্রিমিয়াম মেম্বার" : `${pkg.packageTitle} নিন`}
+                </button>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Payment Modal */}

@@ -741,7 +741,7 @@ Well done! Join the challenge here: ${window.location.href}`;
                       value={emailInput}
                       onChange={(e) => setEmailInput(e.target.value)}
                       placeholder="যেমন: you@example.com"
-                      className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
 

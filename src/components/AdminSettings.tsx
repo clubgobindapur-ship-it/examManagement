@@ -4,7 +4,7 @@ import { db } from "../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { trackEvent } from "../lib/analytics";
 import { 
-  Save, Copy, Check, Database, Wifi, RefreshCw, ShieldAlert, CheckCircle2, UserCheck, CloudLightning, KeyRound 
+  Save, Copy, Check, Database, Wifi, RefreshCw, ShieldAlert, CheckCircle2, UserCheck, CloudLightning, KeyRound, Sparkles, CreditCard 
 } from "lucide-react";
 
 interface AdminSettingsProps {
@@ -13,7 +13,7 @@ interface AdminSettingsProps {
 }
 
 export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminSettingsProps) {
-  const [activeTab, setActiveTab] = useState<"sheets" | "security">("sheets");
+  const [activeTab, setActiveTab] = useState<"sheets" | "security" | "pricing">("sheets");
   const [googleAppsScriptUrl, setGoogleAppsScriptUrl] = useState(() => {
     return localStorage.getItem("googleAppsScriptUrl") || "";
   });
@@ -31,6 +31,14 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
   const [isSavingAdmin, setIsSavingAdmin] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  // Subscription pricing states
+  const [monthlyPrice, setMonthlyPrice] = useState(150);
+  const [yearlyPrice, setYearlyPrice] = useState(1200);
+  const [descriptions, setDescriptions] = useState(
+    "সকল প্রিমিয়াম পরীক্ষা আনলকড (Unlock All Exams)\nপ্রতিটি প্রশ্নের বিস্তারিত সমাধান ও ব্যাখ্যা (Explanations)\nলাইভ মেধা তালিকায় নিজের অবস্থান যাচাই (Leaderboard)\nপরীক্ষায় একাধিকবার অংশ নেওয়ার সুবিধা\n১০০% বিজ্ঞাপন মুক্ত পোর্টাল (Ad-free Interface)\nনতুন মডেল টেস্ট ও কুইজের ইনস্ট্যান্ট অ্যাক্সেস\n২৪/৭ ডেডিকেটেড লাইভ ও কাস্টমার সাপোর্ট"
+  );
+  const [isSavingPricing, setIsSavingPricing] = useState(false);
 
   useEffect(() => {
     // Load credentials and config from Firestore settings/admin and settings/general
@@ -53,6 +61,17 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
           if (gData.gaMeasurementId) {
             setGaMeasurementId(gData.gaMeasurementId);
             localStorage.setItem("gaMeasurementId", gData.gaMeasurementId);
+          }
+        }
+
+        // Load settings/pricing
+        const pricingSnap = await getDoc(doc(db, "settings", "pricing"));
+        if (pricingSnap.exists()) {
+          const pData = pricingSnap.data();
+          setMonthlyPrice(pData.monthlyPrice || 150);
+          setYearlyPrice(pData.yearlyPrice || 1200);
+          if (Array.isArray(pData.descriptions)) {
+            setDescriptions(pData.descriptions.join("\n"));
           }
         }
       } catch (err) {
@@ -120,6 +139,36 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
       trackEvent("admin_update_creds_failure", { error: err.message });
     } finally {
       setIsSavingAdmin(false);
+    }
+  };
+
+  const handleSavePricing = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingPricing(true);
+    setError("");
+    setSuccess("");
+    trackEvent("admin_save_pricing_start");
+    try {
+      const docRef = doc(db, "settings", "pricing");
+      const descList = descriptions
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+
+      await setDoc(docRef, {
+        monthlyPrice: Number(monthlyPrice) || 150,
+        yearlyPrice: Number(yearlyPrice) || 1200,
+        descriptions: descList
+      }, { merge: true });
+
+      setSuccess("সাবস্ক্রিপশন প্যাকেজের মূল্য তালিকা সফলভাবে সংরক্ষিত হয়েছে!");
+      trackEvent("admin_save_pricing_success", { monthlyPrice, yearlyPrice });
+    } catch (err: any) {
+      console.error(err);
+      setError("মূল্য তালিকা সংরক্ষণ করতে ব্যর্থ হয়েছে: " + err.message);
+      trackEvent("admin_save_pricing_failure", { error: err.message });
+    } finally {
+      setIsSavingPricing(false);
     }
   };
 
@@ -215,6 +264,20 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
           <KeyRound className="w-4 h-4" />
           <span>Admin Security Credentials</span>
         </button>
+        <button
+          onClick={() => {
+            setActiveTab("pricing");
+            trackEvent("admin_settings_tab_pricing");
+          }}
+          className={`flex-1 py-4 px-6 text-xs font-bold border-b-2 transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            activeTab === "pricing" 
+              ? "border-blue-600 text-blue-600 bg-white" 
+              : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+          <span>Subscription Packages Pricing</span>
+        </button>
       </div>
 
       {/* Main Container */}
@@ -253,7 +316,7 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
                     value={googleAppsScriptUrl}
                     onChange={(e) => setGoogleAppsScriptUrl(e.target.value)}
                     placeholder="https://script.google.com/macros/s/.../exec"
-                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono"
+                    className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono"
                   />
                   <button
                     onClick={handleTestConnection}
@@ -292,7 +355,7 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
                   value={gaMeasurementId}
                   onChange={(e) => setGaMeasurementId(e.target.value)}
                   placeholder="G-XXXXXXXXXX"
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono"
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono"
                 />
               </div>
 
@@ -411,7 +474,7 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
                     value={adminEmail}
                     onChange={(e) => setAdminEmail(e.target.value)}
                     placeholder="admin@examportal.com"
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold"
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold"
                   />
                 </div>
 
@@ -423,7 +486,7 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
                     value={adminPassword}
                     onChange={(e) => setAdminPassword(e.target.value)}
                     placeholder="পাসওয়ার্ড লিখুন..."
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold"
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold"
                   />
                 </div>
               </div>
@@ -436,6 +499,71 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
                 >
                   <Save className="w-4 h-4" />
                   <span>{isSavingAdmin ? "আপডেট হচ্ছে..." : "লগইন তথ্য আপডেট করুন"}</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        )}
+
+        {activeTab === "pricing" && (
+          <form onSubmit={handleSavePricing} className="space-y-6 text-xs font-semibold">
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-indigo-600" />
+                <span>Subscription Packages & Pricing Configuration</span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                মাসিক ও বার্ষিক প্রিমিয়াম মেম্বারশিপের মূল্য তালিকা এবং ফিচারসমূহ আপডেট করুন।
+              </p>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 dark:text-slate-400 uppercase tracking-wide block">Monthly Pack Price (BDT)</label>
+                  <input
+                    type="number"
+                    required
+                    value={monthlyPrice}
+                    onChange={(e) => setMonthlyPrice(Number(e.target.value))}
+                    placeholder="150"
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 dark:text-slate-400 uppercase tracking-wide block">Yearly Pack Price (BDT)</label>
+                  <input
+                    type="number"
+                    required
+                    value={yearlyPrice}
+                    onChange={(e) => setYearlyPrice(Number(e.target.value))}
+                    placeholder="1200"
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-slate-500 dark:text-slate-400 uppercase tracking-wide block">Features / Descriptions (One per line)</label>
+                <textarea
+                  required
+                  rows={6}
+                  value={descriptions}
+                  onChange={(e) => setDescriptions(e.target.value)}
+                  placeholder="ফিচারসমূহ লিখুন..."
+                  className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-sans"
+                />
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={isSavingPricing}
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>{isSavingPricing ? "সংরক্ষণ হচ্ছে..." : "মূল্য তালিকা সংরক্ষণ করুন"}</span>
                 </button>
               </div>
             </div>

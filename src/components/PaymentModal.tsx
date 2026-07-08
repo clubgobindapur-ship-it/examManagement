@@ -9,7 +9,7 @@ interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: any;
-  paymentType: "exam" | "premium_monthly" | "premium_yearly";
+  paymentType: "exam" | "premium_monthly" | "premium_yearly" | string;
   price: number;
   productName: string;
   productId: string; // exam.id or "premium_monthly" or "premium_yearly"

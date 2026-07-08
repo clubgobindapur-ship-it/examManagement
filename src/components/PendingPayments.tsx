@@ -17,7 +17,7 @@ interface Transaction {
   senderNumber?: string;
   status: "pending" | "verified" | "rejected";
   createdAt: string;
-  type: "exam" | "premium_monthly" | "premium_yearly";
+  type: "exam" | "premium_monthly" | "premium_yearly" | string;
   verifiedAt?: string;
 }
 
@@ -29,6 +29,10 @@ export default function PendingPayments() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "verified" | "rejected">("pending");
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [confirmingAction, setConfirmingAction] = useState<{
+    tx: Transaction;
+    action: "verify" | "reject";
+  } | null>(null);
 
   const loadTransactions = async () => {
     setLoading(true);
@@ -81,10 +85,6 @@ export default function PendingPayments() {
   }, []);
 
   const handleVerify = async (tx: Transaction) => {
-    if (!window.confirm(`আপনি কি "${tx.username}" এর ${tx.amount} টাকার পেমেন্টটি ভেরিফাই করতে চান?`)) {
-      return;
-    }
-
     setProcessingId(tx.id);
     setError("");
     setSuccess("");
@@ -115,16 +115,35 @@ export default function PendingPayments() {
           price: tx.amount,
           verifiedAt
         }, { merge: true });
-      } else if (tx.type === "premium_monthly" || tx.type === "premium_yearly") {
+      } else if (tx.type && tx.type.startsWith("premium_")) {
         // Global premium status update in users collection
-        const daysToAdd = tx.type === "premium_monthly" ? 30 : 365;
+        let daysToAdd = 30;
+        let subType = "monthly";
+        
+        if (tx.type === "premium_weekly") {
+          daysToAdd = 7;
+          subType = "weekly";
+        } else if (tx.type === "premium_yearly") {
+          daysToAdd = 365;
+          subType = "yearly";
+        } else if (tx.type === "premium_half_yearly") {
+          daysToAdd = 182;
+          subType = "half_yearly";
+        } else if (tx.type === "premium_monthly") {
+          daysToAdd = 30;
+          subType = "monthly";
+        } else {
+          daysToAdd = 30;
+          subType = tx.type.replace("premium_", "");
+        }
+
         const targetDate = new Date();
         targetDate.setDate(targetDate.getDate() + daysToAdd);
 
         const userRef = doc(db, "users", tx.userId);
         await setDoc(userRef, {
           premiumUntil: targetDate.toISOString(),
-          subscriptionType: tx.type === "premium_monthly" ? "monthly" : "yearly"
+          subscriptionType: subType
         }, { merge: true });
       }
 
@@ -145,10 +164,6 @@ export default function PendingPayments() {
   };
 
   const handleReject = async (tx: Transaction) => {
-    if (!window.confirm(`আপনি কি "${tx.username}" এর পেমেন্টটি বাতিল/রিজেক্ট করতে চান?`)) {
-      return;
-    }
-
     setProcessingId(tx.id);
     setError("");
     setSuccess("");
@@ -168,11 +183,11 @@ export default function PendingPayments() {
       // 2. Update subscription subcollection if it was an exam purchase
       if (tx.type === "exam") {
         const subRef = doc(db, "users", tx.userId, "subscriptions", tx.examId);
-        await updateDoc(subRef, {
+        await setDoc(subRef, {
           status: "rejected",
           isVerified: false,
           rejectedAt
-        });
+        }, { merge: true });
       }
 
       setSuccess("পেমেন্ট রিকোয়েস্টটি সফলভাবে রিজেক্ট করা হয়েছে।");
@@ -321,7 +336,7 @@ export default function PendingPayments() {
                       <div>
                         <span className="font-bold text-slate-800 block">{tx.examName}</span>
                         <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[9px] uppercase font-black tracking-wide mt-1 inline-block">
-                          {tx.type === "exam" ? "Single Exam" : tx.type === "premium_monthly" ? "Monthly Premium" : "Yearly Premium"}
+                          {tx.type === "exam" ? "Single Exam" : tx.type.startsWith("premium_") ? tx.type.replace("premium_", "").replace("_", " ").toUpperCase() + " Premium" : "Subscription"}
                         </span>
                       </div>
                     </td>
@@ -374,14 +389,14 @@ export default function PendingPayments() {
                         ) : (
                           <div className="flex items-center justify-center gap-2">
                             <button
-                              onClick={() => handleVerify(tx)}
+                              onClick={() => setConfirmingAction({ tx, action: "verify" })}
                               className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-xs"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
                               <span>Verify</span>
                             </button>
                             <button
-                              onClick={() => handleReject(tx)}
+                              onClick={() => setConfirmingAction({ tx, action: "reject" })}
                               className="px-3 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-[10px] rounded-lg transition-all cursor-pointer flex items-center gap-1"
                             >
                               <XCircle className="w-3.5 h-3.5" />
@@ -398,6 +413,59 @@ export default function PendingPayments() {
           </div>
         )}
       </div>
+
+      {/* Custom Confirmation Modal */}
+      {confirmingAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-sans">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-sm w-full p-6 border border-slate-150 dark:border-slate-800 text-center space-y-4">
+            <div className="flex justify-center">
+              {confirmingAction.action === "verify" ? (
+                <CheckCircle2 className="w-12 h-12 text-emerald-500 animate-bounce" />
+              ) : (
+                <XCircle className="w-12 h-12 text-rose-500 animate-pulse" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                {confirmingAction.action === "verify" ? "Confirm Payment Verification" : "Reject Payment Request"}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                {confirmingAction.action === "verify" 
+                  ? `Are you sure you want to verify the payment of ${confirmingAction.tx.amount} BDT from "${confirmingAction.tx.username}"?` 
+                  : `Are you sure you want to reject the payment request from "${confirmingAction.tx.username}"?`}
+              </p>
+            </div>
+            <div className="flex gap-3 justify-center pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmingAction(null)}
+                className="px-4 py-2 bg-slate-150 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const { tx, action } = confirmingAction;
+                  setConfirmingAction(null);
+                  if (action === "verify") {
+                    await handleVerify(tx);
+                  } else {
+                    await handleReject(tx);
+                  }
+                }}
+                className={`px-4 py-2 text-white font-bold rounded-xl text-xs transition-all cursor-pointer ${
+                  confirmingAction.action === "verify" 
+                    ? "bg-emerald-600 hover:bg-emerald-700" 
+                    : "bg-rose-600 hover:bg-rose-700"
+                }`}
+              >
+                {confirmingAction.action === "verify" ? "Yes, Verify" : "Yes, Reject"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

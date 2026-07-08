@@ -97,6 +97,22 @@
         "descriptions": { "type": "array" }
       },
       "required": []
+    },
+    "package": {
+      "title": "Package",
+      "description": "Subscription package configuration",
+      "type": "object",
+      "properties": {
+        "packagetype": { "type": "string" },
+        "packageTitle": { "type": "string" },
+        "packageSubtitle": { "type": "string" },
+        "baseprice": { "type": "number" },
+        "discountType": { "type": "string", "enum": ["flat", "percentage"] },
+        "discountValue": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "discription": { "type": "array" }
+      },
+      "required": ["packagetype", "packageTitle", "baseprice", "isActive"]
     }
   },
   "firestore": {
@@ -110,7 +126,15 @@
     },
     "/exams/{examId}": {
       "schema": "exam",
-      "description": "Exams list"
+      "description": "Exams config"
+    },
+    "/examList/{examId}": {
+      "schema": "exam",
+      "description": "Primary exam list"
+    },
+    "/packages/{packageId}": {
+      "schema": "package",
+      "description": "Subscription package list"
     },
     "/attempts/{attemptId}": {
       "schema": "attempt",
