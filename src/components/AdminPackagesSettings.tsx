@@ -17,7 +17,8 @@ import {
   DollarSign,
   Tag,
   Eye,
-  PlusCircle
+  PlusCircle,
+  Sparkles
 } from "lucide-react";
 
 interface Package {
@@ -30,6 +31,10 @@ interface Package {
   discountValue: number;
   isActive: boolean;
   discription: string[];
+  isHighlighted?: boolean;
+  validityDays?: number;
+  validityHours?: number;
+  validityMins?: number;
 }
 
 const DEFAULT_PACKAGES: Package[] = [
@@ -42,6 +47,10 @@ const DEFAULT_PACKAGES: Package[] = [
     discountType: "flat",
     discountValue: 50,
     isActive: true,
+    isHighlighted: false,
+    validityDays: 30,
+    validityHours: 0,
+    validityMins: 0,
     discription: [
       "সকল প্রিমিয়াম পরীক্ষা আনলকড (Unlock All Exams)",
       "প্রতিটি প্রশ্নের বিস্তারিত সমাধান ও ব্যাখ্যা (Explanations)",
@@ -59,6 +68,10 @@ const DEFAULT_PACKAGES: Package[] = [
     discountType: "percentage",
     discountValue: 20,
     isActive: true,
+    isHighlighted: true,
+    validityDays: 365,
+    validityHours: 0,
+    validityMins: 0,
     discription: [
       "সকল প্রিমিয়াম পরীক্ষা আনলকড (Unlock All Exams)",
       "প্রতিটি প্রশ্নের বিস্তারিত সমাধান ও ব্যাখ্যা (Explanations)",
@@ -91,7 +104,11 @@ export default function AdminPackagesSettings() {
   const [formDiscountType, setFormDiscountType] = useState<"flat" | "percentage" | "none">("none");
   const [formDiscountValue, setFormDiscountValue] = useState<number>(0);
   const [formIsActive, setFormIsActive] = useState(true);
+  const [formIsHighlighted, setFormIsHighlighted] = useState(false);
   const [formDiscription, setFormDiscription] = useState<string>("");
+  const [formValidityDays, setFormValidityDays] = useState<number>(30);
+  const [formValidityHours, setFormValidityHours] = useState<number>(0);
+  const [formValidityMins, setFormValidityMins] = useState<number>(0);
 
   // Delete modal confirmation
   const [deleteConfirm, setDeleteConfirm] = useState<Package | null>(null);
@@ -120,7 +137,11 @@ export default function AdminPackagesSettings() {
           discountType: fetchedDiscountType,
           discountValue: Number(data.discountValue) || 0,
           isActive: data.isActive !== undefined ? Boolean(data.isActive) : true,
-          discription: Array.isArray(data.discription) ? data.discription : []
+          isHighlighted: data.isHighlighted !== undefined ? Boolean(data.isHighlighted) : false,
+          discription: Array.isArray(data.discription) ? data.discription : [],
+          validityDays: data.validityDays !== undefined ? Number(data.validityDays) : 0,
+          validityHours: data.validityHours !== undefined ? Number(data.validityHours) : 0,
+          validityMins: data.validityMins !== undefined ? Number(data.validityMins) : 0
         });
       });
 
@@ -155,7 +176,11 @@ export default function AdminPackagesSettings() {
     setFormDiscountType("flat");
     setFormDiscountValue(0);
     setFormIsActive(true);
+    setFormIsHighlighted(false);
     setFormDiscription("");
+    setFormValidityDays(30);
+    setFormValidityHours(0);
+    setFormValidityMins(0);
     setSelectedPackage(null);
     setMode("add");
     setSuccess("");
@@ -172,7 +197,11 @@ export default function AdminPackagesSettings() {
     setFormDiscountType(pkg.discountType);
     setFormDiscountValue(pkg.discountValue);
     setFormIsActive(pkg.isActive);
+    setFormIsHighlighted(pkg.isHighlighted || false);
     setFormDiscription(pkg.discription.join("\n"));
+    setFormValidityDays(pkg.validityDays !== undefined ? pkg.validityDays : 0);
+    setFormValidityHours(pkg.validityHours !== undefined ? pkg.validityHours : 0);
+    setFormValidityMins(pkg.validityMins !== undefined ? pkg.validityMins : 0);
     setMode("edit");
     setSuccess("");
     setError("");
@@ -204,7 +233,11 @@ export default function AdminPackagesSettings() {
         discountType: formDiscountType,
         discountValue: Number(formDiscountValue),
         isActive: Boolean(formIsActive),
+        isHighlighted: Boolean(formIsHighlighted),
         discription: descList,
+        validityDays: Number(formValidityDays) || 0,
+        validityHours: Number(formValidityHours) || 0,
+        validityMins: Number(formValidityMins) || 0,
         updatedAt: new Date().toISOString()
       };
 
@@ -356,6 +389,14 @@ export default function AdminPackagesSettings() {
                         )}
                       </div>
 
+                      {/* Validity block */}
+                      <div className="mt-2 text-xs text-slate-500 flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/60 px-2.5 py-1.5 rounded-lg border border-slate-200/40 dark:border-slate-800">
+                        <span className="font-extrabold text-[10px] uppercase text-slate-400">মেয়াদ (Validity):</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-300">
+                          {pkg.validityDays || 0} দিন {pkg.validityHours || 0} ঘণ্টা {pkg.validityMins || 0} মিনিট
+                        </span>
+                      </div>
+
                       {/* Description List */}
                       <div className="mt-4 border-t border-slate-100 dark:border-slate-800 pt-3">
                         <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold block mb-1.5 uppercase tracking-wide">প্যাকেজের সুবিধাসমূহ (Features):</span>
@@ -501,6 +542,34 @@ export default function AdminPackagesSettings() {
                   </button>
                 </div>
 
+                {/* Highlighted Toggle */}
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                    সেরা অফার / হাইলাইটেড প্যাকেজ
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setFormIsHighlighted(!formIsHighlighted)}
+                    className={`w-full py-2.5 px-4 border rounded-xl flex items-center justify-center gap-1.5 font-bold text-xs cursor-pointer transition-all ${
+                      formIsHighlighted
+                        ? "bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/20 dark:border-indigo-900/30 dark:text-indigo-400"
+                        : "bg-slate-100 border-slate-200 text-slate-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400"
+                    }`}
+                  >
+                    {formIsHighlighted ? (
+                      <>
+                        <Sparkles className="w-4 h-4 text-indigo-500" />
+                        <span>হাইলাইটেড (Highlighted/Featured)</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 text-slate-400" />
+                        <span>সাধারণ (Regular Plan)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
                 {/* Discount Type */}
                 <div className="space-y-1.5">
                   <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
@@ -535,6 +604,48 @@ export default function AdminPackagesSettings() {
                     onChange={(e) => setFormDiscountValue(Number(e.target.value))}
                     className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs font-semibold disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-500"
                   />
+                </div>
+
+                {/* Package Validity Inputs */}
+                <div className="md:col-span-2 border-t border-slate-200 dark:border-slate-800 pt-4 mt-2">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 block mb-3">প্যাকেজের মেয়াদ / মেম্বারশিপের সময়সীমা (Package Validity):</span>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 dark:text-slate-400 font-bold block text-[10px]">দিন (Days) <span className="text-rose-500">*</span></label>
+                      <input
+                        type="number"
+                        min="0"
+                        required
+                        value={formValidityDays}
+                        onChange={(e) => setFormValidityDays(Math.max(0, parseInt(e.target.value) || 0))}
+                        className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs font-semibold"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 dark:text-slate-400 font-bold block text-[10px]">ঘণ্টা (Hours)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="23"
+                        required
+                        value={formValidityHours}
+                        onChange={(e) => setFormValidityHours(Math.max(0, Math.min(23, parseInt(e.target.value) || 0)))}
+                        className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs font-semibold"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-slate-500 dark:text-slate-400 font-bold block text-[10px]">মিনিট (Minutes)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="59"
+                        required
+                        value={formValidityMins}
+                        onChange={(e) => setFormValidityMins(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))}
+                        className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs font-semibold"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Features list (array of strings) */}

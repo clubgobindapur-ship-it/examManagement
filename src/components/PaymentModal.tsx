@@ -64,6 +64,7 @@ export default function PaymentModal({
         username,
         email,
         examId: paymentType === "exam" ? productId : "premium",
+        packageId: paymentType === "exam" ? "" : productId,
         examName: productName,
         amount: price,
         paymentMethod,

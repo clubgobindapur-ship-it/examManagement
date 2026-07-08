@@ -19,6 +19,7 @@ interface Transaction {
   createdAt: string;
   type: "exam" | "premium_monthly" | "premium_yearly" | string;
   verifiedAt?: string;
+  packageId?: string;
 }
 
 export default function PendingPayments() {
@@ -58,7 +59,8 @@ export default function PendingPayments() {
           status: data.status || "pending",
           createdAt: data.createdAt || "",
           type: data.type || "exam",
-          verifiedAt: data.verifiedAt || undefined
+          verifiedAt: data.verifiedAt || undefined,
+          packageId: data.packageId || ""
         });
       });
 
@@ -117,28 +119,81 @@ export default function PendingPayments() {
         }, { merge: true });
       } else if (tx.type && tx.type.startsWith("premium_")) {
         // Global premium status update in users collection
-        let daysToAdd = 30;
-        let subType = "monthly";
-        
-        if (tx.type === "premium_weekly") {
-          daysToAdd = 7;
-          subType = "weekly";
-        } else if (tx.type === "premium_yearly") {
-          daysToAdd = 365;
-          subType = "yearly";
-        } else if (tx.type === "premium_half_yearly") {
-          daysToAdd = 182;
-          subType = "half_yearly";
-        } else if (tx.type === "premium_monthly") {
-          daysToAdd = 30;
-          subType = "monthly";
-        } else {
-          daysToAdd = 30;
-          subType = tx.type.replace("premium_", "");
+        let validityDays = 30;
+        let validityHours = 0;
+        let validityMins = 0;
+        let subType = tx.type.replace("premium_", "");
+
+        // Try to fetch the package to get dynamic validity
+        try {
+          const packId = tx.packageId || tx.examId || tx.type; // fallbacks
+          if (packId) {
+            const packSnap = await getDoc(doc(db, "packages", packId));
+            if (packSnap.exists()) {
+              const packData = packSnap.data();
+              validityDays = packData.validityDays !== undefined ? Number(packData.validityDays) : 0;
+              validityHours = packData.validityHours !== undefined ? Number(packData.validityHours) : 0;
+              validityMins = packData.validityMins !== undefined ? Number(packData.validityMins) : 0;
+              subType = packData.packagetype || subType;
+            } else {
+              // Try to search by packagetype
+              const cleanType = tx.type.replace("premium_", "");
+              const pkgsSnap = await getDocs(collection(db, "packages"));
+              let matchedPack: any = null;
+              pkgsSnap.forEach((d) => {
+                if (d.data().packagetype === cleanType) {
+                  matchedPack = d.data();
+                }
+              });
+              if (matchedPack) {
+                validityDays = matchedPack.validityDays !== undefined ? Number(matchedPack.validityDays) : 0;
+                validityHours = matchedPack.validityHours !== undefined ? Number(matchedPack.validityHours) : 0;
+                validityMins = matchedPack.validityMins !== undefined ? Number(matchedPack.validityMins) : 0;
+                subType = matchedPack.packagetype || subType;
+              } else {
+                // Hardcoded fallback if package not found anywhere
+                if (tx.type === "premium_weekly") {
+                  validityDays = 7;
+                  subType = "weekly";
+                } else if (tx.type === "premium_yearly") {
+                  validityDays = 365;
+                  subType = "yearly";
+                } else if (tx.type === "premium_half_yearly") {
+                  validityDays = 182;
+                  subType = "half_yearly";
+                } else {
+                  validityDays = 30;
+                  subType = "monthly";
+                }
+              }
+            }
+          }
+        } catch (packErr) {
+          console.error("Error loading package validity:", packErr);
         }
 
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() + daysToAdd);
+        // Check if user already has an active premium membership to extend it
+        let startDate = new Date();
+        try {
+          const userSnap = await getDoc(doc(db, "users", tx.userId));
+          if (userSnap.exists()) {
+            const uData = userSnap.data();
+            if (uData.premiumUntil) {
+              const existingUntil = new Date(uData.premiumUntil);
+              if (existingUntil > startDate) {
+                startDate = existingUntil; // Extend from current active expiration date!
+              }
+            }
+          }
+        } catch (userErr) {
+          console.error("Error fetching user active subscription:", userErr);
+        }
+
+        // Calculate target expiration date by adding dynamic validity
+        const targetDate = new Date(startDate.getTime());
+        if (validityDays > 0) targetDate.setDate(targetDate.getDate() + validityDays);
+        if (validityHours > 0) targetDate.setHours(targetDate.getHours() + validityHours);
+        if (validityMins > 0) targetDate.setMinutes(targetDate.getMinutes() + validityMins);
 
         const userRef = doc(db, "users", tx.userId);
         await setDoc(userRef, {

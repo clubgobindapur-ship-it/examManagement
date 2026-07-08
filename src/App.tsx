@@ -744,34 +744,86 @@ export default function App() {
                   <p className="text-sm text-slate-400 font-medium">পরীক্ষার সময়সূচী ডাউনলোড করা হচ্ছে...</p>
                 </div>
               ) : (
-                routineExams.length === 0 ? (
-                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-12 text-center max-w-md mx-auto space-y-3 my-8">
-                    <Calendar className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto" />
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">কোনো পরীক্ষার রুটিন নির্ধারিত নেই।</p>
-                    <p className="text-xs text-slate-400">নতুন পরীক্ষার তারিখ নির্ধারণের জন্য গুগল শিটে examDate কলামে তারিখ (mm/dd/yy) যুক্ত করুন।</p>
+                <>
+                  {routineExams.length === 0 ? (
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-12 text-center max-w-md mx-auto space-y-3 my-8">
+                      <Calendar className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto" />
+                      <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">কোনো পরীক্ষার রুটিন নির্ধারিত নেই।</p>
+                      <p className="text-xs text-slate-400">নতুন পরীক্ষার তারিখ নির্ধারণের জন্য গুগল শিটে examDate কলামে তারিখ (mm/dd/yy) যুক্ত করুন।</p>
+                    </div>
+                  ) : (
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {routineExams.map((exam) => (
+                        <ExamCard
+                          key={exam.id}
+                          exam={exam}
+                          currentUser={currentUser}
+                          onStartExam={handleStartExam}
+                          isAttempted={attemptedExamIds.includes(exam.id)}
+                          isLocked={isExamLockedForUser(exam)}
+                          onUnlock={(lockedExam) => {
+                            if (!currentUser) {
+                              setIsAuthOpen(true);
+                              return;
+                            }
+                            setSelectedUnlockExam(lockedExam);
+                            setIsUnlockModalOpen(true);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Persistent Weekly Schedule Table */}
+                  <div className="mt-12 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 max-w-4xl mx-auto shadow-sm">
+                    <div className="flex items-center gap-2 pb-4 border-b border-slate-100 dark:border-slate-800">
+                      <div className="p-2 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl text-indigo-600 dark:text-indigo-400">
+                        <Calendar className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">সাপ্তাহিক নিয়মিত পরীক্ষার রুটিন</h3>
+                        <p className="text-xs text-slate-400 mt-0.5">BCS, প্রাইমারি ও অন্যান্য সরকারি চাকরি পরীক্ষার নিয়মিত সময়সূচী</p>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-800">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="bg-slate-50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-350 font-bold border-b border-slate-100 dark:border-slate-800 uppercase">
+                            <th className="py-3 px-4 font-bold">পরীক্ষার দিন</th>
+                            <th className="py-3 px-4 font-bold">বিষয় ও অধ্যায়</th>
+                            <th className="py-3 px-4 font-bold">সময়সীমা ও পূর্ণমান</th>
+                            <th className="py-3 px-4 font-bold text-center">পরীক্ষার সময়</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-600 dark:text-slate-350">
+                          <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
+                            <td className="py-4 px-4 font-bold text-indigo-600 dark:text-indigo-400">শনিবার (Saturday)</td>
+                            <td className="py-4 px-4 font-semibold">বাংলা ভাষা, ব্যাকরণ ও বাংলা সাহিত্য এবং মানসিক দক্ষতা</td>
+                            <td className="py-4 px-4 font-mono font-medium">৩০ মিনিট | ৫০ নম্বর</td>
+                            <td className="py-4 px-4 text-center"><span className="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 font-bold rounded-lg">রাত ০৯:০০ টা</span></td>
+                          </tr>
+                          <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
+                            <td className="py-4 px-4 font-bold text-indigo-600 dark:text-indigo-400">সোমবার (Monday)</td>
+                            <td className="py-4 px-4 font-semibold">সাধারণ জ্ঞান, বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলী এবং সাম্প্রতিক</td>
+                            <td className="py-4 px-4 font-mono font-medium">৩০ মিনিট | ৫০ নম্বর</td>
+                            <td className="py-4 px-4 text-center"><span className="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 font-bold rounded-lg">রাত ০৯:০০ টা</span></td>
+                          </tr>
+                          <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
+                            <td className="py-4 px-4 font-bold text-indigo-600 dark:text-indigo-400">বুধবার (Wednesday)</td>
+                            <td className="py-4 px-4 font-semibold">ইংরেজি ভাষা ও সাহিত্য, গাণিতিক যুক্তি ও শর্টকাট টেকনিকস</td>
+                            <td className="py-4 px-4 font-mono font-medium">৩০ মিনিট | ৫০ নম্বর</td>
+                            <td className="py-4 px-4 text-center"><span className="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 font-bold rounded-lg">রাত ০৯:০০ টা</span></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="bg-amber-50/50 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
+                      💡 <b>রুটিন নির্দেশিকা:</b> নির্ধারিত দিনে রাত ০৯:০০ মিনিটে লাইভ পরীক্ষা চালু করা হবে। পরীক্ষা শেষ হওয়ার পর প্রতিটি প্রশ্নের সমাধান ও ফলাফল স্বয়ংক্রিয়ভাবে প্রকাশ পাবে।
+                    </div>
                   </div>
-                ) : (
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {routineExams.map((exam) => (
-                      <ExamCard
-                        key={exam.id}
-                        exam={exam}
-                        currentUser={currentUser}
-                        onStartExam={handleStartExam}
-                        isAttempted={attemptedExamIds.includes(exam.id)}
-                        isLocked={isExamLockedForUser(exam)}
-                        onUnlock={(lockedExam) => {
-                          if (!currentUser) {
-                            setIsAuthOpen(true);
-                            return;
-                          }
-                          setSelectedUnlockExam(lockedExam);
-                          setIsUnlockModalOpen(true);
-                        }}
-                      />
-                    ))}
-                  </div>
-                )
+                </>
               )}
             </motion.div>
           )}

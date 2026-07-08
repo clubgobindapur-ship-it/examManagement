@@ -3,7 +3,7 @@ import { db } from "../firebase";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { trackEvent } from "../lib/analytics";
 import { motion } from "motion/react";
-import { Check, Sparkles, Zap, ShieldAlert, ShieldCheck, Loader2, Award } from "lucide-react";
+import { Check, Sparkles, Zap, ShieldAlert, ShieldCheck, Loader2, Award, Tag } from "lucide-react";
 import PaymentModal from "./PaymentModal";
 
 interface PricingProps {
@@ -22,6 +22,10 @@ interface Package {
   discountValue: number;
   isActive: boolean;
   discription: string[];
+  isHighlighted?: boolean;
+  validityDays?: number;
+  validityHours?: number;
+  validityMins?: number;
 }
 
 const DEFAULT_PACKAGES: Package[] = [
@@ -71,6 +75,7 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
     type: string;
     name: string;
     price: number;
+    packageId?: string;
   } | null>(null);
 
   // Active user's subscription details
@@ -106,7 +111,11 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
             discountType: fetchedDiscountType,
             discountValue: Number(data.discountValue) || 0,
             isActive: data.isActive !== undefined ? Boolean(data.isActive) : true,
-            discription: Array.isArray(data.discription) ? data.discription : []
+            isHighlighted: data.isHighlighted !== undefined ? Boolean(data.isHighlighted) : false,
+            discription: Array.isArray(data.discription) ? data.discription : [],
+            validityDays: data.validityDays !== undefined ? Number(data.validityDays) : 0,
+            validityHours: data.validityHours !== undefined ? Number(data.validityHours) : 0,
+            validityMins: data.validityMins !== undefined ? Number(data.validityMins) : 0
           });
         }
       });
@@ -150,7 +159,7 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
     loadPricingAndUserSubscription();
   }, [currentUser]);
 
-  const handleSelectPlan = (type: string, name: string, price: number) => {
+  const handleSelectPlan = (type: string, name: string, price: number, packageId?: string) => {
     trackEvent("select_pricing_plan", { type, price });
 
     if (!currentUser) {
@@ -164,7 +173,7 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
       return;
     }
 
-    setSelectedPlan({ type, name, price });
+    setSelectedPlan({ type, name, price, packageId });
     setIsPaymentOpen(true);
   };
 
@@ -230,6 +239,7 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
         {packagesList.map((pkg) => {
           const finalPrice = getDiscountedPrice(pkg);
+          const isHighlighted = pkg.isHighlighted === true;
           const isYearly = pkg.packagetype === "yearly";
 
           return (
@@ -237,21 +247,28 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
               key={pkg.id}
               whileHover={{ y: -4 }}
               className={`bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xs relative overflow-hidden transition-all flex flex-col justify-between border ${
-                isYearly 
+                isHighlighted 
                   ? "border-2 border-indigo-600 dark:border-indigo-500 shadow-md" 
                   : "border-slate-200 dark:border-slate-800"
               }`}
             >
-              {isYearly && (
+              {isHighlighted && (
                 <div className="absolute top-0 right-0 bg-indigo-600 text-white font-extrabold text-[9px] uppercase tracking-widest px-4 py-1.5 rounded-bl-2xl">
                   Best Value • সাশ্রয়ী
                 </div>
               )}
 
-              <div className="space-y-6">
+              {pkg.discountType !== "none" && pkg.discountValue > 0 && (
+                <div className="absolute top-0 left-0 bg-rose-600 text-white font-extrabold text-[10px] px-3 py-1 rounded-br-2xl shadow-sm flex items-center gap-1 z-10 animate-pulse">
+                  <Tag className="w-3 h-3" />
+                  <span>{pkg.discountType === "flat" ? `${pkg.discountValue}৳ ছাড়!` : `${pkg.discountValue}% ছাড়!`}</span>
+                </div>
+              )}
+
+              <div className="space-y-6 pt-2">
                 <div className="space-y-2">
                   <span className={`text-xs font-black uppercase tracking-widest px-3 py-1 rounded-lg inline-block ${
-                    isYearly 
+                    isHighlighted 
                       ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/20" 
                       : "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20"
                   }`}>
@@ -263,7 +280,7 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
 
                 {/* Price block */}
                 <div className="flex items-baseline gap-2">
-                  <span className={`text-4xl font-black ${isYearly ? "text-indigo-600 dark:text-indigo-400" : "text-slate-900 dark:text-white"}`}>
+                  <span className={`text-4xl font-black ${isHighlighted ? "text-indigo-600 dark:text-indigo-400" : "text-slate-900 dark:text-white"}`}>
                     {finalPrice} ৳
                   </span>
                   {pkg.discountType !== "none" && pkg.discountValue > 0 && (
@@ -286,18 +303,26 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
                     </li>
                   ))}
                 </ul>
+
+                {/* Dynamic Validity Badge inside Package Card */}
+                <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800/80 p-3 rounded-2xl flex items-center justify-between text-xs mt-4">
+                  <span className="text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider text-[9px]">মেয়াদ (Validity):</span>
+                  <span className="font-black text-slate-700 dark:text-slate-300">
+                    {pkg.validityDays || 0} দিন {pkg.validityHours || 0} ঘণ্টা {pkg.validityMins || 0} মিনিট
+                  </span>
+                </div>
               </div>
 
               <div className="pt-8">
                 <button
-                  onClick={() => handleSelectPlan(`premium_${pkg.packagetype}`, `${pkg.packageTitle} Membership`, finalPrice)}
+                  onClick={() => handleSelectPlan(`premium_${pkg.packagetype}`, `${pkg.packageTitle} Membership`, finalPrice, pkg.id)}
                   disabled={subscriptionStatus.isPremium}
                   className={`w-full py-3.5 px-4 font-black text-xs rounded-2xl cursor-pointer transition-all shadow-md ${
                     subscriptionStatus.isPremium
-                      ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed shadow-none"
-                      : isYearly
+                      ? "bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed shadow-none"
+                      : isHighlighted
                       ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-100 dark:shadow-none hover:shadow-lg hover:shadow-indigo-200"
-                      : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
+                      : "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700 shadow-blue-100 dark:shadow-none"
                   }`}
                 >
                   {subscriptionStatus.isPremium ? "ইতিমধ্যে প্রিমিয়াম মেম্বার" : `${pkg.packageTitle} নিন`}
@@ -320,7 +345,7 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
           paymentType={selectedPlan.type}
           price={selectedPlan.price}
           productName={selectedPlan.name}
-          productId={selectedPlan.type}
+          productId={selectedPlan.packageId || selectedPlan.type}
           onSuccess={() => {
             onSuccessPayment();
           }}

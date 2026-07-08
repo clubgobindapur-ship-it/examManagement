@@ -13,7 +13,7 @@ interface AdminSettingsProps {
 }
 
 export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminSettingsProps) {
-  const [activeTab, setActiveTab] = useState<"sheets" | "security" | "pricing">("sheets");
+  const [activeTab, setActiveTab] = useState<"sheets" | "security">("sheets");
   const [googleAppsScriptUrl, setGoogleAppsScriptUrl] = useState(() => {
     return localStorage.getItem("googleAppsScriptUrl") || "";
   });
@@ -264,20 +264,6 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
           <KeyRound className="w-4 h-4" />
           <span>Admin Security Credentials</span>
         </button>
-        <button
-          onClick={() => {
-            setActiveTab("pricing");
-            trackEvent("admin_settings_tab_pricing");
-          }}
-          className={`flex-1 py-4 px-6 text-xs font-bold border-b-2 transition-all flex items-center justify-center gap-2 cursor-pointer ${
-            activeTab === "pricing" 
-              ? "border-blue-600 text-blue-600 bg-white" 
-              : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50"
-          }`}
-        >
-          <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-          <span>Subscription Packages Pricing</span>
-        </button>
       </div>
 
       {/* Main Container */}
@@ -499,71 +485,6 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
                 >
                   <Save className="w-4 h-4" />
                   <span>{isSavingAdmin ? "আপডেট হচ্ছে..." : "লগইন তথ্য আপডেট করুন"}</span>
-                </button>
-              </div>
-            </div>
-          </form>
-        )}
-
-        {activeTab === "pricing" && (
-          <form onSubmit={handleSavePricing} className="space-y-6 text-xs font-semibold">
-            <div>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-indigo-600" />
-                <span>Subscription Packages & Pricing Configuration</span>
-              </h3>
-              <p className="text-xs text-slate-500 mt-1">
-                মাসিক ও বার্ষিক প্রিমিয়াম মেম্বারশিপের মূল্য তালিকা এবং ফিচারসমূহ আপডেট করুন।
-              </p>
-            </div>
-
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 uppercase tracking-wide block">Monthly Pack Price (BDT)</label>
-                  <input
-                    type="number"
-                    required
-                    value={monthlyPrice}
-                    onChange={(e) => setMonthlyPrice(Number(e.target.value))}
-                    placeholder="150"
-                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 uppercase tracking-wide block">Yearly Pack Price (BDT)</label>
-                  <input
-                    type="number"
-                    required
-                    value={yearlyPrice}
-                    onChange={(e) => setYearlyPrice(Number(e.target.value))}
-                    placeholder="1200"
-                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-slate-500 dark:text-slate-400 uppercase tracking-wide block">Features / Descriptions (One per line)</label>
-                <textarea
-                  required
-                  rows={6}
-                  value={descriptions}
-                  onChange={(e) => setDescriptions(e.target.value)}
-                  placeholder="ফিচারসমূহ লিখুন..."
-                  className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-sans"
-                />
-              </div>
-
-              <div className="flex justify-end pt-2">
-                <button
-                  type="submit"
-                  disabled={isSavingPricing}
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all cursor-pointer"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>{isSavingPricing ? "সংরক্ষণ হচ্ছে..." : "মূল্য তালিকা সংরক্ষণ করুন"}</span>
                 </button>
               </div>
             </div>

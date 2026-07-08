@@ -32,6 +32,7 @@ interface Exam {
   penaltyMark?: number;
   isFree?: boolean;
   price?: number;
+  questionCount?: number;
 }
 
 interface AdminExamsSettingsProps {
@@ -58,6 +59,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
   const [formName, setFormName] = useState("");
   const [formTabName, setFormTabName] = useState("");
   const [formTimeLimit, setFormTimeLimit] = useState<number>(15);
+  const [formQuestionCount, setFormQuestionCount] = useState<number>(10);
   const [formStatus, setFormStatus] = useState("draft");
   const [formExamDate, setFormExamDate] = useState("");
   const [formMarkPerQuestion, setFormMarkPerQuestion] = useState<number>(1);
@@ -87,6 +89,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
           examDate: data.examDate ? String(data.examDate) : undefined,
           markPerQuestion: data.markPerQuestion !== undefined ? Number(data.markPerQuestion) : 1,
           penaltyMark: data.penaltyMark !== undefined ? Number(data.penaltyMark) : 0.25,
+          questionCount: data.questionCount !== undefined ? Number(data.questionCount) : undefined,
           isFree: data.isFree !== undefined ? Boolean(data.isFree) : true,
           price: data.price !== undefined ? Number(data.price) : 0
         });
@@ -113,6 +116,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
     setFormName("");
     setFormTabName("");
     setFormTimeLimit(15);
+    setFormQuestionCount(10);
     setFormStatus("draft");
     setFormExamDate("");
     setFormMarkPerQuestion(1);
@@ -136,6 +140,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
     setFormName(exam.name);
     setFormTabName(exam.tabName);
     setFormTimeLimit(exam.timeLimit);
+    setFormQuestionCount(exam.questionCount !== undefined ? exam.questionCount : 10);
     setFormStatus(exam.status);
     setFormExamDate(exam.examDate || "");
     setFormMarkPerQuestion(exam.markPerQuestion !== undefined ? exam.markPerQuestion : 1);
@@ -178,6 +183,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
         name: formName.trim(),
         tabName: formTabName.trim(),
         timeLimit: Number(formTimeLimit),
+        questionCount: Number(formQuestionCount),
         status: formStatus,
         examDate: formExamDate.trim() || null,
         markPerQuestion: Number(formMarkPerQuestion),
@@ -301,7 +307,15 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
                       </td>
                       <td className="py-4 px-4">
                         <div className="font-bold text-slate-800 dark:text-slate-200">{exam.name}</div>
-                        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">ID: {exam.id}</div>
+                        <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+                          <span>ID: {exam.id}</span>
+                          {exam.questionCount !== undefined && exam.questionCount > 0 && (
+                            <>
+                              <span>•</span>
+                              <span className="text-indigo-600 dark:text-indigo-400 font-bold">প্রশ্নের সংখ্যা: {exam.questionCount}টি</span>
+                            </>
+                          )}
+                        </div>
                       </td>
                       <td className="py-4 px-4 font-mono text-slate-600 dark:text-slate-400 font-medium">
                         {exam.tabName}
@@ -450,6 +464,21 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
                     value={formTimeLimit}
                     onChange={(e) => setFormTimeLimit(Number(e.target.value))}
                     placeholder="যেমন: 15"
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-semibold"
+                  />
+                </div>
+
+                {/* Number of Questions */}
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                    প্রশ্নের সংখ্যা (Number of Questions) <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={formQuestionCount}
+                    onChange={(e) => setFormQuestionCount(Number(e.target.value))}
+                    placeholder="যেমন: 10"
                     className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-semibold"
                   />
                 </div>

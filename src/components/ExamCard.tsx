@@ -12,7 +12,8 @@ import {
   ShieldAlert,
   Check,
   Calendar,
-  DollarSign
+  DollarSign,
+  HelpCircle
 } from "lucide-react";
 
 interface ExamCardProps {
@@ -121,6 +122,13 @@ export default function ExamCard({
             </div>
           )}
 
+          {exam.questionCount !== undefined && exam.questionCount > 0 && (
+            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-350 font-medium">
+              <HelpCircle className="w-4 h-4 text-indigo-500" />
+              <span className="text-xs font-semibold">প্রশ্নের সংখ্যা: {exam.questionCount}টি</span>
+            </div>
+          )}
+
           <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 mt-2">
             <span className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider">নম্বর বিভাজন (Marking Scheme)</span>
             <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-600 dark:text-slate-405 font-bold font-mono">
@@ -136,7 +144,7 @@ export default function ExamCard({
       </div>
 
       {/* Button/Gate footer */}
-      <div className="p-6 pt-0 border-t border-slate-150 dark:border-slate-800 bg-slate-50/10">
+      <div className="p-6 pt-0 border-t-0 bg-slate-50/10">
         {!isLive ? (
           <div className="flex items-center justify-between text-slate-400 py-3 text-xs font-semibold">
             <span className="flex items-center gap-1.5">

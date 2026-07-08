@@ -10,6 +10,7 @@ export interface Exam {
   penaltyMark?: number;
   isFree?: boolean;
   price?: number;
+  questionCount?: number;
 }
 
 export interface Question {
