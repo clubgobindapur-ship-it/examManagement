@@ -17,6 +17,10 @@ import AdminLogin from "./components/AdminLogin";
 import AdminSettings from "./components/AdminSettings";
 import UserManagement from "./components/UserManagement";
 import AdManagement from "./components/AdManagement";
+import Pricing from "./components/Pricing";
+import PaymentModal from "./components/PaymentModal";
+import PendingPayments from "./components/PendingPayments";
+import AdminExamsSettings from "./components/AdminExamsSettings";
 
 // Analytics
 import { trackEvent, initGA } from "./lib/analytics";
@@ -65,18 +69,33 @@ const parseExamDate = (dateStr?: string): number => {
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [currentView, setCurrentView] = useState<"home" | "live" | "routine" | "archive" | "leaderboard" | "active_exam" | "admin">(() => {
-    try {
-      if (typeof window !== "undefined" && window.location.pathname === "/admin") {
-        return "admin";
-      }
-    } catch (e) {}
-    return "home";
-  });
+  const [currentView, setCurrentView] = useState<"home" | "live" | "routine" | "archive" | "leaderboard" | "active_exam" | "admin" | "pricing">("home");
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const [activeAdminTab, setActiveAdminTab] = useState<"users" | "ads" | "exams">("users");
+  const [activeAdminTab, setActiveAdminTab] = useState<"users" | "ads" | "exams" | "exam_configs" | "payments">("users");
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   
+  // Theme settings
+  const [theme, setTheme] = useState<"light" | "dark" | string>(() => {
+    try {
+      const saved = localStorage.getItem("theme");
+      if (saved === "dark" || saved === "light") return saved;
+    } catch (e) {}
+    return "light";
+  });
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
+
+  // User Premium and Subscriptions state
+  const [userPremiumUntil, setUserPremiumUntil] = useState<string | null>(null);
+  const [userSubscriptions, setUserSubscriptions] = useState<{ [examId: string]: boolean }>({});
+  const [loadingSubscriptions, setLoadingSubscriptions] = useState(false);
+
+  // Locked exam unlock/purchase state
+  const [selectedUnlockExam, setSelectedUnlockExam] = useState<Exam | null>(null);
+  const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
+
   // App settings & Exams state
   const [googleAppsScriptUrl, setGoogleAppsScriptUrl] = useState("https://script.google.com/macros/s/AKfycbyXX86SurWUbz4CXQFWdyqud8zxXKsJZ5ihu9Cr4kzhxip5a-teiHb17HpCKFTPX3v3/exec");
   const [exams, setExams] = useState<Exam[]>([]);
@@ -113,7 +132,10 @@ export default function App() {
     if (user) {
       try {
         const q = query(collection(db, "attempts"), where("userId", "==", user.uid));
-        const snap = await getDocs(q);
+        const snap = await getDocs(q).catch((getErr) => {
+          handleFirestoreError(getErr, OperationType.LIST, "attempts");
+          throw getErr;
+        });
         snap.forEach((docSnap) => {
           const data = docSnap.data() as Attempt;
           if (data.examId) {
@@ -133,6 +155,80 @@ export default function App() {
     setUserAttempts(fetchedAttemptsList);
   };
 
+  // Helper to load premium membership and individual exam subscriptions
+  const fetchUserPremiumAndSubscriptions = async (user: User) => {
+    setLoadingSubscriptions(true);
+    try {
+      // 1. Fetch user document for premium date
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef).catch((getErr) => {
+        handleFirestoreError(getErr, OperationType.GET, `users/${user.uid}`);
+        throw getErr;
+      });
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        if (userData.premiumUntil) {
+          setUserPremiumUntil(userData.premiumUntil);
+        } else {
+          setUserPremiumUntil(null);
+        }
+      } else {
+        setUserPremiumUntil(null);
+      }
+
+      // 2. Fetch individual single-exam purchases
+      const subsRef = collection(db, "users", user.uid, "subscriptions");
+      const subsSnap = await getDocs(subsRef).catch((getErr) => {
+        handleFirestoreError(getErr, OperationType.LIST, `users/${user.uid}/subscriptions`);
+        throw getErr;
+      });
+      const activeSubs: { [examId: string]: boolean } = {};
+      subsSnap.forEach((docSnap) => {
+        const data = docSnap.data();
+        if (data.isVerified === true || data.status === "verified") {
+          activeSubs[docSnap.id] = true;
+        }
+      });
+      setUserSubscriptions(activeSubs);
+    } catch (err) {
+      console.error("Error loading user subscriptions/premium:", err);
+    } finally {
+      setLoadingSubscriptions(false);
+    }
+  };
+
+  // Helper to verify if an exam is currently locked for the active user
+  const isExamLockedForUser = (exam: Exam): boolean => {
+    if (exam.isFree !== false) {
+      return false; // Free exams are never locked
+    }
+    if (!currentUser) {
+      return true; // Unauthenticated users cannot view paid exams
+    }
+    if (userPremiumUntil) {
+      const expiry = new Date(userPremiumUntil).getTime();
+      if (expiry > Date.now()) {
+        return false; // Active monthly/yearly premium unlocks everything
+      }
+    }
+    if (userSubscriptions[exam.id] === true) {
+      return false; // Individual manual exam purchase verified
+    }
+    return true;
+  };
+
+  // Theme synchronization effect
+  useEffect(() => {
+    try {
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+      localStorage.setItem("theme", theme);
+    } catch (e) {}
+  }, [theme]);
+
   // 1. Firebase auth listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -145,8 +241,11 @@ export default function App() {
         }
         setAttemptedExamIds([]);
         setUserAttempts([]);
+        setUserPremiumUntil(null);
+        setUserSubscriptions({});
       } else {
         fetchUserAttempts(user);
+        fetchUserPremiumAndSubscriptions(user);
       }
     });
     return unsubscribe;
@@ -260,6 +359,38 @@ export default function App() {
         combinedExams = [...DEFAULT_EXAMS];
       }
 
+      // Query firestore exams collection to fetch custom pricing and scoring configs
+      try {
+        const snap = await getDocs(collection(db, "exams"));
+        const fsExams: { [key: string]: any } = {};
+        snap.forEach((docSnap) => {
+          fsExams[docSnap.id] = docSnap.data();
+        });
+
+        combinedExams = combinedExams.map((exam) => {
+          const config = fsExams[exam.id];
+          if (config) {
+            return {
+              ...exam,
+              markPerQuestion: config.markPerQuestion !== undefined ? Number(config.markPerQuestion) : 1,
+              penaltyMark: config.penaltyMark !== undefined ? Number(config.penaltyMark) : 0.25,
+              isFree: config.isFree !== undefined ? Boolean(config.isFree) : true,
+              price: config.price !== undefined ? Number(config.price) : 0
+            };
+          } else {
+            return {
+              ...exam,
+              markPerQuestion: 1,
+              penaltyMark: 0.25,
+              isFree: true,
+              price: 0
+            };
+          }
+        });
+      } catch (fsErr) {
+        console.warn("Could not load exam configs from Firestore:", fsErr);
+      }
+
       // Sort by slNo
       combinedExams.sort((a, b) => a.slNo - b.slNo);
       setExams(combinedExams);
@@ -330,7 +461,7 @@ export default function App() {
   const archiveExams = exams.filter(e => e.status === "archived" || e.status === "archive");
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] flex flex-col font-sans text-slate-900">
+    <div className="min-h-screen bg-[#F3F4F6] dark:bg-slate-950 flex flex-col font-sans text-slate-900 dark:text-slate-100 transition-colors">
       {/* Navbar component */}
       {currentView === "admin" && isAdminLoggedIn ? (
         <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 flex-shrink-0 text-white">
@@ -357,13 +488,13 @@ export default function App() {
               </div>
 
               {/* Navigation Items */}
-              <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-1 scrollbar-none" style={{ scrollbarWidth: "none" }}>
                 <button
                   onClick={() => {
                     setActiveAdminTab("users");
                     trackEvent("admin_nav_users_click");
                   }}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 ${
                     activeAdminTab === "users"
                       ? "bg-blue-600 text-white"
                       : "text-slate-400 hover:text-white hover:bg-slate-800"
@@ -377,7 +508,7 @@ export default function App() {
                     setActiveAdminTab("ads");
                     trackEvent("admin_nav_ads_click");
                   }}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 ${
                     activeAdminTab === "ads"
                       ? "bg-blue-600 text-white"
                       : "text-slate-400 hover:text-white hover:bg-slate-800"
@@ -391,13 +522,41 @@ export default function App() {
                     setActiveAdminTab("exams");
                     trackEvent("admin_nav_exams_click");
                   }}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 ${
                     activeAdminTab === "exams"
                       ? "bg-blue-600 text-white"
                       : "text-slate-400 hover:text-white hover:bg-slate-800"
                   }`}
                 >
-                  Exam Settings
+                  App Settings
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveAdminTab("exam_configs");
+                    trackEvent("admin_nav_exam_configs_click");
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                    activeAdminTab === "exam_configs"
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  Pricing & Marks
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveAdminTab("payments");
+                    trackEvent("admin_nav_payments_click");
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                    activeAdminTab === "payments"
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  Pending Payments
                 </button>
 
                 <div className="w-[1px] h-5 bg-slate-800 mx-1 shrink-0" />
@@ -408,7 +567,7 @@ export default function App() {
                     setCurrentView("home");
                     trackEvent("admin_logout_click");
                   }}
-                  className="px-3 py-1.5 bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                  className="px-3 py-1.5 bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0"
                 >
                   Logout
                 </button>
@@ -439,6 +598,8 @@ export default function App() {
           liveCount={liveExams.length}
           routineCount={routineExams.length}
           archiveCount={archiveExams.length}
+          theme={theme as any}
+          toggleTheme={toggleTheme}
         />
       )}
 
@@ -498,20 +659,20 @@ export default function App() {
               exit={{ opacity: 0, y: -15 }}
               className="space-y-6"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                 <div>
-                  <h2 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2.5">
+                  <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2.5">
                     <span className="relative flex h-3 w-3">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                     </span>
                     <span>চলতি পরীক্ষাসমূহ (Live Exams)</span>
                   </h2>
-                  <p className="text-xs text-slate-400 mt-1">বর্তমানে অংশ নেওয়ার জন্য উপলব্ধ পরীক্ষাসমূহ। কুইজে অংশ নিতে নিচের পরীক্ষাটি নির্বাচন করুন।</p>
+                  <p className="text-xs text-slate-450 dark:text-slate-400 mt-1">বর্তমানে অংশ নেওয়ার জন্য উপলব্ধ পরীক্ষাসমূহ। কুইজে অংশ নিতে নিচের পরীক্ষাটি নির্বাচন করুন।</p>
                 </div>
                 <button 
                   onClick={() => loadExams()}
-                  className="p-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-500 hover:text-slate-700 transition-all flex items-center gap-1.5 text-xs font-bold shrink-0 self-start sm:auto cursor-pointer font-mono"
+                  className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-all flex items-center gap-1.5 text-xs font-bold shrink-0 self-start sm:auto cursor-pointer font-mono"
                   title="Reload Exams"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${loadingExams ? "animate-spin" : ""}`} />
@@ -526,9 +687,9 @@ export default function App() {
                 </div>
               ) : (
                 liveExams.length === 0 ? (
-                  <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-12 text-center max-w-md mx-auto space-y-3 my-8">
-                    <BookOpen className="w-8 h-8 text-slate-300 mx-auto" />
-                    <p className="text-sm text-slate-500 font-medium">বর্তমানে কোনো চলতি পরীক্ষা নেই।</p>
+                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-12 text-center max-w-md mx-auto space-y-3 my-8">
+                    <BookOpen className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto" />
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">বর্তমানে কোনো চলতি পরীক্ষা নেই।</p>
                     <p className="text-xs text-slate-400">পরীক্ষার রুটিন চেক করুন অথবা কুইজ লোড করতে পুনরায় চেষ্টা করুন।</p>
                   </div>
                 ) : (
@@ -540,6 +701,15 @@ export default function App() {
                         currentUser={currentUser}
                         onStartExam={handleStartExam}
                         isAttempted={attemptedExamIds.includes(exam.id)}
+                        isLocked={isExamLockedForUser(exam)}
+                        onUnlock={(lockedExam) => {
+                          if (!currentUser) {
+                            setIsAuthOpen(true);
+                            return;
+                          }
+                          setSelectedUnlockExam(lockedExam);
+                          setIsUnlockModalOpen(true);
+                        }}
                       />
                     ))}
                   </div>
@@ -556,17 +726,17 @@ export default function App() {
               exit={{ opacity: 0, y: -15 }}
               className="space-y-6"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                 <div>
-                  <h2 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                  <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
                     <Calendar className="w-6 h-6 text-blue-500" />
                     <span>পরীক্ষার রুটিন (Exam Routine)</span>
                   </h2>
-                  <p className="text-xs text-slate-400 mt-1">আসন্ন পরীক্ষার তালিকা এবং প্রকাশের তারিখসমূহ।</p>
+                  <p className="text-xs text-slate-450 dark:text-slate-400 mt-1">আসন্ন পরীক্ষার তালিকা এবং প্রকাশের তারিখসমূহ।</p>
                 </div>
                 <button 
                   onClick={() => loadExams()}
-                  className="p-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-500 hover:text-slate-700 transition-all flex items-center gap-1.5 text-xs font-bold shrink-0 self-start sm:auto cursor-pointer font-mono"
+                  className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-all flex items-center gap-1.5 text-xs font-bold shrink-0 self-start sm:auto cursor-pointer font-mono"
                   title="Reload Exams"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${loadingExams ? "animate-spin" : ""}`} />
@@ -581,9 +751,9 @@ export default function App() {
                 </div>
               ) : (
                 routineExams.length === 0 ? (
-                  <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-12 text-center max-w-md mx-auto space-y-3 my-8">
-                    <Calendar className="w-8 h-8 text-slate-300 mx-auto" />
-                    <p className="text-sm text-slate-500 font-medium">কোনো পরীক্ষার রুটিন নির্ধারিত নেই।</p>
+                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-12 text-center max-w-md mx-auto space-y-3 my-8">
+                    <Calendar className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto" />
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">কোনো পরীক্ষার রুটিন নির্ধারিত নেই।</p>
                     <p className="text-xs text-slate-400">নতুন পরীক্ষার তারিখ নির্ধারণের জন্য গুগল শিটে examDate কলামে তারিখ (mm/dd/yy) যুক্ত করুন।</p>
                   </div>
                 ) : (
@@ -595,6 +765,15 @@ export default function App() {
                         currentUser={currentUser}
                         onStartExam={handleStartExam}
                         isAttempted={attemptedExamIds.includes(exam.id)}
+                        isLocked={isExamLockedForUser(exam)}
+                        onUnlock={(lockedExam) => {
+                          if (!currentUser) {
+                            setIsAuthOpen(true);
+                            return;
+                          }
+                          setSelectedUnlockExam(lockedExam);
+                          setIsUnlockModalOpen(true);
+                        }}
                       />
                     ))}
                   </div>
@@ -611,17 +790,17 @@ export default function App() {
               exit={{ opacity: 0, y: -15 }}
               className="space-y-6"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                 <div>
-                  <h2 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                  <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
                     <Archive className="w-6 h-6 text-slate-500" />
                     <span>আর্কাইভ পরীক্ষা (Archive Exams)</span>
                   </h2>
-                  <p className="text-xs text-slate-400 mt-1">পূর্ববর্তী সময়ে সমাপ্ত হওয়া পরীক্ষাসমূহের আর্কাইভ তালিকা।</p>
+                  <p className="text-xs text-slate-450 dark:text-slate-400 mt-1">পূর্ববর্তী সময়ে সমাপ্ত হওয়া পরীক্ষাসমূহের আর্কাইভ তালিকা।</p>
                 </div>
                 <button 
                   onClick={() => loadExams()}
-                  className="p-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-500 hover:text-slate-700 transition-all flex items-center gap-1.5 text-xs font-bold shrink-0 self-start sm:auto cursor-pointer font-mono"
+                  className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-all flex items-center gap-1.5 text-xs font-bold shrink-0 self-start sm:auto cursor-pointer font-mono"
                   title="Reload Exams"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${loadingExams ? "animate-spin" : ""}`} />
@@ -636,9 +815,9 @@ export default function App() {
                 </div>
               ) : (
                 archiveExams.length === 0 ? (
-                  <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-12 text-center max-w-md mx-auto space-y-3 my-8">
-                    <Archive className="w-8 h-8 text-slate-300 mx-auto" />
-                    <p className="text-sm text-slate-500 font-medium">আর্কাইভ করা কোনো পরীক্ষা পাওয়া যায়নি।</p>
+                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-12 text-center max-w-md mx-auto space-y-3 my-8">
+                    <Archive className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto" />
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">আর্কাইভ করা কোনো পরীক্ষা পাওয়া যায়নি।</p>
                     <p className="text-xs text-slate-400">পরীক্ষা আর্কাইভ করতে গুগল শিটের status কলামে archive অথবা archived লিখুন।</p>
                   </div>
                 ) : (
@@ -650,6 +829,15 @@ export default function App() {
                         currentUser={currentUser}
                         onStartExam={handleStartExam}
                         isAttempted={attemptedExamIds.includes(exam.id)}
+                        isLocked={isExamLockedForUser(exam)}
+                        onUnlock={(lockedExam) => {
+                          if (!currentUser) {
+                            setIsAuthOpen(true);
+                            return;
+                          }
+                          setSelectedUnlockExam(lockedExam);
+                          setIsUnlockModalOpen(true);
+                        }}
                       />
                     ))}
                   </div>
@@ -684,6 +872,25 @@ export default function App() {
               exit={{ opacity: 0, y: -15 }}
             >
               <Leaderboard exams={exams} />
+            </motion.div>
+          )}
+
+          {currentView === "pricing" && (
+            <motion.div
+              key="pricing"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+            >
+              <Pricing 
+                currentUser={currentUser} 
+                onOpenAuth={() => setIsAuthOpen(true)} 
+                onSuccessPayment={() => {
+                  if (currentUser) {
+                    fetchUserPremiumAndSubscriptions(currentUser);
+                  }
+                }}
+              />
             </motion.div>
           )}
 
@@ -723,6 +930,18 @@ export default function App() {
                         await loadExams(url);
                       }}
                     />
+                  )}
+                  {activeAdminTab === "exam_configs" && (
+                    <AdminExamsSettings 
+                      exams={exams}
+                      onReload={async () => {
+                        const url = await loadSettings();
+                        await loadExams(url);
+                      }}
+                    />
+                  )}
+                  {activeAdminTab === "payments" && (
+                    <PendingPayments />
                   )}
                 </div>
               )}
@@ -879,6 +1098,27 @@ export default function App() {
         onClose={() => setIsAuthOpen(false)} 
         currentUser={currentUser} 
       />
+
+      {/* Payment Modal for unlocked exams */}
+      {selectedUnlockExam && (
+        <PaymentModal
+          isOpen={isUnlockModalOpen}
+          onClose={() => {
+            setIsUnlockModalOpen(false);
+            setSelectedUnlockExam(null);
+          }}
+          currentUser={currentUser}
+          paymentType="exam"
+          price={selectedUnlockExam.price || 0}
+          productName={selectedUnlockExam.name}
+          productId={selectedUnlockExam.id}
+          onSuccess={() => {
+            if (currentUser) {
+              fetchUserPremiumAndSubscriptions(currentUser);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

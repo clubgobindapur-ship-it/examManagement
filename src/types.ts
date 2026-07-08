@@ -8,6 +8,8 @@ export interface Exam {
   examDate?: string; // date in mm/dd/yy format or other string
   markPerQuestion?: number;
   penaltyMark?: number;
+  isFree?: boolean;
+  price?: number;
 }
 
 export interface Question {

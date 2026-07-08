@@ -1,14 +1,16 @@
 import React from "react";
-import { LogIn, User, Trophy, HelpCircle, GraduationCap, Calendar, Archive, Home } from "lucide-react";
+import { LogIn, User, Trophy, HelpCircle, GraduationCap, Calendar, Archive, Home, Sparkles, Sun, Moon } from "lucide-react";
 
 interface NavbarProps {
   currentUser: any;
   onOpenAuth: () => void;
-  onViewChange: (view: "home" | "live" | "routine" | "archive" | "leaderboard") => void;
+  onViewChange: (view: "home" | "live" | "routine" | "archive" | "leaderboard" | "pricing") => void;
   currentView: string;
   liveCount: number;
   routineCount: number;
   archiveCount: number;
+  theme: "light" | "dark";
+  toggleTheme: () => void;
 }
 
 export default function Navbar({ 
@@ -18,10 +20,12 @@ export default function Navbar({
   currentView,
   liveCount,
   routineCount,
-  archiveCount
+  archiveCount,
+  theme,
+  toggleTheme
 }: NavbarProps) {
   return (
-    <header className="bg-white border-b border-slate-200 sticky top-0 z-50 flex-shrink-0">
+    <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-850 sticky top-0 z-50 flex-shrink-0 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 gap-4">
           {/* Logo & Brand */}
@@ -34,8 +38,8 @@ export default function Navbar({
               <GraduationCap className="w-5 h-5" />
             </div>
             <div className="hidden sm:block">
-              <span className="text-lg font-bold tracking-tight text-slate-800">
-                কুইজ মাস্টার <span className="text-blue-600">প্রো</span>
+              <span className="text-lg font-bold tracking-tight text-slate-800 dark:text-white">
+                কুইজ মাস্টার <span className="text-blue-600 dark:text-blue-400 font-extrabold">প্রো</span>
               </span>
             </div>
           </div>
@@ -47,8 +51,8 @@ export default function Navbar({
               onClick={() => onViewChange("home")}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
                 currentView === "home"
-                  ? "bg-blue-50 text-blue-600 font-bold border border-blue-100"
-                  : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                  ? "bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-450 font-bold border border-blue-100 dark:border-blue-900/35"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
               }`}
             >
               <Home className="w-3.5 h-3.5 text-blue-500 shrink-0" />
@@ -60,8 +64,8 @@ export default function Navbar({
               onClick={() => onViewChange("live")}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
                 currentView === "live"
-                  ? "bg-emerald-50 text-emerald-600 font-bold border border-emerald-100"
-                  : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                  ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-450 font-bold border border-emerald-100 dark:border-emerald-900/35"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
               }`}
             >
               <span className="relative flex h-2 w-2">
@@ -76,8 +80,8 @@ export default function Navbar({
               onClick={() => onViewChange("routine")}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
                 currentView === "routine"
-                  ? "bg-blue-50 text-blue-600 font-bold border border-blue-100"
-                  : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                  ? "bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-450 font-bold border border-blue-100 dark:border-blue-900/35"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
               }`}
             >
               <Calendar className="w-3.5 h-3.5 text-blue-500 shrink-0" />
@@ -89,8 +93,8 @@ export default function Navbar({
               onClick={() => onViewChange("archive")}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
                 currentView === "archive"
-                  ? "bg-slate-100 text-slate-700 font-bold border border-slate-200"
-                  : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                  ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold border border-slate-200 dark:border-slate-700"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
               }`}
             >
               <Archive className="w-3.5 h-3.5 text-slate-500 shrink-0" />
@@ -102,22 +106,49 @@ export default function Navbar({
               onClick={() => onViewChange("leaderboard")}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
                 currentView === "leaderboard"
-                  ? "bg-indigo-50 text-indigo-600 font-bold border border-indigo-100"
-                  : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                  ? "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-450 font-bold border border-indigo-100 dark:border-indigo-900/35"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
               }`}
             >
               <Trophy className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
               <span>লিডারবোর্ড</span>
             </button>
 
-            <div className="w-[1px] h-5 bg-slate-200 mx-1 shrink-0" />
+            <button
+              id="nav-btn-pricing"
+              onClick={() => onViewChange("pricing")}
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
+                currentView === "pricing"
+                  ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-450 font-black border border-amber-100 dark:border-amber-900/35"
+                  : "text-amber-600 dark:text-amber-500 hover:text-amber-700 dark:hover:text-amber-400 hover:bg-amber-50/50 dark:hover:bg-amber-950/10"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span>প্রিমিয়াম কিনুন</span>
+            </button>
+
+            <div className="w-[1px] h-5 bg-slate-200 dark:bg-slate-800 mx-1 shrink-0" />
+
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all cursor-pointer shrink-0"
+              title={theme === "dark" ? "লাইট থিম চালু করুন" : "ডার্ক থিম চালু করুন"}
+            >
+              {theme === "dark" ? (
+                <Sun className="w-4 h-4 text-amber-500" />
+              ) : (
+                <Moon className="w-4 h-4 text-slate-500" />
+              )}
+            </button>
 
             {/* Auth section */}
             {currentUser ? (
               <button
                 id="btn-profile"
                 onClick={onOpenAuth}
-                className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 px-3 rounded-full transition-all cursor-pointer shrink-0"
+                className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 py-1.5 px-3 rounded-full transition-all cursor-pointer shrink-0"
               >
                 <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white uppercase">
                   {currentUser.displayName ? currentUser.displayName[0] : currentUser.email[0]}
@@ -130,7 +161,7 @@ export default function Navbar({
               <button
                 id="btn-signin"
                 onClick={onOpenAuth}
-                className="flex items-center gap-1.5 py-1.5 px-3.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium rounded-full shadow-sm transition-colors cursor-pointer shrink-0"
+                className="flex items-center gap-1.5 py-1.5 px-3.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-medium rounded-full shadow-sm transition-colors cursor-pointer shrink-0"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>লগইন করুন</span>

@@ -5,23 +5,34 @@ import {
   Clock, 
   ChevronRight, 
   Lock, 
+  Unlock,
   Sparkles, 
   User, 
   ArrowRight,
   ShieldAlert,
   Check,
-  Calendar
+  Calendar,
+  DollarSign
 } from "lucide-react";
 
 interface ExamCardProps {
-  key?: string;
+  key?: string | number;
   exam: Exam;
   currentUser: any;
   onStartExam: (exam: Exam, username: string) => void;
   isAttempted?: boolean;
+  isLocked?: boolean;
+  onUnlock?: (exam: Exam) => void;
 }
 
-export default function ExamCard({ exam, currentUser, onStartExam, isAttempted = false }: ExamCardProps) {
+export default function ExamCard({ 
+  exam, 
+  currentUser, 
+  onStartExam, 
+  isAttempted = false,
+  isLocked = false,
+  onUnlock
+}: ExamCardProps) {
   const [showGate, setShowGate] = useState(false);
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
@@ -50,60 +61,74 @@ export default function ExamCard({ exam, currentUser, onStartExam, isAttempted =
 
   const isLive = exam.status === "live";
   const isArchived = exam.status === "archived" || exam.status === "archive";
+  const isFree = exam.isFree !== false;
 
   return (
     <motion.div
       whileHover={isLive ? { y: -4 } : {}}
-      className={`bg-white rounded-2xl border transition-all overflow-hidden flex flex-col justify-between h-full font-sans ${
+      className={`bg-white dark:bg-slate-900 border transition-all overflow-hidden flex flex-col justify-between h-full font-sans ${
         isLive 
-          ? "border-slate-200/80 hover:border-blue-300 hover:shadow-md shadow-sm" 
-          : "border-slate-200/50 bg-slate-50/40 opacity-75"
+          ? "border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md shadow-sm" 
+          : "border-slate-200/50 dark:border-slate-800/50 bg-slate-50/40 dark:bg-slate-950/20 opacity-75"
       }`}
     >
       <div className="p-6 space-y-4">
         {/* Sl no and Status Tag */}
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold font-mono tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">
+          <span className="text-xs font-bold font-mono tracking-wider text-blue-650 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 px-2.5 py-1 rounded-lg">
             SL {exam.slNo.toString().padStart(2, "0")}
           </span>
-          <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${
-            isLive 
-              ? "bg-green-100 text-green-700" 
-              : isArchived
-              ? "bg-amber-100 text-amber-700"
-              : "bg-slate-100 text-slate-500"
-          }`}>
-            {isLive ? "চলতি পরীক্ষা (LIVE)" : isArchived ? "আর্কাইভ (ARCHIVE)" : "বন্ধ (CLOSED)"}
-          </span>
+          <div className="flex items-center gap-1.5">
+            {/* Free/Paid badge */}
+            {!isFree ? (
+              <span className="text-[9px] uppercase font-black tracking-wider px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-450 border border-amber-100 dark:border-amber-900/30 flex items-center gap-0.5">
+                <Lock className="w-2.5 h-2.5" />
+                <span>{exam.price} ৳</span>
+              </span>
+            ) : (
+              <span className="text-[9px] uppercase font-black tracking-wider px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-450 border border-emerald-100 dark:border-emerald-900/30">
+                FREE
+              </span>
+            )}
+            <span className={`text-[9px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full ${
+              isLive 
+                ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400" 
+                : isArchived
+                ? "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400"
+                : "bg-slate-100 dark:bg-slate-850 text-slate-500 dark:text-slate-400"
+            }`}>
+              {isLive ? "চলতি পরীক্ষা" : isArchived ? "আর্কাইভ" : "বন্ধ"}
+            </span>
+          </div>
         </div>
 
         {/* Title */}
         <div>
-          <h3 className="text-lg font-bold text-slate-800 line-clamp-2 leading-snug">{exam.name}</h3>
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 line-clamp-2 leading-snug">{exam.name}</h3>
         </div>
 
         {/* Time Limit & Exam Date */}
         <div className="space-y-1.5 pt-1">
-          <div className="flex items-center gap-2 text-slate-600 font-medium">
+          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-350 font-medium">
             <Clock className="w-4 h-4 text-blue-500" />
             <span className="text-xs font-semibold">সময়সীমা: {exam.timeLimit} মিনিট</span>
           </div>
 
           {exam.examDate && (
-            <div className="flex items-center gap-2 text-slate-600 font-medium">
+            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-350 font-medium">
               <Calendar className="w-4 h-4 text-emerald-500" />
               <span className="text-xs font-semibold">পরীক্ষার তারিখ: {formatExamDate(exam.examDate)}</span>
             </div>
           )}
 
-          <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100 mt-2">
+          <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 mt-2">
             <span className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider">নম্বর বিভাজন (Marking Scheme)</span>
-            <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-600 font-semibold">
-              <div className="bg-slate-50 px-2 py-1 rounded border border-slate-100/80">
-                সঠিক উত্তর: <span className="text-indigo-600">+{exam.markPerQuestion !== undefined ? exam.markPerQuestion : 1}</span>
+            <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-600 dark:text-slate-405 font-bold font-mono">
+              <div className="bg-slate-50 dark:bg-slate-850 px-2 py-1 rounded border border-slate-100/80 dark:border-slate-800/60">
+                সঠিক: <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">+{exam.markPerQuestion !== undefined ? exam.markPerQuestion : 1}</span>
               </div>
-              <div className="bg-slate-50 px-2 py-1 rounded border border-slate-100/80">
-                ভুল পেনাল্টি: <span className="text-rose-600">-{exam.penaltyMark !== undefined ? exam.penaltyMark : 0.25}</span>
+              <div className="bg-slate-50 dark:bg-slate-850 px-2 py-1 rounded border border-slate-100/80 dark:border-slate-800/60">
+                ভুল: <span className="text-rose-600 dark:text-rose-450 font-extrabold">-{exam.penaltyMark !== undefined ? exam.penaltyMark : 0.25}</span>
               </div>
             </div>
           </div>
@@ -111,7 +136,7 @@ export default function ExamCard({ exam, currentUser, onStartExam, isAttempted =
       </div>
 
       {/* Button/Gate footer */}
-      <div className="p-6 pt-0 border-t border-slate-150 bg-slate-50/10">
+      <div className="p-6 pt-0 border-t border-slate-150 dark:border-slate-800 bg-slate-50/10">
         {!isLive ? (
           <div className="flex items-center justify-between text-slate-400 py-3 text-xs font-semibold">
             <span className="flex items-center gap-1.5">
@@ -120,10 +145,19 @@ export default function ExamCard({ exam, currentUser, onStartExam, isAttempted =
             </span>
           </div>
         ) : isAttempted ? (
-          <div className="w-full py-3 px-4 bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold rounded-xl flex items-center justify-center gap-2 text-xs">
+          <div className="w-full py-3 px-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/35 text-emerald-700 dark:text-emerald-450 font-bold rounded-xl flex items-center justify-center gap-2 text-xs">
             <Check className="w-4 h-4 text-emerald-600" />
             <span>ইতিমধ্যে সম্পন্ন করেছেন</span>
           </div>
+        ) : isLocked ? (
+          <button
+            id={`btn-unlock-${exam.id}`}
+            onClick={() => onUnlock?.(exam)}
+            className="w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-xs shadow-sm cursor-pointer"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span>আনলক করুন - {exam.price} ৳</span>
+          </button>
         ) : !showGate ? (
           <button
             id={`btn-start-${exam.id}`}
@@ -141,7 +175,7 @@ export default function ExamCard({ exam, currentUser, onStartExam, isAttempted =
             <ChevronRight className="w-4 h-4" />
           </button>
         ) : (
-          <form onSubmit={handleBegin} className="pt-4 space-y-3.5 border-t border-slate-100/60" id={`form-gate-${exam.id}`}>
+          <form onSubmit={handleBegin} className="pt-4 space-y-3.5 border-t border-slate-100/60 dark:border-slate-800/60" id={`form-gate-${exam.id}`}>
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                 আপনার নাম লিখুন
@@ -155,7 +189,7 @@ export default function ExamCard({ exam, currentUser, onStartExam, isAttempted =
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="যেমন: সাকিব হাসান"
-                  className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-750 rounded-lg text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -174,7 +208,7 @@ export default function ExamCard({ exam, currentUser, onStartExam, isAttempted =
                   setShowGate(false);
                   setError("");
                 }}
-                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-lg text-xs transition-colors cursor-pointer"
+                className="flex-1 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium rounded-lg text-xs transition-colors cursor-pointer"
               >
                 বাতিল করুন
               </button>

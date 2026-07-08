@@ -26,21 +26,16 @@ service cloud.firestore {
     // Users collection rules
     match /users/{userId} {
       allow read, write: if true;
+
+      // Nested subscriptions subcollection
+      match /subscriptions/{examId} {
+        allow read, write: if true;
+      }
     }
 
     // Exams collection rules
     match /exams/{examId} {
-      allow get, list: if true;
-      allow create, update: if isAuthenticated() 
-                            && isValidId(examId)
-                            && request.resource.data.keys().hasAll(['id', 'slNo', 'name', 'tabName', 'timeLimit', 'status'])
-                            && request.resource.data.id is string
-                            && request.resource.data.slNo is number
-                            && request.resource.data.name is string
-                            && request.resource.data.tabName is string
-                            && request.resource.data.timeLimit is number
-                            && request.resource.data.status in ['live', 'draft'];
-      allow delete: if isAuthenticated();
+      allow read, write: if true;
     }
 
     // Attempts collection rules (Leaderboard)
@@ -58,6 +53,11 @@ service cloud.firestore {
                     && request.resource.data.timeTaken is number
                     && (!('userId' in request.resource.data) || request.resource.data.userId == null || request.resource.data.userId == request.auth.uid);
       allow update, delete: if false; // Anti-tamper: results cannot be edited or deleted once submitted
+    }
+
+    // Transactions collection rules
+    match /transactions/{transactionId} {
+      allow read, write: if true;
     }
 
     // Settings collection rules
