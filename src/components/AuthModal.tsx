@@ -42,6 +42,12 @@ export default function AuthModal({ isOpen, onClose, currentUser }: AuthModalPro
     subscriptionType: string | null;
     phone?: string;
     studyLevel?: string;
+    subscriptionsList?: {
+      packageId: string;
+      packageName: string;
+      activatedAt: string;
+      premiumUntil: string;
+    }[];
   } | null>(null);
   const [purchasedPacks, setPurchasedPacks] = useState<{ id: string; name: string; amount: number; status: string; date: string; txId: string; method: string }[]>([]);
 
@@ -58,7 +64,8 @@ export default function AuthModal({ isOpen, onClose, currentUser }: AuthModalPro
               premiumUntil: data.premiumUntil || null,
               subscriptionType: data.subscriptionType || null,
               phone: data.phone || "",
-              studyLevel: data.studyLevel || ""
+              studyLevel: data.studyLevel || "",
+              subscriptionsList: data.subscriptionsList || []
             });
           } else {
             setProfileData(null);
@@ -288,47 +295,89 @@ export default function AuthModal({ isOpen, onClose, currentUser }: AuthModalPro
               )}
 
               {/* Subscriptions List Section */}
-              <div className="border-t border-slate-100 dark:border-slate-800 pt-4 text-left">
-                <span className="text-xs font-black text-slate-800 dark:text-slate-200 block mb-3 uppercase tracking-wider">আমার প্যাকেজসমূহ (Your Subscriptions)</span>
-                
-                {loadingSubscriptions ? (
-                  <div className="py-6 text-center space-y-2">
-                    <Loader2 className="w-5 h-5 animate-spin mx-auto text-indigo-500" />
-                    <span className="text-[10px] text-slate-400 font-bold block">তালিকা লোড হচ্ছে...</span>
-                  </div>
-                ) : purchasedPacks.length > 0 ? (
-                  <div className="space-y-2.5 max-h-[180px] overflow-y-auto pr-1">
-                    {purchasedPacks.map((pack) => {
-                      const isVerified = pack.status === "verified";
-                      const isRejected = pack.status === "rejected";
-                      return (
-                        <div key={pack.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100/80 dark:border-slate-800 text-[11px] flex justify-between items-center gap-4 transition-all hover:border-slate-200 dark:hover:border-slate-750">
-                          <div className="space-y-1">
-                            <span className="font-bold text-slate-800 dark:text-slate-200 block">{pack.name}</span>
-                            <span className="text-slate-400 text-[10px] block">
-                              TxID: <b className="font-mono text-slate-600 dark:text-slate-300">{pack.txId}</b> ({pack.method})
-                            </span>
-                            <span className="text-slate-400 text-[10px] block">তারিখ: {pack.date || "N/A"}</span>
+              <div className="border-t border-slate-100 dark:border-slate-800 pt-4 text-left space-y-4">
+                <div>
+                  <span className="text-xs font-black text-slate-800 dark:text-slate-200 block mb-2 uppercase tracking-wider">সক্রিয় মেম্বারশিপ তালিকা (Active Subscriptions)</span>
+                  {profileData?.subscriptionsList && profileData.subscriptionsList.length > 0 ? (
+                    <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
+                      {profileData.subscriptionsList.map((sub, idx) => {
+                        const isExpired = new Date(sub.premiumUntil) < new Date();
+                        return (
+                          <div key={idx} className="p-3 bg-indigo-50/40 dark:bg-slate-800/80 rounded-xl border border-indigo-100/60 dark:border-slate-850 text-[11px] flex justify-between items-center gap-4">
+                            <div className="space-y-1">
+                              <span className="font-bold text-slate-800 dark:text-slate-200 block flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                {sub.packageName}
+                              </span>
+                              <span className="text-slate-400 text-[10px] block">
+                                প্যাকেজ আইডি: <b className="font-mono text-slate-600 dark:text-slate-300">{sub.packageId}</b>
+                              </span>
+                              <span className="text-slate-400 text-[10px] block">
+                                শুরু: {new Date(sub.activatedAt).toLocaleDateString("bn-BD")}
+                              </span>
+                            </div>
+                            <div className="text-right shrink-0 space-y-1">
+                              <span className={`inline-block px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase ${
+                                isExpired 
+                                  ? "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400" 
+                                  : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400"
+                              }`}>
+                                {isExpired ? "মেয়াদোত্তীর্ণ" : "সক্রিয়"}
+                              </span>
+                              <span className="text-slate-500 dark:text-slate-400 text-[10px] block">
+                                মেয়াদ: {new Date(sub.premiumUntil).toLocaleDateString("bn-BD")}
+                              </span>
+                            </div>
                           </div>
-                          <div className="text-right shrink-0 space-y-1">
-                            <span className="font-black text-slate-900 dark:text-white block">{pack.amount} ৳</span>
-                            <span className={`inline-block px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
-                              isVerified 
-                                ? "bg-emerald-100 text-emerald-850 dark:bg-emerald-950/40 dark:text-emerald-400" 
-                                : isRejected
-                                ? "bg-rose-100 text-rose-850 dark:bg-rose-950/40 dark:text-rose-400"
-                                : "bg-amber-100 text-amber-850 dark:bg-amber-950/40 dark:text-amber-400"
-                            }`}>
-                              {isVerified ? "সক্রিয়" : isRejected ? "প্রত্যাখ্যাত" : "অপেক্ষমান"}
-                            </span>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center py-3 bg-slate-50 dark:bg-slate-800/10 rounded-xl">কোনো সক্রিয় প্রিমিয়াম প্যাকেজ পাওয়া যায়নি।</p>
+                  )}
+                </div>
+
+                <div>
+                  <span className="text-xs font-black text-slate-800 dark:text-slate-200 block mb-2 uppercase tracking-wider">পেমেন্ট ইতিহাস (Payment History)</span>
+                  {loadingSubscriptions ? (
+                    <div className="py-6 text-center space-y-2">
+                      <Loader2 className="w-5 h-5 animate-spin mx-auto text-indigo-500" />
+                      <span className="text-[10px] text-slate-400 font-bold block">তালিকা লোড হচ্ছে...</span>
+                    </div>
+                  ) : purchasedPacks.length > 0 ? (
+                    <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
+                      {purchasedPacks.map((pack) => {
+                        const isVerified = pack.status === "verified";
+                        const isRejected = pack.status === "rejected";
+                        return (
+                          <div key={pack.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100/80 dark:border-slate-800 text-[11px] flex justify-between items-center gap-4 transition-all hover:border-slate-200 dark:hover:border-slate-750">
+                            <div className="space-y-1">
+                              <span className="font-bold text-slate-800 dark:text-slate-200 block">{pack.name}</span>
+                              <span className="text-slate-400 text-[10px] block">
+                                TxID: <b className="font-mono text-slate-600 dark:text-slate-300">{pack.txId}</b> ({pack.method})
+                              </span>
+                              <span className="text-slate-400 text-[10px] block">তারিখ: {pack.date || "N/A"}</span>
+                            </div>
+                            <div className="text-right shrink-0 space-y-1">
+                              <span className="font-black text-slate-900 dark:text-white block">{pack.amount} ৳</span>
+                              <span className={`inline-block px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
+                                isVerified 
+                                  ? "bg-emerald-100 text-emerald-850 dark:bg-emerald-950/40 dark:text-emerald-400" 
+                                  : isRejected
+                                  ? "bg-rose-100 text-rose-850 dark:bg-rose-950/40 dark:text-rose-400"
+                                  : "bg-amber-100 text-amber-850 dark:bg-amber-950/40 dark:text-amber-400"
+                              }`}>
+                                {isVerified ? "সক্রিয়" : isRejected ? "প্রত্যাখ্যাত" : "অপেক্ষমান"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="text-[11px] text-slate-400 dark:text-slate-500 text-center py-4 bg-slate-50 dark:bg-slate-800/20 rounded-xl">আপনি এখনও কোনো প্যাকেজ ক্রয় করেননি।</p>
-                )}
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center py-3 bg-slate-50 dark:bg-slate-800/10 rounded-xl">কোনো ক্রয়ের ইতিহাস নেই।</p>
+                  )}
+                </div>
               </div>
 
               {success && (

@@ -22,6 +22,7 @@ import PaymentModal from "./components/PaymentModal";
 import PendingPayments from "./components/PendingPayments";
 import AdminExamsSettings from "./components/AdminExamsSettings";
 import AdminPackagesSettings from "./components/AdminPackagesSettings";
+import AdminNotices from "./components/AdminNotices";
 
 // Analytics
 import { trackEvent, initGA } from "./lib/analytics";
@@ -79,7 +80,7 @@ export default function App() {
     return "home";
   });
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const [activeAdminTab, setActiveAdminTab] = useState<"users" | "ads" | "exams" | "exam_configs" | "packages" | "payments">("users");
+  const [activeAdminTab, setActiveAdminTab] = useState<"users" | "ads" | "exams" | "exam_configs" | "packages" | "payments" | "notices">("users");
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   
   // Theme settings
@@ -553,6 +554,20 @@ export default function App() {
                   Pending Payments
                 </button>
 
+                <button
+                  onClick={() => {
+                    setActiveAdminTab("notices");
+                    trackEvent("admin_nav_notices_click");
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                    activeAdminTab === "notices"
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  Notice Board
+                </button>
+
                 <div className="w-[1px] h-5 bg-slate-800 mx-1 shrink-0" />
 
                 <button
@@ -991,6 +1006,9 @@ export default function App() {
                   )}
                   {activeAdminTab === "payments" && (
                     <PendingPayments />
+                  )}
+                  {activeAdminTab === "notices" && (
+                    <AdminNotices />
                   )}
                 </div>
               )}

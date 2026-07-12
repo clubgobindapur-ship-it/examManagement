@@ -113,6 +113,19 @@
         "discription": { "type": "array" }
       },
       "required": ["packagetype", "packageTitle", "baseprice", "isActive"]
+    },
+    "notice": {
+      "title": "Notice",
+      "description": "System and user notifications/notices",
+      "type": "object",
+      "properties": {
+        "noticeText": { "type": "string" },
+        "user": { "type": "string" },
+        "isLive": { "type": "boolean" },
+        "deeplink": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["noticeText", "user", "isLive", "createdAt"]
     }
   },
   "firestore": {
@@ -147,6 +160,10 @@
     "/settings/{settingId}": {
       "schema": "settings",
       "description": "Global application settings"
+    },
+    "/notices/{noticeId}": {
+      "schema": "notice",
+      "description": "Notice board entries for users or all"
     }
   }
 }

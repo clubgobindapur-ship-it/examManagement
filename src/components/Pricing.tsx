@@ -14,6 +14,7 @@ interface PricingProps {
 
 interface Package {
   id: string;
+  packageId?: string;
   packagetype: string;
   packageTitle: string;
   packageSubtitle: string;
@@ -31,6 +32,7 @@ interface Package {
 const DEFAULT_PACKAGES: Package[] = [
   {
     id: "premium_monthly",
+    packageId: "premium_monthly",
     packagetype: "monthly",
     packageTitle: "মাসিক প্রিমিয়াম",
     packageSubtitle: "প্রতি মাসের জন্য প্রিমিয়াম কন্টেন্ট অ্যাক্সেস করুন",
@@ -48,6 +50,7 @@ const DEFAULT_PACKAGES: Package[] = [
   },
   {
     id: "premium_yearly",
+    packageId: "premium_yearly",
     packagetype: "yearly",
     packageTitle: "বার্ষিক প্রিমিয়াম",
     packageSubtitle: "১ বছরের জন্য আমাদের পূর্ণাঙ্গ প্রস্তুতি মেম্বারশিপ",
@@ -104,6 +107,7 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
 
           pkgs.push({
             id: docSnap.id,
+            packageId: String(data.packageId || data.id || docSnap.id),
             packagetype: String(data.packagetype || ""),
             packageTitle: String(data.packageTitle || ""),
             packageSubtitle: String(data.packageSubtitle || ""),

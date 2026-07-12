@@ -172,34 +172,66 @@ export default function PendingPayments() {
           console.error("Error loading package validity:", packErr);
         }
 
-        // Check if user already has an active premium membership to extend it
-        let startDate = new Date();
+        // Check if user already has any subscriptionsList to append to
+        let existingList: any[] = [];
         try {
           const userSnap = await getDoc(doc(db, "users", tx.userId));
           if (userSnap.exists()) {
             const uData = userSnap.data();
-            if (uData.premiumUntil) {
-              const existingUntil = new Date(uData.premiumUntil);
-              if (existingUntil > startDate) {
-                startDate = existingUntil; // Extend from current active expiration date!
-              }
-            }
+            existingList = Array.isArray(uData.subscriptionsList) ? uData.subscriptionsList : [];
           }
         } catch (userErr) {
-          console.error("Error fetching user active subscription:", userErr);
+          console.error("Error fetching user active subscriptions:", userErr);
         }
 
-        // Calculate target expiration date by adding dynamic validity
+        // Calculate target expiration date by adding dynamic validity to CURRENT time
+        // Requirement 3: updated premiumUntil will be current + purchases pack validity
+        const startDate = new Date(); 
         const targetDate = new Date(startDate.getTime());
         if (validityDays > 0) targetDate.setDate(targetDate.getDate() + validityDays);
         if (validityHours > 0) targetDate.setHours(targetDate.getHours() + validityHours);
         if (validityMins > 0) targetDate.setMinutes(targetDate.getMinutes() + validityMins);
 
+        const packId = tx.packageId || tx.examId || tx.type || "premium_custom";
+
+        const newSubscriptionItem = {
+          packageId: packId,
+          packageName: tx.examName || `${subType.toUpperCase()} Premium Package`,
+          activatedAt: startDate.toISOString(),
+          premiumUntil: targetDate.toISOString(),
+          validityDays,
+          validityHours,
+          validityMins
+        };
+
+        const updatedList = [...existingList, newSubscriptionItem];
+
         const userRef = doc(db, "users", tx.userId);
         await setDoc(userRef, {
           premiumUntil: targetDate.toISOString(),
-          subscriptionType: subType
+          subscriptionType: subType,
+          packageId: packId, // store subscription using packageId
+          subscriptionsList: updatedList // every user might have a subscription list
         }, { merge: true });
+      }
+
+      // Automation: when a transaction is verified, add an automated notice for this user
+      try {
+        const autoNoticeId = `${tx.id}-activation`;
+        const calculatedSubType = tx.type && tx.type.startsWith("premium_") ? tx.type.replace("premium_", "") : "";
+        const friendlyPackageName = tx.examName || (calculatedSubType === "monthly" ? "মাসিক প্রিমিয়াম প্যাকেজ" : calculatedSubType === "yearly" ? "বার্ষিক প্রিমিয়াম প্যাকেজ" : "প্রিমিয়াম প্যাকেজ");
+        const autoNoticeText = `অভিনন্দন! আপনার পেমেন্ট ট্রানজেকশনটি (TxID: ${tx.transactionId || tx.id}) সফলভাবে যাচাই করা হয়েছে। আপনার কাঙ্ক্ষিত '${friendlyPackageName}' এখন সক্রিয়! আপনি কুইজ পোর্টালের সমস্ত প্রিমিয়াম কন্টেন্ট ও ফিচারগুলো পুরোপুরি উপভোগ করতে পারবেন। শুভকামনা আপনার পরীক্ষা প্রস্তুতির জন্য!`;
+        
+        await setDoc(doc(db, "notices", autoNoticeId), {
+          noticeText: autoNoticeText,
+          user: tx.userId,
+          isLive: true,
+          deeplink: "live",
+          createdAt: new Date().toISOString()
+        }, { merge: true });
+        console.log("Automated activation notice created successfully for user:", tx.userId);
+      } catch (noticeAutoErr) {
+        console.error("Failed to create automated notice:", noticeAutoErr);
       }
 
       setSuccess("পেমেন্ট সফলভাবে ভেরিফাই করা হয়েছে!");
