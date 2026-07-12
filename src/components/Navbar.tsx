@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   LogIn, Trophy, GraduationCap, Calendar, Archive, Home, Sparkles, Sun, 
-  Moon, Menu, X, Bell, CheckCheck, ArrowRight, Inbox, Eye 
+  Moon, Menu, X, Bell, CheckCheck, ArrowRight, Inbox, Eye, Award
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
@@ -10,7 +10,7 @@ import { db } from "../firebase";
 interface NavbarProps {
   currentUser: any;
   onOpenAuth: () => void;
-  onViewChange: (view: "home" | "live" | "routine" | "archive" | "leaderboard" | "pricing") => void;
+  onViewChange: (view: "home" | "live" | "routine" | "archive" | "leaderboard" | "pricing" | "results") => void;
   currentView: string;
   liveCount: number;
   routineCount: number;
@@ -137,6 +137,13 @@ export default function Navbar({
       label: "লিডারবোর্ড",
       icon: <Trophy className="w-4 h-4 text-indigo-500 shrink-0" />,
       activeClass: "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-100 dark:border-indigo-900/35",
+      inactiveClass: "text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+    },
+    {
+      id: "results",
+      label: "ফলাফল (Results)",
+      icon: <Award className="w-4 h-4 text-emerald-500 shrink-0" />,
+      activeClass: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-100 dark:border-emerald-900/35",
       inactiveClass: "text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
     },
     {

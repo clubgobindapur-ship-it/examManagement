@@ -31,7 +31,7 @@ const formatGraphDate = (isoString: string) => {
 };
 
 export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn }: UserPerformanceChartProps) {
-  const [metric, setMetric] = useState<"percentage" | "correct" | "wrong" | "skipped">("percentage");
+  const [metric, setMetric] = useState<"percentage" | "correct" | "wrong" | "skipped" | "obtainedMark">("percentage");
 
   const handleMetricChange = (newMetric: typeof metric) => {
     setMetric(newMetric);
@@ -46,6 +46,7 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
       const pct = attempt.percentage !== undefined ? attempt.percentage : Math.round((correct / total) * 100);
       const skipped = attempt.skippedCount !== undefined ? attempt.skippedCount : 0;
       const wrong = attempt.wrongCount !== undefined ? attempt.wrongCount : Math.max(0, total - correct - skipped);
+      const obtainedMark = attempt.totalObtainedMark !== undefined ? attempt.totalObtainedMark : (attempt.score || 0);
 
       return {
         date: formatGraphDate(attempt.completedAt),
@@ -56,6 +57,7 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
         wrong: wrong,
         skipped: skipped,
         total: total,
+        obtainedMark: obtainedMark,
       };
     });
   }, [attempts]);
@@ -106,6 +108,13 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
           fill: "url(#colorSkipped)",
           label: "এড়িয়ে যাওয়া (Skipped)",
           unit: "টি",
+        };
+      case "obtainedMark":
+        return {
+          stroke: "#8b5cf6", // purple-500
+          fill: "url(#colorObtained)",
+          label: "প্রাপ্ত নম্বর (Obtained Mark)",
+          unit: " নম্বর",
         };
       case "percentage":
       default:
@@ -164,6 +173,16 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
             }`}
           >
             শতকরা হার (%)
+          </button>
+          <button
+            onClick={() => handleMetricChange("obtainedMark")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              metric === "obtainedMark"
+                ? "bg-white text-purple-600 shadow-sm"
+                : "text-slate-600 hover:text-slate-800"
+            }`}
+          >
+            প্রাপ্ত নম্বর
           </button>
           <button
             onClick={() => handleMetricChange("correct")}
@@ -246,6 +265,10 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                     </linearGradient>
+                    <linearGradient id="colorObtained" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                    </linearGradient>
                     <linearGradient id="colorCorrect" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
                       <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
@@ -286,6 +309,12 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
                                 <span className="w-2 h-2 rounded-full bg-blue-500" />
                                 <span>শতকরা নম্বর: {data.percentage}%</span>
                               </p>
+                              {data.obtainedMark !== undefined && (
+                                <p className="flex items-center gap-1.5">
+                                  <span className="w-2 h-2 rounded-full bg-purple-500" />
+                                  <span>প্রাপ্ত নম্বর: {data.obtainedMark}</span>
+                                </p>
+                              )}
                               <p className="flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                                 <span>সঠিক: {data.correct} টি</span>

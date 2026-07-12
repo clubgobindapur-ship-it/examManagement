@@ -33,6 +33,9 @@ interface Exam {
   isFree?: boolean;
   price?: number;
   questionCount?: number;
+  showResult?: boolean;
+  passPercentage?: number;
+  minPassMark?: number;
 }
 
 interface AdminExamsSettingsProps {
@@ -66,6 +69,9 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
   const [formPenaltyMark, setFormPenaltyMark] = useState<number>(0.25);
   const [formIsFree, setFormIsFree] = useState(true);
   const [formPrice, setFormPrice] = useState<number>(0);
+  const [formShowResult, setFormShowResult] = useState<boolean>(false);
+  const [formPassPercentage, setFormPassPercentage] = useState<number>(40);
+  const [formMinPassMark, setFormMinPassMark] = useState<number>(0);
 
   // Custom confirmation dialog
   const [deleteConfirm, setDeleteConfirm] = useState<Exam | null>(null);
@@ -91,7 +97,10 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
           penaltyMark: data.penaltyMark !== undefined ? Number(data.penaltyMark) : 0.25,
           questionCount: data.questionCount !== undefined ? Number(data.questionCount) : undefined,
           isFree: data.isFree !== undefined ? Boolean(data.isFree) : true,
-          price: data.price !== undefined ? Number(data.price) : 0
+          price: data.price !== undefined ? Number(data.price) : 0,
+          showResult: data.showResult !== undefined ? Boolean(data.showResult) : false,
+          passPercentage: data.passPercentage !== undefined ? Number(data.passPercentage) : 40,
+          minPassMark: data.minPassMark !== undefined ? Number(data.minPassMark) : 0
         });
       });
       list.sort((a, b) => a.slNo - b.slNo);
@@ -123,6 +132,9 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
     setFormPenaltyMark(0.25);
     setFormIsFree(true);
     setFormPrice(0);
+    setFormShowResult(false);
+    setFormPassPercentage(40);
+    setFormMinPassMark(0);
     setSelectedExam(null);
   };
 
@@ -147,6 +159,9 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
     setFormPenaltyMark(exam.penaltyMark !== undefined ? exam.penaltyMark : 0.25);
     setFormIsFree(exam.isFree !== undefined ? exam.isFree : true);
     setFormPrice(exam.price || 0);
+    setFormShowResult(exam.showResult !== undefined ? exam.showResult : false);
+    setFormPassPercentage(exam.passPercentage !== undefined ? exam.passPercentage : 40);
+    setFormMinPassMark(exam.minPassMark !== undefined ? exam.minPassMark : 0);
     setMode("edit");
     setSuccess("");
     setError("");
@@ -190,6 +205,9 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
         penaltyMark: Number(formPenaltyMark),
         isFree: Boolean(formIsFree),
         price: formIsFree ? 0 : Number(formPrice),
+        showResult: Boolean(formShowResult),
+        passPercentage: Number(formPassPercentage),
+        minPassMark: Number(formMinPassMark),
         updatedAt: new Date().toISOString()
       };
 
@@ -292,6 +310,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
                     <th className="py-3 px-4 font-bold">সময় (Time)</th>
                     <th className="py-3 px-4 font-bold">মার্কিং ও পেনাল্টি</th>
                     <th className="py-3 px-4 font-bold">টাইপ (Type)</th>
+                    <th className="py-3 px-4 font-bold">রেজাল্ট</th>
                     <th className="py-3 px-4 font-bold">স্ট্যাটাস</th>
                     <th className="py-3 px-4 font-bold text-center">অ্যাকশন</th>
                   </tr>
@@ -343,6 +362,24 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 font-bold rounded-lg text-[10px]">
                             <Lock className="w-3 h-3 text-amber-500" />
                             <span>{exam.price} ৳</span>
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-4 px-4">
+                        {exam.showResult ? (
+                          <div className="space-y-0.5">
+                            <span className="inline-block px-2 py-1 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-extrabold rounded-lg text-[10px]" title={`Pass percentage: ${exam.passPercentage || 40}%`}>
+                              প্রকাশিত ({exam.passPercentage || 40}%)
+                            </span>
+                            {exam.minPassMark !== undefined && exam.minPassMark > 0 && (
+                              <div className="text-[9px] text-slate-500 dark:text-slate-400 font-bold">
+                                ন্যূনতম: {exam.minPassMark}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="inline-block px-2 py-1 bg-slate-100 text-slate-500 dark:bg-slate-850 dark:text-slate-450 font-bold rounded-lg text-[10px]">
+                            অপ্রকাশিত
                           </span>
                         )}
                       </td>
@@ -602,6 +639,62 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
                         : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700"
                     }`}
                   />
+                </div>
+
+                {/* Publish Result Toggle */}
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                    রেজাল্ট পাবলিশ স্ট্যাটাস (Result Status)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setFormShowResult(!formShowResult)}
+                    className={`w-full py-2.5 px-4 border rounded-xl flex items-center justify-center gap-1.5 font-bold text-xs cursor-pointer transition-all ${
+                      formShowResult
+                        ? "bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/20 dark:border-indigo-900/30 dark:text-indigo-400"
+                        : "bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400"
+                    }`}
+                  >
+                    <span>{formShowResult ? "✓ রেজাল্ট প্রকাশিত (Published)" : "✗ রেজাল্ট অপ্রকাশিত (Hidden)"}</span>
+                  </button>
+                </div>
+
+                {/* Pass Percentage */}
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                    উত্তীর্ণ শিক্ষার্থীর হার (Pass Percentage: Top x%)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={formPassPercentage}
+                    onChange={(e) => setFormPassPercentage(Number(e.target.value))}
+                    placeholder="যেমন: 40"
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-semibold"
+                  />
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 leading-relaxed">
+                    প্রাপ্ত নম্বরের ওপর ভিত্তি করে মেধা তালিকার শীর্ষে থাকা শতকরা {formPassPercentage}% শিক্ষার্থী উত্তীর্ণ (Pass) হবে।
+                  </p>
+                </div>
+
+                {/* Minimum Pass Mark */}
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                    ন্যূনতম পাস নম্বর (Minimum Pass Mark)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={formMinPassMark}
+                    onChange={(e) => setFormMinPassMark(Number(e.target.value))}
+                    placeholder="যেমন: 20"
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-semibold"
+                  />
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 leading-relaxed">
+                    পরীক্ষার্থীকে অবশ্যই ন্যূনতম এই নম্বরটি পেতে হবে এবং একই সাথে শীর্ষ মেধা তালিকায় থাকতে হবে।
+                  </p>
                 </div>
               </div>
             </div>

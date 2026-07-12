@@ -9,16 +9,18 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, getDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Mail, Lock, User, LogIn, UserPlus, LogOut, CheckCircle, AlertCircle, Phone, GraduationCap, Briefcase, Loader2, Sparkles, ShieldCheck } from "lucide-react";
+import { X, Mail, Lock, User, LogIn, UserPlus, LogOut, CheckCircle, AlertCircle, Phone, GraduationCap, Briefcase, Loader2, Sparkles, ShieldCheck, Award, Trophy, BookOpen } from "lucide-react";
 import { trackEvent } from "../lib/analytics";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: any;
+  userAttempts?: any[];
+  exams?: any[];
 }
 
-export default function AuthModal({ isOpen, onClose, currentUser }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, currentUser, userAttempts = [], exams = [] }: AuthModalProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -34,6 +36,11 @@ export default function AuthModal({ isOpen, onClose, currentUser }: AuthModalPro
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"profile" | "subscriptions" | "results">("profile");
+
+  // Personal Results
+  const [personalResults, setPersonalResults] = useState<any[]>([]);
+  const [loadingResults, setLoadingResults] = useState(false);
 
   // Profile Subscriptions fields
   const [loadingSubscriptions, setLoadingSubscriptions] = useState(false);
@@ -100,6 +107,95 @@ export default function AuthModal({ isOpen, onClose, currentUser }: AuthModalPro
       fetchProfileAndSubscriptions();
     }
   }, [isOpen, currentUser]);
+
+  // Load and calculate results for the user's attempted published exams
+  React.useEffect(() => {
+    if (activeTab === "results" && currentUser && exams.length > 0) {
+      const fetchPersonalResults = async () => {
+        setLoadingResults(true);
+        try {
+          // Find all published exams
+          const publishedExams = exams.filter(e => e.showResult === true);
+          if (publishedExams.length === 0) {
+            setPersonalResults([]);
+            setLoadingResults(false);
+            return;
+          }
+
+          // Fetch all attempts for these published exams to calculate ranking and pass/fail accurately
+          const resultsList: any[] = [];
+
+          for (const exam of publishedExams) {
+            // Check if current user attempted this exam
+            const userAttempt = (userAttempts || []).find(att => att.examId === exam.id);
+            if (!userAttempt) continue; // Skip if user didn't take this exam
+
+            // Query all attempts for this exam to calculate the rank & pass/fail
+            const q = query(collection(db, "attempts"), where("examId", "==", exam.id));
+            const snap = await getDocs(q);
+            const allAttempts: any[] = [];
+            snap.forEach(doc => {
+              allAttempts.push({ id: doc.id, ...doc.data() });
+            });
+
+            // Sort all attempts to find correct rank
+            const sorted = [...allAttempts].sort((a, b) => {
+              const aMark = a.totalObtainedMark !== undefined ? a.totalObtainedMark : (a.score || 0);
+              const bMark = b.totalObtainedMark !== undefined ? b.totalObtainedMark : (b.score || 0);
+              if (bMark !== aMark) return bMark - aMark;
+              if ((a.timeTaken || 0) !== (b.timeTaken || 0)) {
+                return (a.timeTaken || 0) - (b.timeTaken || 0);
+              }
+              return new Date(a.completedAt || 0).getTime() - new Date(b.completedAt || 0).getTime();
+            });
+
+            const totalCount = sorted.length;
+            const passPercentage = exam.passPercentage || 40;
+            const minPassMark = exam.minPassMark || 0;
+            const passLimit = Math.max(1, Math.round((totalCount * passPercentage) / 100));
+
+            // Find current user's index in sorted attempts
+            const userIndex = sorted.findIndex(att => att.userId === currentUser.uid);
+            if (userIndex !== -1) {
+              const rank = userIndex + 1;
+              const myAttempt = sorted[userIndex];
+              const obtainedMark = myAttempt.totalObtainedMark !== undefined ? myAttempt.totalObtainedMark : (myAttempt.score || 0);
+              
+              // New pass condition: rank <= passLimit AND obtainedMark >= minPassMark
+              const isPass = totalCount > 0 ? (rank <= passLimit && obtainedMark >= minPassMark) : false;
+
+              resultsList.push({
+                examId: exam.id,
+                examName: exam.name,
+                obtainedMark,
+                totalQuestions: myAttempt.totalQuestions || 10,
+                correctCount: myAttempt.correctCount || 0,
+                wrongCount: myAttempt.wrongCount || 0,
+                skippedCount: myAttempt.skippedCount || 0,
+                totalExamMark: myAttempt.examTotalMark !== undefined ? myAttempt.examTotalMark : ((myAttempt.totalQuestions || 10) * (exam.markPerQuestion || 1)),
+                rank,
+                totalParticipants: totalCount,
+                isPass,
+                passPercentage,
+                minPassMark,
+                completedAt: myAttempt.completedAt
+              });
+            }
+          }
+
+          // Sort personal results by completion date (newest first)
+          resultsList.sort((a, b) => new Date(b.completedAt || 0).getTime() - new Date(a.completedAt || 0).getTime());
+          setPersonalResults(resultsList);
+        } catch (err) {
+          console.error("Error fetching personal results:", err);
+        } finally {
+          setLoadingResults(false);
+        }
+      };
+
+      fetchPersonalResults();
+    }
+  }, [activeTab, currentUser, exams, userAttempts]);
 
   const handlePreferenceToggle = (pref: string) => {
     setJobPreferences(prev => 
@@ -213,6 +309,7 @@ export default function AuthModal({ isOpen, onClose, currentUser }: AuthModalPro
     setSuccess("");
     setIsSignUp(false);
     setIsForgotPassword(false);
+    setActiveTab("profile");
   };
 
   const handleLogout = async () => {
@@ -240,14 +337,14 @@ export default function AuthModal({ isOpen, onClose, currentUser }: AuthModalPro
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-xl border border-gray-100 scrollbar-thin"
+        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 scrollbar-thin"
       >
         {/* Header decoration */}
         <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-600" />
         
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-50 z-10"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 z-10"
         >
           <X className="w-5 h-5" />
         </button>
@@ -255,130 +352,235 @@ export default function AuthModal({ isOpen, onClose, currentUser }: AuthModalPro
         <div className="p-6 sm:p-8">
           {currentUser ? (
             <div className="space-y-6 py-2">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center mx-auto shadow-sm border border-indigo-100 dark:border-indigo-900/30">
+              <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/55 dark:border-slate-850 p-5 rounded-2xl text-center space-y-4 shadow-sm">
+                <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center mx-auto shadow-sm border border-indigo-100 dark:border-indigo-900/30">
                   <User className="w-8 h-8" />
                 </div>
                 <div>
                   <h3 className="text-lg font-black text-slate-800 dark:text-white">প্রোফাইল (Profile)</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    ইউজারনেম: <span className="font-extrabold text-slate-700 dark:text-slate-200">{currentUser.displayName || "পরীক্ষার্থী"}</span>
-                  </p>
-                  <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">{currentUser.email}</p>
-                  {profileData?.phone && (
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">মোবাইল: <b className="text-slate-600 dark:text-slate-300 font-bold">{profileData.phone}</b></p>
-                  )}
+                  <div className="mt-4 space-y-2 text-left bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 flex justify-between items-center py-1.5 border-b border-slate-50 dark:border-slate-800/60">
+                      <span className="font-semibold">পরীক্ষার্থী (Name):</span>
+                      <span className="font-extrabold text-slate-800 dark:text-slate-200">{currentUser.displayName || "পরীক্ষার্থী"}</span>
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 flex justify-between items-center py-1.5 border-b border-slate-50 dark:border-slate-800/60">
+                      <span className="font-semibold">ইমেইল (Email):</span>
+                      <span className="font-bold text-slate-700 dark:text-slate-350 font-mono text-[10px]">{currentUser.email}</span>
+                    </p>
+                    {profileData?.phone && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 flex justify-between items-center py-1.5 border-b border-slate-50 dark:border-slate-800/60">
+                        <span className="font-semibold">মোবাইল (Phone):</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-350 font-mono">{profileData.phone}</span>
+                      </p>
+                    )}
+                    {profileData?.studyLevel && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 flex justify-between items-center py-1.5">
+                        <span className="font-semibold">শিক্ষাগত যোগ্যতা:</span>
+                        <span className="font-extrabold text-indigo-600 dark:text-indigo-400">{profileData.studyLevel}</span>
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Premium Status Banner */}
               {profileData && profileData.premiumUntil && new Date(profileData.premiumUntil) > new Date() ? (
-                <div className="bg-gradient-to-r from-amber-500/10 to-indigo-500/10 border border-amber-200/60 dark:border-indigo-900/40 p-4 rounded-2xl text-left space-y-1.5 shadow-sm">
+                <div className="bg-gradient-to-r from-amber-500/10 to-indigo-500/10 border border-amber-200/50 dark:border-amber-500/30 p-4 rounded-2xl text-left space-y-1.5 shadow-sm">
                   <div className="flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
                     <span className="font-extrabold text-xs text-amber-800 dark:text-amber-400">প্রিমিয়াম মেম্বারশিপ সক্রিয়!</span>
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-350 font-semibold">
                     প্যাকেজের ধরন: <b className="text-indigo-600 dark:text-indigo-400 uppercase font-black">{profileData.subscriptionType || "Custom"}</b>
                   </p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    মেয়াদ শেষ হবে: <b className="text-slate-700 dark:text-slate-300 font-bold">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-350 font-semibold">
+                    মেয়াদ শেষ হবে: <b className="text-slate-700 dark:text-slate-200 font-bold">
                       {new Date(profileData.premiumUntil).toLocaleString("bn-BD", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </b>
                   </p>
                 </div>
               ) : (
-                <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800/80 p-4 rounded-xl text-left">
-                  <span className="font-bold text-xs text-slate-500 dark:text-slate-400 block">বর্তমান স্ট্যাটাস: ফ্রি মেম্বার</span>
-                  <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">সব প্রিমিয়াম পরীক্ষা ও ব্যাখ্যা আনলক করতে যেকোনো একটি প্রিমিয়াম প্যাকেজ কিনুন।</p>
+                <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 p-4 rounded-xl text-left">
+                  <span className="font-bold text-xs text-slate-600 dark:text-slate-300 block">বর্তমান স্ট্যাটাস: ফ্রি মেম্বার</span>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">সব প্রিমিয়াম পরীক্ষা ও ব্যাখ্যা আনলক করতে যেকোনো একটি প্রিমিয়াম প্যাকেজ কিনুন।</p>
                 </div>
               )}
 
-              {/* Subscriptions List Section */}
-              <div className="border-t border-slate-100 dark:border-slate-800 pt-4 text-left space-y-4">
-                <div>
-                  <span className="text-xs font-black text-slate-800 dark:text-slate-200 block mb-2 uppercase tracking-wider">সক্রিয় মেম্বারশিপ তালিকা (Active Subscriptions)</span>
-                  {profileData?.subscriptionsList && profileData.subscriptionsList.length > 0 ? (
-                    <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
-                      {profileData.subscriptionsList.map((sub, idx) => {
-                        const isExpired = new Date(sub.premiumUntil) < new Date();
-                        return (
-                          <div key={idx} className="p-3 bg-indigo-50/40 dark:bg-slate-800/80 rounded-xl border border-indigo-100/60 dark:border-slate-850 text-[11px] flex justify-between items-center gap-4">
-                            <div className="space-y-1">
-                              <span className="font-bold text-slate-800 dark:text-slate-200 block flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                {sub.packageName}
-                              </span>
-                              <span className="text-slate-400 text-[10px] block">
-                                প্যাকেজ আইডি: <b className="font-mono text-slate-600 dark:text-slate-300">{sub.packageId}</b>
-                              </span>
-                              <span className="text-slate-400 text-[10px] block">
-                                শুরু: {new Date(sub.activatedAt).toLocaleDateString("bn-BD")}
-                              </span>
-                            </div>
-                            <div className="text-right shrink-0 space-y-1">
-                              <span className={`inline-block px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase ${
-                                isExpired 
-                                  ? "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400" 
-                                  : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400"
-                              }`}>
-                                {isExpired ? "মেয়াদোত্তীর্ণ" : "সক্রিয়"}
-                              </span>
-                              <span className="text-slate-500 dark:text-slate-400 text-[10px] block">
-                                মেয়াদ: {new Date(sub.premiumUntil).toLocaleDateString("bn-BD")}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center py-3 bg-slate-50 dark:bg-slate-800/10 rounded-xl">কোনো সক্রিয় প্রিমিয়াম প্যাকেজ পাওয়া যায়নি।</p>
-                  )}
-                </div>
+              {activeTab === "profile" ? (
+                <div className="grid grid-cols-1 gap-3">
+                  {/* My Results Button */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("results")}
+                    className="w-full py-3.5 px-4 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-emerald-400 font-black rounded-2xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer border border-emerald-100/40 dark:border-emerald-900/30 shadow-xs"
+                  >
+                    <Award className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>আমার ফলাফল শিট (My Exam Results)</span>
+                  </button>
 
-                <div>
-                  <span className="text-xs font-black text-slate-800 dark:text-slate-200 block mb-2 uppercase tracking-wider">পেমেন্ট ইতিহাস (Payment History)</span>
-                  {loadingSubscriptions ? (
-                    <div className="py-6 text-center space-y-2">
-                      <Loader2 className="w-5 h-5 animate-spin mx-auto text-indigo-500" />
-                      <span className="text-[10px] text-slate-400 font-bold block">তালিকা লোড হচ্ছে...</span>
-                    </div>
-                  ) : purchasedPacks.length > 0 ? (
-                    <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
-                      {purchasedPacks.map((pack) => {
-                        const isVerified = pack.status === "verified";
-                        const isRejected = pack.status === "rejected";
-                        return (
-                          <div key={pack.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100/80 dark:border-slate-800 text-[11px] flex justify-between items-center gap-4 transition-all hover:border-slate-200 dark:hover:border-slate-750">
-                            <div className="space-y-1">
-                              <span className="font-bold text-slate-800 dark:text-slate-200 block">{pack.name}</span>
-                              <span className="text-slate-400 text-[10px] block">
-                                TxID: <b className="font-mono text-slate-600 dark:text-slate-300">{pack.txId}</b> ({pack.method})
+                  {/* My Subscriptions Button */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("subscriptions")}
+                    className="w-full py-3.5 px-4 bg-indigo-50 hover:bg-indigo-100/80 text-indigo-700 dark:bg-indigo-950/20 dark:hover:bg-indigo-950/40 dark:text-indigo-450 font-black rounded-2xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer border border-indigo-100/40 dark:border-indigo-900/30 shadow-xs"
+                  >
+                    <Sparkles className="w-4 h-4 text-amber-500 shrink-0 animate-pulse" />
+                    <span>আমার সাবস্ক্রিপশন ও পেমেন্ট (My Subscriptions)</span>
+                  </button>
+                </div>
+              ) : activeTab === "results" ? (
+                /* Results List Tab */
+                <div className="border-t border-slate-150 dark:border-slate-800 pt-4 text-left space-y-4">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("profile")}
+                    className="flex items-center gap-1.5 text-xs font-black text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors cursor-pointer mb-2"
+                  >
+                    ← প্রোফাইলে ফিরে যান (Back to Profile)
+                  </button>
+
+                  <div>
+                    <span className="text-xs font-black text-slate-800 dark:text-slate-250 block mb-3 uppercase tracking-wider">আমার পরীক্ষার ফলাফল (My Exam Results)</span>
+                    {loadingResults ? (
+                      <div className="py-8 text-center space-y-2">
+                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-indigo-500" />
+                        <span className="text-[10px] text-slate-400 font-bold block">ফলাফল তৈরি হচ্ছে...</span>
+                      </div>
+                    ) : personalResults.length > 0 ? (
+                      <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                        {personalResults.map((res, idx) => (
+                          <div 
+                            key={idx} 
+                            className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800 text-[11px] space-y-2 transition-all hover:border-slate-200 dark:hover:border-slate-750"
+                          >
+                            <div className="flex justify-between items-start gap-3">
+                              <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs leading-snug">
+                                {res.examName}
                               </span>
-                              <span className="text-slate-400 text-[10px] block">তারিখ: {pack.date || "N/A"}</span>
-                            </div>
-                            <div className="text-right shrink-0 space-y-1">
-                              <span className="font-black text-slate-900 dark:text-white block">{pack.amount} ৳</span>
-                              <span className={`inline-block px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
-                                isVerified 
-                                  ? "bg-emerald-100 text-emerald-850 dark:bg-emerald-950/40 dark:text-emerald-400" 
-                                  : isRejected
-                                  ? "bg-rose-100 text-rose-850 dark:bg-rose-950/40 dark:text-rose-400"
-                                  : "bg-amber-100 text-amber-850 dark:bg-amber-950/40 dark:text-amber-400"
+                              <span className={`inline-block px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase shrink-0 ${
+                                res.isPass 
+                                  ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" 
+                                  : "bg-rose-500/10 text-rose-600 dark:bg-rose-950/40 dark:text-rose-450"
                               }`}>
-                                {isVerified ? "সক্রিয়" : isRejected ? "প্রত্যাখ্যাত" : "অপেক্ষমান"}
+                                {res.isPass ? "উত্তীর্ণ" : "অনুত্তীর্ণ"}
                               </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-y-1.5 gap-x-3 text-[10px] text-slate-500 dark:text-slate-400 pt-1.5 border-t border-slate-100 dark:border-slate-800/50 font-bold">
+                              <div>
+                                প্রাপ্ত নম্বর: <span className="font-black text-slate-800 dark:text-slate-200">{res.obtainedMark}</span> / {res.totalExamMark}
+                              </div>
+                              <div className="text-right">
+                                মেধা স্থান (Rank): <span className="font-black text-indigo-600 dark:text-indigo-400">{res.rank}</span> / {res.totalParticipants}
+                              </div>
+                              <div className="col-span-2 flex justify-between text-[9px] text-slate-400 dark:text-slate-500">
+                                <span>সঠিক: {res.correctCount} | ভুল: {res.wrongCount} | বাদ: {res.skippedCount}</span>
+                                <span>{new Date(res.completedAt).toLocaleDateString("bn-BD")}</span>
+                              </div>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center py-3 bg-slate-50 dark:bg-slate-800/10 rounded-xl">কোনো ক্রয়ের ইতিহাস নেই।</p>
-                  )}
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center py-5 bg-slate-50 dark:bg-slate-800/10 rounded-xl font-bold">কোনো প্রকাশিত পরীক্ষার ফলাফল পাওয়া যায়নি।</p>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                /* Subscriptions List & Payment History Tab */
+                <div className="border-t border-slate-100 dark:border-slate-800 pt-4 text-left space-y-4">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("profile")}
+                    className="flex items-center gap-1.5 text-xs font-black text-indigo-600 hover:text-indigo-800 dark:text-indigo-450 dark:hover:text-indigo-350 transition-colors cursor-pointer mb-2"
+                  >
+                    ← প্রোফাইলে ফিরে যান (Back to Profile)
+                  </button>
+
+                  <div>
+                    <span className="text-xs font-black text-slate-800 dark:text-slate-200 block mb-2 uppercase tracking-wider">সক্রিয় মেম্বারশিপ তালিকা (Active Subscriptions)</span>
+                    {profileData?.subscriptionsList && profileData.subscriptionsList.length > 0 ? (
+                      <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
+                        {profileData.subscriptionsList.map((sub, idx) => {
+                          const isExpired = new Date(sub.premiumUntil) < new Date();
+                          return (
+                            <div key={idx} className="p-3 bg-indigo-50/40 dark:bg-slate-800/80 rounded-xl border border-indigo-100/60 dark:border-slate-850 text-[11px] flex justify-between items-center gap-4">
+                              <div className="space-y-1">
+                                <span className="font-bold text-slate-800 dark:text-slate-200 block flex items-center gap-1.5">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                  {sub.packageName}
+                                </span>
+                                <span className="text-slate-400 text-[10px] block">
+                                  প্যাকেজ আইডি: <b className="font-mono text-slate-600 dark:text-slate-300">{sub.packageId}</b>
+                                </span>
+                                <span className="text-slate-400 text-[10px] block">
+                                  শুরু: {new Date(sub.activatedAt).toLocaleDateString("bn-BD")}
+                                </span>
+                              </div>
+                              <div className="text-right shrink-0 space-y-1">
+                                <span className={`inline-block px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase ${
+                                  isExpired 
+                                    ? "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400" 
+                                    : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400"
+                                }`}>
+                                  {isExpired ? "মেয়াদোত্তীর্ণ" : "সক্রিয়"}
+                                </span>
+                                <span className="text-slate-500 dark:text-slate-400 text-[10px] block">
+                                  মেয়াদ: {new Date(sub.premiumUntil).toLocaleDateString("bn-BD")}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center py-3 bg-slate-50 dark:bg-slate-800/10 rounded-xl">কোনো সক্রিয় প্রিমিয়াম প্যাকেজ পাওয়া যায়নি।</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <span className="text-xs font-black text-slate-800 dark:text-slate-200 block mb-2 uppercase tracking-wider">পেমেন্ট ইতিহাস (Payment History)</span>
+                    {loadingSubscriptions ? (
+                      <div className="py-6 text-center space-y-2">
+                        <Loader2 className="w-5 h-5 animate-spin mx-auto text-indigo-500" />
+                        <span className="text-[10px] text-slate-400 font-bold block">তালিকা লোড হচ্ছে...</span>
+                      </div>
+                    ) : purchasedPacks.length > 0 ? (
+                      <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
+                        {purchasedPacks.map((pack) => {
+                          const isVerified = pack.status === "verified";
+                          const isRejected = pack.status === "rejected";
+                          return (
+                            <div key={pack.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100/80 dark:border-slate-800 text-[11px] flex justify-between items-center gap-4 transition-all hover:border-slate-200 dark:hover:border-slate-750">
+                              <div className="space-y-1">
+                                <span className="font-bold text-slate-800 dark:text-slate-200 block">{pack.name}</span>
+                                <span className="text-slate-400 text-[10px] block">
+                                  TxID: <b className="font-mono text-slate-600 dark:text-slate-300">{pack.txId}</b> ({pack.method})
+                                </span>
+                                <span className="text-slate-400 text-[10px] block">তারিখ: {pack.date || "N/A"}</span>
+                              </div>
+                              <div className="text-right shrink-0 space-y-1">
+                                <span className="font-black text-slate-900 dark:text-white block">{pack.amount} ৳</span>
+                                <span className={`inline-block px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
+                                  isVerified 
+                                    ? "bg-emerald-100 text-emerald-850 dark:bg-emerald-950/40 dark:text-emerald-400" 
+                                    : isRejected
+                                    ? "bg-rose-100 text-rose-850 dark:bg-rose-950/40 dark:text-rose-400"
+                                    : "bg-amber-100 text-amber-850 dark:bg-amber-950/40 dark:text-amber-400"
+                                }`}>
+                                  {isVerified ? "সক্রিয়" : isRejected ? "প্রত্যাখ্যাত" : "অপেক্ষমান"}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center py-3 bg-slate-50 dark:bg-slate-800/10 rounded-xl">কোনো ক্রয়ের ইতিহাস নেই।</p>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {success && (
                 <div className="flex items-center gap-2 justify-center text-xs text-emerald-600 bg-emerald-50 py-2 px-3 rounded-xl border border-emerald-100">

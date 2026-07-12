@@ -11,6 +11,9 @@ export interface Exam {
   isFree?: boolean;
   price?: number;
   questionCount?: number;
+  showResult?: boolean;
+  passPercentage?: number;
+  minPassMark?: number;
 }
 
 export interface Question {

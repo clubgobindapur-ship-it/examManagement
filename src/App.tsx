@@ -11,6 +11,7 @@ import AuthModal from "./components/AuthModal";
 import ExamCard from "./components/ExamCard";
 import ActiveExam from "./components/ActiveExam";
 import Leaderboard from "./components/Leaderboard";
+import Results from "./components/Results";
 import UserPerformanceChart from "./components/UserPerformanceChart";
 import AdCarousel from "./components/AdCarousel";
 import AdminLogin from "./components/AdminLogin";
@@ -71,7 +72,7 @@ const parseExamDate = (dateStr?: string): number => {
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [currentView, setCurrentView] = useState<"home" | "live" | "routine" | "archive" | "leaderboard" | "active_exam" | "admin" | "pricing">(() => {
+  const [currentView, setCurrentView] = useState<"home" | "live" | "routine" | "archive" | "leaderboard" | "active_exam" | "admin" | "pricing" | "results">(() => {
     try {
       if (typeof window !== "undefined" && window.location.pathname === "/admin") {
         return "admin";
@@ -333,7 +334,10 @@ export default function App() {
               markPerQuestion: data.markPerQuestion !== undefined ? Number(data.markPerQuestion) : 1,
               penaltyMark: data.penaltyMark !== undefined ? Number(data.penaltyMark) : 0.25,
               isFree: data.isFree !== undefined ? Boolean(data.isFree) : true,
-              price: data.price !== undefined ? Number(data.price) : 0
+              price: data.price !== undefined ? Number(data.price) : 0,
+              showResult: data.showResult !== undefined ? Boolean(data.showResult) : false,
+              passPercentage: data.passPercentage !== undefined ? Number(data.passPercentage) : 40,
+              minPassMark: data.minPassMark !== undefined ? Number(data.minPassMark) : 0
             });
           });
         } else {
@@ -936,6 +940,17 @@ export default function App() {
             </motion.div>
           )}
 
+          {currentView === "results" && (
+            <motion.div
+              key="results"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+            >
+              <Results exams={exams} />
+            </motion.div>
+          )}
+
           {currentView === "pricing" && (
             <motion.div
               key="pricing"
@@ -1164,6 +1179,8 @@ export default function App() {
         isOpen={isAuthOpen} 
         onClose={() => setIsAuthOpen(false)} 
         currentUser={currentUser} 
+        userAttempts={userAttempts}
+        exams={exams}
       />
 
       {/* Payment Modal for unlocked exams */}
