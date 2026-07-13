@@ -10,7 +10,7 @@ import { db } from "../firebase";
 interface NavbarProps {
   currentUser: any;
   onOpenAuth: () => void;
-  onViewChange: (view: "home" | "live" | "routine" | "archive" | "leaderboard" | "pricing" | "results") => void;
+  onViewChange: (view: "home" | "live" | "routine" | "archive" | "leaderboard" | "pricing" | "results" | "my_results" | "my_subscriptions") => void;
   currentView: string;
   liveCount: number;
   routineCount: number;
@@ -93,7 +93,7 @@ export default function Navbar({
     }
   };
 
-  const handleNavClick = (view: "home" | "live" | "routine" | "archive" | "leaderboard" | "pricing") => {
+  const handleNavClick = (view: "home" | "live" | "routine" | "archive" | "leaderboard" | "pricing" | "results" | "my_results" | "my_subscriptions") => {
     onViewChange(view);
     setIsOpen(false);
   };
@@ -147,6 +147,20 @@ export default function Navbar({
       inactiveClass: "text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
     },
     {
+      id: "my_results",
+      label: "আমার ফলাফল (My Results)",
+      icon: <Award className="w-4 h-4 text-indigo-500 shrink-0" />,
+      activeClass: "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-100 dark:border-indigo-900/35",
+      inactiveClass: "text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+    },
+    {
+      id: "my_subscriptions",
+      label: "আমার সাবস্ক্রিপশন",
+      icon: <Sparkles className="w-4 h-4 text-amber-500 shrink-0 animate-pulse" />,
+      activeClass: "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 font-bold border border-amber-100 dark:border-amber-900/35",
+      inactiveClass: "text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+    },
+    {
       id: "pricing",
       label: "প্রিমিয়াম কিনুন",
       icon: <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />,
@@ -156,159 +170,193 @@ export default function Navbar({
   ];
 
   return (
-    <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-850 sticky top-0 z-50 flex-shrink-0 transition-colors font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo & Brand */}
-          <div 
-            onClick={() => handleNavClick("home")}
-            className="flex items-center gap-3 cursor-pointer hover:opacity-95 transition-opacity shrink-0"
-            id="brand-logo"
+    <>
+      {/* Desktop Horizontal Header Navigation - Top Right Corner */}
+      <header className="hidden lg:flex fixed top-0 left-64 right-0 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-850 z-30 items-center justify-end px-8 gap-4 transition-colors">
+        {/* Notice Bell Icon */}
+        <button
+          type="button"
+          onClick={() => setIsNoticeOpen(true)}
+          className="p-2 relative text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer flex items-center justify-center border border-transparent hover:border-slate-150 dark:hover:border-slate-800 shadow-xs"
+          title="নোটিশ বোর্ড (Notice Board)"
+        >
+          <Bell className="w-4.5 h-4.5" />
+          {unreadCount > 0 && (
+            <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+            </span>
+          )}
+        </button>
+
+        <div className="w-[1px] h-5 bg-slate-200 dark:bg-slate-800" />
+
+        {/* Theme Toggle Button */}
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer flex items-center justify-center border border-transparent hover:border-slate-150 dark:hover:border-slate-800 shadow-xs"
+          title={theme === "dark" ? "লাইট থিম চালু করুন" : "ডার্ক থিম চালু করুন"}
+        >
+          {theme === "dark" ? (
+            <Sun className="w-4.5 h-4.5 text-amber-500" />
+          ) : (
+            <Moon className="w-4.5 h-4.5 text-slate-500" />
+          )}
+        </button>
+
+        <div className="w-[1px] h-5 bg-slate-200 dark:bg-slate-800" />
+
+        {/* User profile / Auth button */}
+        {currentUser ? (
+          <button
+            id="btn-profile-desktop"
+            onClick={onOpenAuth}
+            className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-150 dark:border-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 px-4 py-1.5 rounded-xl transition-all cursor-pointer text-left min-w-0 shadow-xs"
           >
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-sm">
-              <GraduationCap className="w-5 h-5" />
+            <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold text-white uppercase shrink-0 shadow-sm">
+              {currentUser.displayName ? currentUser.displayName[0] : currentUser.email[0]}
             </div>
-            <div>
-              <span className="text-lg font-bold tracking-tight text-slate-800 dark:text-white">
-                কুইজ মাস্টার <span className="text-blue-600 dark:text-blue-400 font-extrabold">প্রো</span>
-              </span>
+            <div className="min-w-0">
+              <p className="text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate leading-none">
+                {currentUser.displayName || "পরীক্ষার্থী"}
+              </p>
             </div>
+          </button>
+        ) : (
+          <button
+            id="btn-signin-desktop"
+            onClick={onOpenAuth}
+            className="py-2 px-5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-850 dark:hover:bg-slate-700 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 border border-transparent"
+          >
+            <LogIn className="w-4.5 h-4.5" />
+            <span>লগইন করুন</span>
+          </button>
+        )}
+      </header>
+
+      {/* Desktop Vertical Sidebar Navigation */}
+      <aside className="hidden lg:flex flex-col w-64 h-screen fixed left-0 top-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-850 z-40 transition-all duration-300 font-sans p-6 overflow-y-auto">
+        {/* Brand/Logo Section */}
+        <div 
+          onClick={() => handleNavClick("home")}
+          className="flex items-center gap-3 cursor-pointer hover:opacity-95 transition-opacity mb-8 shrink-0"
+          id="brand-logo"
+        >
+          <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
+            <GraduationCap className="w-5.5 h-5.5" />
           </div>
-
-          {/* Desktop Nav Items - Hidden on mobile/tablet */}
-          <div className="hidden lg:flex items-center gap-2" id="nav-actions-desktop">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                id={`nav-btn-${item.id}`}
-                onClick={() => handleNavClick(item.id as any)}
-                className={`px-3 py-2 rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
-                  currentView === item.id ? item.activeClass : item.inactiveClass
-                }`}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </button>
-            ))}
-
-            <div className="w-[1px] h-5 bg-slate-200 dark:bg-slate-800 mx-1 shrink-0" />
-
-            {/* Notice Bell Icon */}
-            <button
-              type="button"
-              onClick={() => setIsNoticeOpen(true)}
-              className="p-1.5 relative text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all cursor-pointer shrink-0"
-              title="নোটিশ বোর্ড (Notice Board)"
-            >
-              <Bell className="w-4.5 h-4.5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-550"></span>
-                </span>
-              )}
-            </button>
-
-            {/* Theme Toggle Button */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all cursor-pointer shrink-0"
-              title={theme === "dark" ? "লাইট থিম চালু করুন" : "ডার্ক থিম চালু করুন"}
-            >
-              {theme === "dark" ? (
-                <Sun className="w-4 h-4 text-amber-500" />
-              ) : (
-                <Moon className="w-4 h-4 text-slate-500" />
-              )}
-            </button>
-
-            {/* Auth section */}
-            {currentUser ? (
-              <button
-                id="btn-profile-desktop"
-                onClick={onOpenAuth}
-                className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 py-1.5 px-3 rounded-full transition-all cursor-pointer shrink-0"
-              >
-                <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white uppercase">
-                  {currentUser.displayName ? currentUser.displayName[0] : currentUser.email[0]}
-                </div>
-                <span className="text-xs font-semibold max-w-[80px] truncate">
-                  {currentUser.displayName || "পরীক্ষার্থী"}
-                </span>
-              </button>
-            ) : (
-              <button
-                id="btn-signin-desktop"
-                onClick={onOpenAuth}
-                className="flex items-center gap-1.5 py-1.5 px-3.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-medium rounded-full shadow-sm transition-colors cursor-pointer shrink-0"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>লগইন করুন</span>
-              </button>
-            )}
-          </div>
-
-          {/* Mobile Right Controls: Bell, Theme toggle, profile/login, and Hamburger */}
-          <div className="flex lg:hidden items-center gap-2">
-            {/* Notice Bell on Mobile */}
-            <button
-              type="button"
-              onClick={() => setIsNoticeOpen(true)}
-              className="p-2 relative text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all cursor-pointer"
-              title="নোটিশ"
-            >
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-2 right-2 flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-550"></span>
-                </span>
-              )}
-            </button>
-
-            {/* Theme Toggle always visible */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all cursor-pointer"
-              title={theme === "dark" ? "লাইট থিম" : "ডার্ক থিম"}
-            >
-              {theme === "dark" ? (
-                <Sun className="w-4 h-4 text-amber-500" />
-              ) : (
-                <Moon className="w-4 h-4 text-slate-500" />
-              )}
-            </button>
-
-            {/* Profile/Login icon shortcut */}
-            {currentUser ? (
-              <button
-                onClick={onOpenAuth}
-                className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-[11px] font-bold text-white uppercase cursor-pointer"
-              >
-                {currentUser.displayName ? currentUser.displayName[0] : currentUser.email[0]}
-              </button>
-            ) : (
-              <button
-                onClick={onOpenAuth}
-                className="p-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-lg transition-colors cursor-pointer"
-              >
-                <LogIn className="w-4 h-4" />
-              </button>
-            )}
-
-            {/* Hamburger Button */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg focus:outline-none transition-colors cursor-pointer"
-              aria-label="Toggle Menu"
-            >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+          <div className="min-w-0">
+            <h2 className="text-base font-extrabold tracking-tight text-slate-800 dark:text-white leading-tight truncate">
+              কুইজ মাস্টার <span className="text-blue-600 dark:text-blue-400 font-black">প্রো</span>
+            </h2>
           </div>
         </div>
-      </div>
+
+        {/* Vertical Nav List */}
+        <nav className="flex flex-col gap-2 flex-grow">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              id={`nav-btn-${item.id}`}
+              onClick={() => handleNavClick(item.id as any)}
+              className={`w-full px-4 py-3 rounded-xl text-xs font-bold transition-all flex items-center gap-3.5 cursor-pointer text-left shrink-0 ${
+                currentView === item.id ? item.activeClass : item.inactiveClass
+              }`}
+            >
+              <span className="shrink-0 scale-110">{item.icon}</span>
+              <span className="truncate">{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        {/* Simplified clean Sidebar bottom footer */}
+        <div className="pt-6 border-t border-slate-150 dark:border-slate-800 shrink-0 text-center">
+          <p className="text-[10px] text-slate-400 font-medium">© ২০২৬ কুইজ মাস্টার প্রো</p>
+        </div>
+      </aside>
+
+      {/* Mobile Top Header Navigation */}
+      <header className="lg:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-850 sticky top-0 z-50 flex-shrink-0 transition-colors font-sans h-16 flex items-center">
+        <div className="w-full px-4">
+          <div className="flex justify-between items-center h-full">
+            {/* Logo & Brand */}
+            <div 
+              onClick={() => handleNavClick("home")}
+              className="flex items-center gap-3 cursor-pointer hover:opacity-95 transition-opacity shrink-0"
+              id="brand-logo-mobile"
+            >
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-sm shrink-0">
+                <GraduationCap className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-base font-bold tracking-tight text-slate-800 dark:text-white">
+                  কুইজ মাস্টার <span className="text-blue-600 dark:text-blue-400 font-extrabold">প্রো</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Mobile Right Controls: Bell, Theme toggle, profile/login, and Hamburger */}
+            <div className="flex items-center gap-1.5">
+              {/* Notice Bell on Mobile */}
+              <button
+                type="button"
+                onClick={() => setIsNoticeOpen(true)}
+                className="p-2 relative text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all cursor-pointer"
+                title="নোটিশ"
+              >
+                <Bell className="w-4.5 h-4.5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                  </span>
+                )}
+              </button>
+
+              {/* Theme Toggle always visible */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all cursor-pointer"
+                title={theme === "dark" ? "লাইট থিম" : "ডার্ক থিম"}
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-4 h-4 text-amber-500" />
+                ) : (
+                  <Moon className="w-4 h-4 text-slate-500" />
+                )}
+              </button>
+
+              {/* Profile/Login icon shortcut */}
+              {currentUser ? (
+                <button
+                  onClick={onOpenAuth}
+                  className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white uppercase cursor-pointer shrink-0"
+                >
+                  {currentUser.displayName ? currentUser.displayName[0] : currentUser.email[0]}
+                </button>
+              ) : (
+                <button
+                  onClick={onOpenAuth}
+                  className="p-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-lg transition-colors cursor-pointer shrink-0"
+                >
+                  <LogIn className="w-4 h-4" />
+                </button>
+              )}
+
+              {/* Hamburger Button */}
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg focus:outline-none transition-colors cursor-pointer ml-1"
+                aria-label="Toggle Menu"
+              >
+                {isOpen ? <X className="w-5.5 h-5.5" /> : <Menu className="w-5.5 h-5.5" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
 
       {/* Mobile Drawer Overlay */}
       <AnimatePresence>
@@ -568,6 +616,6 @@ export default function Navbar({
           </div>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }

@@ -24,6 +24,8 @@ import PendingPayments from "./components/PendingPayments";
 import AdminExamsSettings from "./components/AdminExamsSettings";
 import AdminPackagesSettings from "./components/AdminPackagesSettings";
 import AdminNotices from "./components/AdminNotices";
+import MyResults from "./components/MyResults";
+import MySubscriptions from "./components/MySubscriptions";
 
 // Analytics
 import { trackEvent, initGA } from "./lib/analytics";
@@ -72,7 +74,7 @@ const parseExamDate = (dateStr?: string): number => {
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [currentView, setCurrentView] = useState<"home" | "live" | "routine" | "archive" | "leaderboard" | "active_exam" | "admin" | "pricing" | "results">(() => {
+  const [currentView, setCurrentView] = useState<"home" | "live" | "routine" | "archive" | "leaderboard" | "active_exam" | "admin" | "pricing" | "results" | "my_results" | "my_subscriptions">(() => {
     try {
       if (typeof window !== "undefined" && window.location.pathname === "/admin") {
         return "admin";
@@ -262,6 +264,11 @@ export default function App() {
       } else {
         fetchUserAttempts(user);
         fetchUserPremiumAndSubscriptions(user);
+
+        // Auto-login as admin if they are authenticated as the admin email
+        if (user.email === "admin@examportal.com" || user.email === "club.gobindapur@gmail.com") {
+          setIsAdminLoggedIn(true);
+        }
       }
     });
     return unsubscribe;
@@ -269,7 +276,12 @@ export default function App() {
 
   // 1b. Auto-logout standard user when entering admin portal
   useEffect(() => {
-    if (currentUser && (currentView === "admin" || window.location.pathname === "/admin")) {
+    if (
+      currentUser && 
+      currentUser.email !== "admin@examportal.com" && 
+      currentUser.email !== "club.gobindapur@gmail.com" && 
+      (currentView === "admin" || window.location.pathname === "/admin")
+    ) {
       signOut(auth)
         .then(() => {
           trackEvent("admin_portal_auto_logout_success", { email: currentUser.email });
@@ -617,7 +629,12 @@ export default function App() {
       )}
 
       {/* Main Container */}
-      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <main className={`flex-grow w-full pb-10 transition-all ${
+        (currentView === "admin" && isAdminLoggedIn) 
+          ? "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10" 
+          : "lg:pl-64 pt-10 lg:pt-24"
+      }`}>
+        <div className={(currentView === "admin" && isAdminLoggedIn) ? "" : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"}>
         <AnimatePresence mode="wait">
           {currentView === "home" && (
             <motion.div
@@ -628,24 +645,24 @@ export default function App() {
               className="space-y-10"
             >
               {/* Introduction Hero Section */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 sm:p-10 flex flex-col md:flex-row gap-8 items-center justify-between">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 sm:p-10 flex flex-col md:flex-row gap-8 items-center justify-between">
                 <div className="space-y-4 max-w-xl text-center md:text-left">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold font-mono uppercase tracking-wider">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 rounded-full text-xs font-bold font-mono uppercase tracking-wider">
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>পরবর্তী প্রজন্মের মূল্যায়ন ইঞ্জিন (Next-Gen Assessment)</span>
                   </div>
-                  <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight leading-tight">
+                  <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight leading-tight">
                     স্মার্ট অনলাইন পরীক্ষা পদ্ধতি (Smart Quiz System)
                   </h1>
-                  <p className="text-sm text-slate-500 leading-relaxed">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                     একটি সুনির্দিষ্ট কাঠামোর মধ্যে আপনার লজিক, সাধারণ জ্ঞান এবং দক্ষতার পরীক্ষা নিন। গুগল শিটের সাথে পরীক্ষা সংযুক্ত করুন অথবা আমাদের লাইভ পরীক্ষাগুলোতে অংশ নিয়ে মেধা তালিকায় স্থান অর্জন করুন।
                   </p>
                 </div>
 
                 <div className="w-full md:w-auto max-w-xs">
-                  <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center min-w-[160px]">
-                    <span className="text-xs text-slate-400 font-bold block uppercase tracking-wider">চলতি পরীক্ষা (Live Exams)</span>
-                    <span className="text-3xl font-black text-blue-600 mt-1 block">
+                  <div className="bg-slate-50 dark:bg-slate-850 p-6 rounded-xl border border-slate-200 dark:border-slate-800 text-center min-w-[160px]">
+                    <span className="text-xs text-slate-400 dark:text-slate-550 font-bold block uppercase tracking-wider">চলতি পরীক্ষা (Live Exams)</span>
+                    <span className="text-3xl font-black text-blue-600 dark:text-blue-400 mt-1 block">
                       {liveExams.length}
                     </span>
                   </div>
@@ -660,6 +677,7 @@ export default function App() {
                 attempts={userAttempts}
                 onOpenAuth={() => setIsAuthOpen(true)}
                 isLoggedIn={!!currentUser}
+                theme={theme as any}
               />
             </motion.div>
           )}
@@ -970,6 +988,36 @@ export default function App() {
             </motion.div>
           )}
 
+          {currentView === "my_results" && (
+            <motion.div
+              key="my_results"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+            >
+              <MyResults 
+                currentUser={currentUser} 
+                onOpenAuth={() => setIsAuthOpen(true)}
+                exams={exams}
+              />
+            </motion.div>
+          )}
+
+          {currentView === "my_subscriptions" && (
+            <motion.div
+              key="my_subscriptions"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+            >
+              <MySubscriptions 
+                currentUser={currentUser} 
+                onOpenAuth={() => setIsAuthOpen(true)}
+                onViewChange={(view) => setCurrentView(view)}
+              />
+            </motion.div>
+          )}
+
           {currentView === "admin" && (
             <motion.div
               key="admin"
@@ -1030,24 +1078,27 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </main>
 
       {/* Footer About, Socials, & Copyright */}
-      <footer className="bg-white border-t border-slate-200 mt-16 flex-shrink-0">
+      <footer className={`bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 mt-16 flex-shrink-0 transition-all duration-300 ${
+        (currentView === "admin" && isAdminLoggedIn) ? "" : "lg:pl-64"
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-slate-100">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-slate-100 dark:border-slate-800">
             {/* About Section */}
             <div className="space-y-3">
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">কুইজ মাস্টার প্রো</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">কুইজ মাস্টার প্রো</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                 এটি একটি আধুনিক ও পরবর্তী প্রজন্মের অনলাইন মূল্যায়ন ইঞ্জিন। আমরা শিক্ষার্থীদের মেধা যাচাই ও দক্ষতা বৃদ্ধির লক্ষে বিভিন্ন বিষয়ের উপর লাইভ পরীক্ষা, সময়সূচীভিত্তিক রুটিন এবং আর্কাইভড কুইজ প্রদান করি।
               </p>
             </div>
 
             {/* Quick Stats/Links */}
             <div className="space-y-3">
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">দ্রুত সংযোগ (Quick Links)</h3>
-              <ul className="text-xs text-slate-500 space-y-2">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">দ্রুত সংযোগ (Quick Links)</h3>
+              <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-2">
                 <li>
                   <button onClick={() => {
                     if (activeExam) {
@@ -1060,7 +1111,7 @@ export default function App() {
                       setCurrentView("exams");
                       setActiveExamTab("live");
                     }
-                  }} className="hover:text-blue-600 transition-colors cursor-pointer text-left">
+                  }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
                     • চলতি পরীক্ষা (Live Exam)
                   </button>
                 </li>
@@ -1076,7 +1127,7 @@ export default function App() {
                       setCurrentView("exams");
                       setActiveExamTab("routine");
                     }
-                  }} className="hover:text-blue-600 transition-colors cursor-pointer text-left">
+                  }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
                     • পরীক্ষার রুটিন (Exam Routine)
                   </button>
                 </li>
@@ -1092,7 +1143,7 @@ export default function App() {
                       setCurrentView("exams");
                       setActiveExamTab("archive");
                     }
-                  }} className="hover:text-blue-600 transition-colors cursor-pointer text-left">
+                  }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
                     • আর্কাইভ (Archive)
                   </button>
                 </li>
@@ -1106,7 +1157,7 @@ export default function App() {
                     } else {
                       setCurrentView("leaderboard");
                     }
-                  }} className="hover:text-blue-600 transition-colors cursor-pointer text-left">
+                  }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
                     • লাইভ মেধা তালিকা (Leaderboard)
                   </button>
                 </li>
@@ -1115,8 +1166,8 @@ export default function App() {
 
             {/* Social Media Links */}
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">সোশ্যাল মিডিয়া (Social Media)</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">সোশ্যাল মিডিয়া (Social Media)</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                 আমাদের বিভিন্ন সামাজিক যোগাযোগ মাধ্যমে যুক্ত থাকুন এবং নতুন কুইজ ও আপডেট সম্পর্কে জানুন।
               </p>
               <div className="flex items-center gap-3">
@@ -1124,7 +1175,7 @@ export default function App() {
                   href="https://facebook.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 rounded-full flex items-center justify-center text-slate-500 transition-all cursor-pointer"
+                  className="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-600 dark:hover:text-blue-400 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all cursor-pointer"
                   title="Facebook"
                 >
                   <Facebook className="w-4 h-4" />
@@ -1133,7 +1184,7 @@ export default function App() {
                   href="https://youtube.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 bg-slate-100 hover:bg-red-50 hover:text-red-600 rounded-full flex items-center justify-center text-slate-500 transition-all cursor-pointer"
+                  className="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all cursor-pointer"
                   title="YouTube"
                 >
                   <Youtube className="w-4 h-4" />
@@ -1142,7 +1193,7 @@ export default function App() {
                   href="https://twitter.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 bg-slate-100 hover:bg-sky-50 hover:text-sky-500 rounded-full flex items-center justify-center text-slate-500 transition-all cursor-pointer"
+                  className="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950/30 hover:text-sky-500 dark:hover:text-sky-450 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all cursor-pointer"
                   title="Twitter/X"
                 >
                   <Twitter className="w-4 h-4" />
@@ -1151,14 +1202,14 @@ export default function App() {
                   href="https://instagram.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 bg-slate-100 hover:bg-pink-50 hover:text-pink-600 rounded-full flex items-center justify-center text-slate-500 transition-all cursor-pointer"
+                  className="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-pink-50 dark:hover:bg-pink-950/30 hover:text-pink-600 dark:hover:text-pink-400 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all cursor-pointer"
                   title="Instagram"
                 >
                   <Instagram className="w-4 h-4" />
                 </a>
                 <a
                   href="#"
-                  className="w-8 h-8 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-600 rounded-full flex items-center justify-center text-slate-500 transition-all cursor-pointer"
+                  className="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all cursor-pointer"
                   title="Website"
                 >
                   <Globe className="w-4 h-4" />
@@ -1167,7 +1218,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 font-bold uppercase tracking-widest gap-4">
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest gap-4">
             <div>কুইজ মাস্টার প্রো © {new Date().getFullYear()}</div>
             <div>সিস্টেম স্ট্যাটাস (System Status): <span className="text-green-600">সংযুক্ত (Connected)</span></div>
           </div>

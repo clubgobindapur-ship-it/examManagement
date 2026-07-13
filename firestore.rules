@@ -2,6 +2,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Global Fallback - Deny all read/write by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
     // Helper functions
     function isAuthenticated() {
       return request.auth != null;
@@ -9,6 +14,14 @@ service cloud.firestore {
 
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      // The admin email is configured as 'admin@examportal.com' or the user's registered admin email
+      return isAuthenticated() && (
+        request.auth.token.email == "admin@examportal.com" || 
+        request.auth.token.email == "club.gobindapur@gmail.com"
+      );
     }
 
     function isValidId(id) {
@@ -25,32 +38,48 @@ service cloud.firestore {
 
     // Users collection rules
     match /users/{userId} {
-      allow read, write: if true;
+      allow read, write: if isOwner(userId) || isAdmin();
 
       // Nested subscriptions subcollection
       match /subscriptions/{examId} {
-        allow read, write: if true;
+        // Users can only view their own subscriptions
+        allow read: if isOwner(userId) || isAdmin();
+        // Users can only request a pending subscription
+        allow create: if isOwner(userId) && request.resource.data.status == "pending";
+        // Only admin can verify/update or delete subscriptions
+        allow update, delete: if isAdmin();
       }
     }
 
     // Exams collection rules
     match /exams/{examId} {
-      allow read, write: if true;
+      // Publicly readable for active/live/archived quizzes
+      allow read: if true;
+      // Only admin can manage exam configurations
+      allow write: if isAdmin();
     }
 
     // Exam list collection rules
     match /examList/{examId} {
-      allow read, write: if true;
+      // Publicly readable to display index listings
+      allow read: if true;
+      // Only admin can write to index
+      allow write: if isAdmin();
     }
 
     // Subscription packages collection rules
     match /packages/{packageId} {
-      allow read, write: if true;
+      // Publicly readable to display packages to purchase
+      allow read: if true;
+      // Only admin can edit or manage package offers
+      allow write: if isAdmin();
     }
 
-    // Attempts collection rules (Leaderboard)
+    // Attempts collection rules (Leaderboard & Results)
     match /attempts/{attemptId} {
+      // Publicly list and read scoreboard and results
       allow get, list: if true;
+      // Prevent cheating: Users can submit an attempt but must set their matching auth userId (or null for guest)
       allow create: if isValidId(attemptId)
                     && request.resource.data.keys().hasAll(['id', 'examId', 'examName', 'username', 'email', 'score', 'totalQuestions', 'timeTaken', 'completedAt'])
                     && request.resource.data.id == attemptId
@@ -62,22 +91,37 @@ service cloud.firestore {
                     && request.resource.data.totalQuestions is number
                     && request.resource.data.timeTaken is number
                     && (!('userId' in request.resource.data) || request.resource.data.userId == null || request.resource.data.userId == request.auth.uid);
-      allow update, delete: if false; // Anti-tamper: results cannot be edited or deleted once submitted
+      // Immutable: Attempt entries cannot be edited or deleted to prevent fraud
+      allow update, delete: if false;
     }
 
     // Transactions collection rules
     match /transactions/{transactionId} {
-      allow read, write: if true;
+      // Users can only read their own payment logs, Admins can inspect all
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      // Users can only create a pending transaction under their own account
+      allow create: if isAuthenticated() 
+                    && request.resource.data.userId == request.auth.uid 
+                    && request.resource.data.status == "pending";
+      // Only administrators can verify, edit, or delete transactions
+      allow update, delete: if isAdmin();
     }
 
     // Settings collection rules
     match /settings/{settingId} {
-      allow read, write: if true;
+      // General settings (like googleAppsScriptUrl, monthlyPrice) are readable by all. 
+      // Sensitive document "admin" (admin credentials) can ONLY be read by an admin!
+      allow read: if settingId != "admin" || isAdmin();
+      // Only admin can edit settings
+      allow write: if isAdmin();
     }
 
     // Notices collection rules
     match /notices/{noticeId} {
-      allow read, write: if true;
+      // Publicly readable notices
+      allow read: if true;
+      // Only admin can publish notices
+      allow write: if isAdmin();
     }
   }
 }

@@ -407,26 +407,13 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
               )}
 
               {activeTab === "profile" ? (
-                <div className="grid grid-cols-1 gap-3">
-                  {/* My Results Button */}
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("results")}
-                    className="w-full py-3.5 px-4 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-emerald-400 font-black rounded-2xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer border border-emerald-100/40 dark:border-emerald-900/30 shadow-xs"
-                  >
-                    <Award className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>আমার ফলাফল শিট (My Exam Results)</span>
-                  </button>
-
-                  {/* My Subscriptions Button */}
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("subscriptions")}
-                    className="w-full py-3.5 px-4 bg-indigo-50 hover:bg-indigo-100/80 text-indigo-700 dark:bg-indigo-950/20 dark:hover:bg-indigo-950/40 dark:text-indigo-450 font-black rounded-2xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer border border-indigo-100/40 dark:border-indigo-900/30 shadow-xs"
-                  >
-                    <Sparkles className="w-4 h-4 text-amber-500 shrink-0 animate-pulse" />
-                    <span>আমার সাবস্ক্রিপশন ও পেমেন্ট (My Subscriptions)</span>
-                  </button>
+                <div className="text-center p-3.5 bg-slate-50 dark:bg-slate-800/20 rounded-2xl border border-slate-100 dark:border-slate-800/40 space-y-1">
+                  <p className="text-xs font-bold text-slate-600 dark:text-slate-350">
+                    ফলাফল ও সাবস্ক্রিপশন পৃষ্ঠা এখন সরাসরি মেনুতে পাবেন!
+                  </p>
+                  <p className="text-[10px] text-slate-400">
+                    বামদিকের প্রধান মেনু থেকে "আমার ফলাফল" এবং "আমার সাবস্ক্রিপশন" দেখতে পাবেন।
+                  </p>
                 </div>
               ) : activeTab === "results" ? (
                 /* Results List Tab */

@@ -16,6 +16,7 @@ interface UserPerformanceChartProps {
   attempts: Attempt[];
   onOpenAuth: () => void;
   isLoggedIn: boolean;
+  theme?: "light" | "dark";
 }
 
 const formatGraphDate = (isoString: string) => {
@@ -30,7 +31,8 @@ const formatGraphDate = (isoString: string) => {
   }
 };
 
-export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn }: UserPerformanceChartProps) {
+export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn, theme }: UserPerformanceChartProps) {
+  const isDark = theme === "dark";
   const [metric, setMetric] = useState<"percentage" | "correct" | "wrong" | "skipped" | "obtainedMark">("percentage");
 
   const handleMetricChange = (newMetric: typeof metric) => {
@@ -129,13 +131,13 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
 
   if (!isLoggedIn) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 sm:p-10 flex flex-col items-center justify-center text-center max-w-3xl mx-auto space-y-6">
-        <div className="w-16 h-16 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center border border-slate-100">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 sm:p-10 flex flex-col items-center justify-center text-center max-w-3xl mx-auto space-y-6">
+        <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 rounded-full flex items-center justify-center border border-slate-100 dark:border-slate-800">
           <Lock className="w-8 h-8" />
         </div>
         <div className="space-y-2 max-w-md">
-          <h2 className="text-xl font-bold text-slate-800">অগ্রগতি ট্র্যাকার (Progress Tracker)</h2>
-          <p className="text-sm text-slate-500 leading-relaxed">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white">অগ্রগতি ট্র্যাকার (Progress Tracker)</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             আপনার কর্মদক্ষতার গ্রাফ ও অগ্রগতির বিস্তারিত বিশ্লেষণ দেখতে দয়া করে লগ ইন করুন। লগ ইন করার পর আপনি প্রতিটি পরীক্ষার ফলাফল ট্র্যাকিং করতে পারবেন।
           </p>
         </div>
@@ -151,25 +153,25 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
+      <div className="p-6 border-b border-slate-100 dark:border-slate-800/80 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-850/30">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-bold text-slate-800">কর্মদক্ষতা গ্রাফ (Your Performance Analytics)</h2>
+            <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white">কর্মদক্ষতা গ্রাফ (Your Performance Analytics)</h2>
           </div>
-          <p className="text-xs text-slate-500">পরীক্ষাসমূহে আপনার অর্জিত ফলাফল ও অগ্রগতির তুলনামূলক বিশ্লেষণ।</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">পরীক্ষাসমূহে আপনার অর্জিত ফলাফল ও অগ্রগতির তুলনামূলক বিশ্লেষণ।</p>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 self-start md:self-auto">
+        <div className="flex flex-wrap gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 self-start md:self-auto">
           <button
             onClick={() => handleMetricChange("percentage")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               metric === "percentage"
-                ? "bg-white text-blue-600 shadow-sm"
-                : "text-slate-600 hover:text-slate-800"
+                ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
             }`}
           >
             শতকরা হার (%)
@@ -178,8 +180,8 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
             onClick={() => handleMetricChange("obtainedMark")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               metric === "obtainedMark"
-                ? "bg-white text-purple-600 shadow-sm"
-                : "text-slate-600 hover:text-slate-800"
+                ? "bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-400 shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
             }`}
           >
             প্রাপ্ত নম্বর
@@ -188,8 +190,8 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
             onClick={() => handleMetricChange("correct")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               metric === "correct"
-                ? "bg-white text-emerald-600 shadow-sm"
-                : "text-slate-600 hover:text-slate-800"
+                ? "bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
             }`}
           >
             সঠিক
@@ -198,8 +200,8 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
             onClick={() => handleMetricChange("wrong")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               metric === "wrong"
-                ? "bg-white text-rose-600 shadow-sm"
-                : "text-slate-600 hover:text-slate-800"
+                ? "bg-white dark:bg-slate-700 text-rose-600 dark:text-rose-400 shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
             }`}
           >
             ভুল
@@ -208,8 +210,8 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
             onClick={() => handleMetricChange("skipped")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               metric === "skipped"
-                ? "bg-white text-amber-600 shadow-sm"
-                : "text-slate-600 hover:text-slate-800"
+                ? "bg-white dark:bg-slate-700 text-amber-600 dark:text-amber-400 shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
             }`}
           >
             বাদ দেওয়া
@@ -217,30 +219,30 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 border-b border-slate-100">
+      <div className="grid grid-cols-1 lg:grid-cols-4 border-b border-slate-100 dark:border-slate-800">
         {/* Quick Stats boxes */}
-        <div className="p-6 bg-slate-50/20 lg:border-r border-slate-100 flex flex-col justify-center space-y-4">
-          <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-xs">
-            <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">মোট পরীক্ষা</span>
+        <div className="p-6 bg-slate-50/20 dark:bg-slate-900/20 lg:border-r border-slate-100 dark:border-slate-800 flex flex-col justify-center space-y-4">
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-750 shadow-xs">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider block">মোট পরীক্ষা</span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-black text-slate-800">{summary.total}</span>
-              <span className="text-xs text-slate-500 font-bold">টি</span>
+              <span className="text-2xl font-black text-slate-800 dark:text-white">{summary.total}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">টি</span>
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-xs">
-            <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">গড় স্কোর (Avg)</span>
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-750 shadow-xs">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider block">গড় স্কোর (Avg)</span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-black text-blue-600">{summary.avgPct}</span>
-              <span className="text-xs text-slate-500 font-bold">%</span>
+              <span className="text-2xl font-black text-blue-600 dark:text-blue-400">{summary.avgPct}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">%</span>
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-xs">
-            <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">সর্বোচ্চ স্কোর (Max)</span>
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-750 shadow-xs">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider block">সর্বোচ্চ স্কোর (Max)</span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-black text-emerald-600">{summary.bestPct}</span>
-              <span className="text-xs text-slate-500 font-bold">%</span>
+              <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{summary.bestPct}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">%</span>
             </div>
           </div>
         </div>
@@ -249,9 +251,9 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
         <div className="p-6 lg:col-span-3 min-h-[300px]">
           {chartData.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-3 min-h-[250px]">
-              <BarChart2 className="w-10 h-10 text-slate-300 animate-pulse" />
-              <p className="text-sm text-slate-500 font-bold">কোনো পরীক্ষার তথ্য পাওয়া যায়নি।</p>
-              <p className="text-xs text-slate-400">পরীক্ষায় অংশ নেওয়া শুরু করলে এখানে আপনার কর্মদক্ষতা চার্ট যুক্ত হবে।</p>
+              <BarChart2 className="w-10 h-10 text-slate-300 dark:text-slate-700 animate-pulse" />
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">কোনো পরীক্ষার তথ্য পাওয়া যায়নি।</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">পরীক্ষায় অংশ নেওয়া শুরু করলে এখানে আপনার কর্মদক্ষতা চার্ট যুক্ত হবে।</p>
             </div>
           ) : (
             <div className="w-full h-[260px]">
@@ -282,16 +284,16 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn 
                       <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "#334155" : "#f1f5f9"} />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fill: "#64748b", fontSize: 10, fontWeight: 600 }}
-                    axisLine={{ stroke: "#e2e8f0" }}
+                    tick={{ fill: isDark ? "#94a3b8" : "#64748b", fontSize: 10, fontWeight: 600 }}
+                    axisLine={{ stroke: isDark ? "#334155" : "#e2e8f0" }}
                     tickLine={false}
                   />
                   <YAxis 
                     domain={metric === "percentage" ? [0, 100] : ["auto", "auto"]}
-                    tick={{ fill: "#64748b", fontSize: 10, fontWeight: 600 }}
+                    tick={{ fill: isDark ? "#94a3b8" : "#64748b", fontSize: 10, fontWeight: 600 }}
                     axisLine={false}
                     tickLine={false}
                   />
