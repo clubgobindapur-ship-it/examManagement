@@ -6,6 +6,7 @@ import {
   Bold, Italic, Heading, Link, List, Image, FileText, X, Sparkles, Search
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { trackEvent } from "../lib/analytics";
 
 interface Blog {
   id: string;
@@ -56,6 +57,7 @@ export default function AdminBlogManager() {
         list.push({ id: docSnap.id, ...docSnap.data() } as Blog);
       });
       setBlogs(list);
+      trackEvent("admin_blogs_load", { count: list.length });
     } catch (err: any) {
       console.error(err);
       setError("ব্লগ তালিকা লোড করতে ব্যর্থ হয়েছে: " + err.message);
@@ -112,6 +114,7 @@ export default function AdminBlogManager() {
     setSaving(true);
     try {
       const blogId = currentBlogId || "blog-" + Math.random().toString(36).substring(2, 11) + "-" + Date.now().toString().slice(-4);
+      trackEvent("admin_blog_save_start", { mode: currentBlogId ? "edit" : "create", title: title.trim(), id: blogId });
       const slug = generateSlug(title.trim());
       const tagsArray = tagsInput.split(",").map(t => t.trim()).filter(t => t.length > 0);
 
@@ -139,11 +142,13 @@ export default function AdminBlogManager() {
         throw err;
       });
 
+      trackEvent("admin_blog_save_success", { mode: currentBlogId ? "edit" : "create", id: blogId });
       setSuccess(currentBlogId ? "ব্লগটি সফলভাবে আপডেট করা হয়েছে!" : "নতুন ব্লগ সফলভাবে তৈরি করা হয়েছে!");
       resetForm();
       fetchBlogs();
     } catch (err: any) {
       console.error(err);
+      trackEvent("admin_blog_save_failure", { mode: currentBlogId ? "edit" : "create", error: err.message });
       setError("ব্লগ সংরক্ষণ করতে সমস্যা হয়েছে: " + err.message);
     } finally {
       setSaving(false);
@@ -153,6 +158,7 @@ export default function AdminBlogManager() {
   // Toggle Visibility Status quickly
   const handleToggleVisibility = async (blog: Blog) => {
     try {
+      trackEvent("admin_blog_toggle_visibility", { id: blog.id, title: blog.blogTitle, isVisible: !blog.isBlogVisible });
       const docRef = doc(db, "blogs", blog.id);
       await setDoc(docRef, { isBlogVisible: !blog.isBlogVisible, updatedAt: new Date().toISOString() }, { merge: true });
       // Update local state for fast UI refresh
@@ -169,21 +175,25 @@ export default function AdminBlogManager() {
       return;
     }
 
+    trackEvent("admin_blog_delete_start", { id: blogId });
     setError("");
     try {
       await deleteDoc(doc(db, "blogs", blogId)).catch((err) => {
         handleFirestoreError(err, OperationType.DELETE, `blogs/${blogId}`);
         throw err;
       });
+      trackEvent("admin_blog_delete_success", { id: blogId });
       setSuccess("ব্লগটি সফলভাবে ডিলিট করা হয়েছে!");
       fetchBlogs();
     } catch (err: any) {
       console.error(err);
+      trackEvent("admin_blog_delete_failure", { id: blogId, error: err.message });
       setError("ব্লগ ডিলিট করতে ব্যর্থ হয়েছে: " + err.message);
     }
   };
 
   const handleEditClick = (blog: Blog) => {
+    trackEvent("admin_blog_edit_click", { id: blog.id, title: blog.blogTitle });
     setCurrentBlogId(blog.id);
     setTitle(blog.blogTitle);
     setSummary(blog.blogSummary || "");
@@ -472,13 +482,20 @@ export default function AdminBlogManager() {
                 type="text"
                 placeholder="ব্লগ সার্চ করুন..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSearchQuery(val);
+                  trackEvent("admin_blog_search", { query: val });
+                }}
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl text-xs outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 transition-all font-bold"
               />
             </div>
 
             <button
-              onClick={() => setIsEditing(true)}
+              onClick={() => {
+                setIsEditing(true);
+                trackEvent("admin_blog_click_new");
+              }}
               className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />

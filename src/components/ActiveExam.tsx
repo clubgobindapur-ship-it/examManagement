@@ -451,6 +451,16 @@ Well done! Join the challenge here: ${window.location.href}`;
     }
 
     try {
+      try {
+        const { trackEvent } = await import("../lib/analytics");
+        trackEvent("print_exam_result", {
+          examId: exam.id,
+          examName: exam.name,
+          username: username
+        });
+      } catch (e) {
+        console.warn("GA print_exam_result trigger failed:", e);
+      }
       window.print();
     } catch (err) {
       console.error("Print failed:", err);

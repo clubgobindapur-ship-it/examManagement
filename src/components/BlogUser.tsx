@@ -6,6 +6,7 @@ import {
   BookOpen, Calendar, Eye, Search, ArrowLeft, Loader2, Tag, ChevronRight, Clock, Award
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { trackEvent } from "../lib/analytics";
 
 interface Blog {
   id: string;
@@ -45,6 +46,7 @@ export default function BlogUser() {
           list.push({ id: docSnap.id, ...docSnap.data() } as Blog);
         });
         setBlogs(list);
+        trackEvent("blog_feed_load", { count: list.length });
       } catch (err) {
         console.error("Error fetching user blogs:", err);
       } finally {
@@ -58,6 +60,7 @@ export default function BlogUser() {
   // Handle Blog view detail + Increment count
   const handleBlogClick = async (blog: Blog) => {
     setSelectedBlog(blog);
+    trackEvent("blog_view", { blogId: blog.id, title: blog.blogTitle, slug: blog.blogSlug });
     
     // Increment view count in Firestore safely (diff rule allows updating blogViewCount by +1)
     try {
@@ -92,7 +95,10 @@ export default function BlogUser() {
             {/* Back Button and Metadata */}
             <div className="flex items-center justify-between">
               <button
-                onClick={() => setSelectedBlog(null)}
+                onClick={() => {
+                  setSelectedBlog(null);
+                  trackEvent("blog_back_to_list");
+                }}
                 className="px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-850 transition-all flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-300 shadow-xs"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -193,7 +199,11 @@ export default function BlogUser() {
                   type="text"
                   placeholder="ব্লগ বা গাইডলাইন অনুসন্ধান করুন..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSearchQuery(val);
+                    trackEvent("blog_search", { query: val });
+                  }}
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl text-xs outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 transition-all font-bold"
                 />
               </div>
