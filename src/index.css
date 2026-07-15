@@ -11,3 +11,38 @@
 body {
   font-family: var(--font-sans);
 }
+
+@media print {
+  /* Hide navigation, sidebar, ads, header, footer, actions, and custom triggers on print */
+  nav, header, footer, aside, .print-hidden, button, select, [role="button"], .theme-toggle {
+    display: none !important;
+  }
+  
+  /* Reset layout constraints and background colors for clean paper output */
+  body {
+    background-color: white !important;
+    background: white !important;
+    color: black !important;
+    font-size: 11pt !important;
+  }
+  
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    position: static !important;
+    transform: none !important;
+  }
+
+  /* Force background colors to print if checked */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .bg-white {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

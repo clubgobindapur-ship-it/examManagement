@@ -21,7 +21,9 @@ import {
   ListOrdered,
   HelpCircle,
   Copy,
-  Info
+  Info,
+  Printer,
+  RefreshCw
 } from "lucide-react";
 
 interface ActiveExamProps {
@@ -31,6 +33,8 @@ interface ActiveExamProps {
   googleAppsScriptUrl: string;
   onExit: () => void;
   onViewLeaderboard: () => void;
+  mode?: "take" | "retake" | "view_questions" | "view_result";
+  userPremiumUntil?: string | null;
 }
 
 export default function ActiveExam({ 
@@ -39,18 +43,22 @@ export default function ActiveExam({
   currentUser, 
   googleAppsScriptUrl, 
   onExit,
-  onViewLeaderboard
+  onViewLeaderboard,
+  mode = "take",
+  userPremiumUntil = null
 }: ActiveExamProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isUsingFallback, setIsUsingFallback] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState("");
 
   // Exam taking state
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
   const [timeLeft, setTimeLeft] = useState(exam.timeLimit * 60); // in seconds
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(mode === "view_result" || mode === "view_questions");
   const [isTimeUp, setIsTimeUp] = useState(false);
+  const [showSolutions, setShowSolutions] = useState(false);
 
   // Email validation step (before showing results)
   const [showEmailGate, setShowEmailGate] = useState(false);
@@ -73,6 +81,28 @@ export default function ActiveExam({
   const [correctCountState, setCorrectCountState] = useState(0);
   const [wrongCountState, setWrongCountState] = useState(0);
   const [skippedCountState, setSkippedCountState] = useState(0);
+
+  const [isPrintFree, setIsPrintFree] = useState<boolean>(true);
+  const [showPremiumPrintModal, setShowPremiumPrintModal] = useState<boolean>(false);
+
+  // Fetch print permission settings from Firestore
+  useEffect(() => {
+    const fetchPrintSettings = async () => {
+      try {
+        const { getDoc, doc } = await import("firebase/firestore");
+        const docSnap = await getDoc(doc(db, "settings", "printSettings"));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.isPrintFree !== undefined) {
+            setIsPrintFree(Boolean(data.isPrintFree));
+          }
+        }
+      } catch (e) {
+        console.error("Error loading print settings:", e);
+      }
+    };
+    fetchPrintSettings();
+  }, []);
 
   // Trackers
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -110,7 +140,8 @@ export default function ActiveExam({
               optionC: String(q.optionC || q.option_c || q.c || q.C || ""),
               optionD: String(q.optionD || q.option_d || q.d || q.D || ""),
               correctAnswer: String(q.correctAnswer || q.correct_answer || q.answer || q.correct || "a").trim().toLowerCase(),
-              explanation: String(q.explanation || q.exp || "")
+              explanation: String(q.explanation || q.exp || ""),
+              topic: q.topic ? String(q.topic).trim() : undefined
             }));
 
             const valid = normalized.filter(q => q.question);
@@ -149,7 +180,7 @@ export default function ActiveExam({
 
   // 2. Timer Countdown Logic
   useEffect(() => {
-    if (loading || error || isSubmitted || showEmailGate) return;
+    if (loading || error || isSubmitted || showEmailGate || mode === "view_questions") return;
 
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
@@ -165,7 +196,45 @@ export default function ActiveExam({
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [loading, error, isSubmitted, showEmailGate]);
+  }, [loading, error, isSubmitted, showEmailGate, mode]);
+
+  const gradeExamDirectly = () => {
+    // Calculate score
+    let correctCount = 0;
+    let skippedCount = 0;
+    let wrongCount = 0;
+    questions.forEach((q, idx) => {
+      const qKey = (q.questionNo !== undefined && q.questionNo !== "") ? Number(q.questionNo) : (idx + 1);
+      const userAnswer = (selectedAnswers[qKey] || "").toLowerCase().trim();
+      const correctAnswer = (q.correctAnswer || "").toLowerCase().trim();
+      
+      if (userAnswer === "") {
+        skippedCount++;
+      } else if (userAnswer === correctAnswer) {
+        correctCount++;
+      } else {
+        wrongCount++;
+      }
+    });
+
+    // Retrieved config marks
+    const markPerQ = exam.markPerQuestion !== undefined ? exam.markPerQuestion : 1;
+    const penaltyM = exam.penaltyMark !== undefined ? exam.penaltyMark : 0.25;
+    const calcObtained = correctCount * markPerQ - wrongCount * penaltyM;
+    const calcTotal = questions.length * markPerQ;
+
+    setScore(correctCount);
+    setCorrectCountState(correctCount);
+    setWrongCountState(wrongCount);
+    setSkippedCountState(skippedCount);
+    setMarkPerQuestion(markPerQ);
+    setPenaltyMark(penaltyM);
+    setTotalObtainedMark(calcObtained);
+    setExamTotalMark(calcTotal);
+
+    setAttemptId("retake-practice-" + Math.random().toString(36).substring(2, 8));
+    setIsSubmitted(true);
+  };
 
   const handleTimeUp = () => {
     setIsTimeUp(true);
@@ -173,12 +242,16 @@ export default function ActiveExam({
     const finalTimeTaken = exam.timeLimit * 60;
     setTimeTaken(finalTimeTaken);
     
-    // Automatically trigger the email gate for submission!
-    setShowEmailGate(true);
+    if (mode === "retake") {
+      gradeExamDirectly();
+    } else {
+      // Automatically trigger the email gate for submission!
+      setShowEmailGate(true);
+    }
   };
 
   const handleOptionSelect = (qNo: number, option: string) => {
-    if (isSubmitted || showEmailGate) return;
+    if (isSubmitted || showEmailGate || mode === "view_questions") return;
     setSelectedAnswers((prev) => ({
       ...prev,
       [qNo]: option
@@ -189,7 +262,11 @@ export default function ActiveExam({
   const handleTriggerSubmit = () => {
     const finalTimeTaken = Math.floor((Date.now() - startTimeRef.current) / 1000);
     setTimeTaken(Math.min(finalTimeTaken, exam.timeLimit * 60));
-    setShowEmailGate(true);
+    if (mode === "retake") {
+      gradeExamDirectly();
+    } else {
+      setShowEmailGate(true);
+    }
   };
 
   // 3. Final submission with valid email
@@ -362,14 +439,273 @@ Well done! Join the challenge here: ${window.location.href}`;
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handlePrintOrDownload = async () => {
+    // 1. Check permissions
+    const isPremium = userPremiumUntil ? new Date(userPremiumUntil).getTime() > Date.now() : false;
+    const isAdmin = currentUser?.email === "admin@examportal.com" || currentUser?.email === "club.gobindapur@gmail.com";
+    const canPrint = isPrintFree || isPremium || isAdmin;
+
+    if (!canPrint) {
+      setShowPremiumPrintModal(true);
+      return;
+    }
+
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4"
+      });
+
+      const pageHeight = doc.internal.pageSize.height || 297;
+      const pageWidth = doc.internal.pageSize.width || 210;
+      let y = 15;
+
+      const checkPage = (needed: number) => {
+        if (y + needed > pageHeight - 15) {
+          doc.addPage();
+          y = 15;
+          // Draw a small running header on top of each new page
+          doc.setFontSize(8);
+          doc.setTextColor(120, 120, 120);
+          doc.text(`Exam Result Review: ${exam.name}`, 15, y);
+          doc.text(`Candidate: ${username}`, pageWidth - 15 - doc.getTextWidth(`Candidate: ${username}`), y);
+          doc.setDrawColor(220, 225, 230);
+          doc.line(15, y + 2, pageWidth - 15, y + 2);
+          y += 10;
+        }
+      };
+
+      // --- PAGE 1: TITLE & COVER DETAILS ---
+      // Draw primary header banner block
+      doc.setFillColor(37, 99, 235); // solid brand blue (bg-blue-600)
+      doc.rect(15, y, pageWidth - 30, 22, "F");
+
+      doc.setFontSize(14);
+      doc.setTextColor(255, 255, 255);
+      doc.text("OFFICIAL EXAM RESULT & EXPLANATION REPORT", 20, y + 14);
+      y += 28;
+
+      // Exam Metadata Table Box
+      doc.setFillColor(248, 250, 252); // soft slate bg (bg-slate-50)
+      doc.setDrawColor(226, 232, 240); // slate-200 border
+      doc.rect(15, y, pageWidth - 30, 48, "FD");
+
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42); // slate-900 (deep charcoal)
+      
+      doc.text(`Exam Name / পরীক্ষার নাম:`, 20, y + 8);
+      doc.text(`${exam.name}`, 75, y + 8);
+
+      doc.text(`Total Questions / মোট প্রশ্ন:`, 20, y + 16);
+      doc.text(`${questions.length} Nos`, 75, y + 16);
+
+      doc.text(`Marking Scheme / নম্বর বিভাজন:`, 20, y + 24);
+      doc.text(`+${markPerQuestion} for Correct | -${penaltyMark} for Wrong`, 75, y + 24);
+
+      doc.text(`Total Marks / পূর্ণমান:`, 20, y + 32);
+      doc.text(`${examTotalMark} Marks`, 75, y + 32);
+
+      const generatedOn = new Date().toLocaleString("en-US", { timeZone: "Asia/Dhaka" });
+      doc.text(`Generated Date / ডাউনলোড সময়:`, 20, y + 40);
+      doc.text(`${generatedOn} (Dhaka Time)`, 75, y + 40);
+
+      y += 54;
+
+      // Candidate Profile Section
+      doc.setFillColor(241, 245, 249); // slate-100 bg
+      doc.rect(15, y, pageWidth - 30, 28, "F");
+      doc.text("CANDIDATE INFORMATION / পরীক্ষার্থীর তথ্য:", 20, y + 8);
+      doc.setFontSize(10);
+      doc.setTextColor(51, 65, 85); // slate-700
+      doc.text(`Name / নাম: ${username}`, 20, y + 16);
+      doc.text(`Email / ইমেইল: ${emailInput || "Guest Session"}`, 20, y + 22);
+      doc.text(`Attempt ID: ${attemptId || "Practice Mode"}`, pageWidth - 80, y + 16);
+      y += 34;
+
+      // SCORE CARD & PERFORMANCE SUMMARY
+      doc.setFontSize(12);
+      doc.setTextColor(15, 23, 42);
+      doc.text("PERFORMANCE SUMMARY / ফলাফল সারসংক্ষেপ:", 15, y);
+      y += 6;
+
+      // Draw horizontal cards
+      const cardWidth = (pageWidth - 30 - 6) / 3;
+      
+      // Card 1: Obtained Score
+      doc.setFillColor(239, 246, 255); // blue-50 bg
+      doc.setDrawColor(191, 219, 254); // blue-200 border
+      doc.rect(15, y, cardWidth, 22, "FD");
+      doc.setFontSize(8);
+      doc.setTextColor(37, 99, 235);
+      doc.text("NET OBTAINED MARKS", 15 + 4, y + 6);
+      doc.setFontSize(13);
+      doc.text(`${totalObtainedMark.toFixed(2)} / ${examTotalMark}`, 15 + 4, y + 16);
+
+      // Card 2: Accuracy Count
+      doc.setFillColor(240, 253, 250); // teal-50 bg
+      doc.setDrawColor(153, 246, 228); // teal-200 border
+      doc.rect(15 + cardWidth + 3, y, cardWidth, 22, "FD");
+      doc.setFontSize(8);
+      doc.setTextColor(13, 148, 136);
+      doc.text("ACCURACY SUMMARY", 15 + cardWidth + 3 + 4, y + 6);
+      doc.setFontSize(11);
+      doc.text(`Correct: ${correctCountState} | Wrong: ${wrongCountState}`, 15 + cardWidth + 3 + 4, y + 16);
+
+      // Card 3: Time Elapsed
+      doc.setFillColor(248, 250, 252); // slate-50 bg
+      doc.setDrawColor(226, 232, 240); // slate-200 border
+      doc.rect(15 + (cardWidth * 2) + 6, y, cardWidth, 22, "FD");
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text("TIME ELAPSED", 15 + (cardWidth * 2) + 6 + 4, y + 6);
+      doc.setFontSize(13);
+      doc.text(`${formatTime(timeTaken)} min`, 15 + (cardWidth * 2) + 6 + 4, y + 16);
+
+      y += 32;
+
+      // --- SECTION 2: QUESTIONS BREAKDOWN ---
+      doc.setFontSize(12);
+      doc.setTextColor(15, 23, 42);
+      doc.text("DETAILED QUESTIONS SHEET & ANSWER REVIEW", 15, y);
+      y += 8;
+
+      questions.forEach((q, idx) => {
+        const qNo = (q.questionNo !== undefined && q.questionNo !== "") ? Number(q.questionNo) : (idx + 1);
+        const userAnswer = (selectedAnswers[qNo] || "").toLowerCase().trim();
+        const correctAnswer = (q.correctAnswer || "").toLowerCase().trim();
+        
+        let statusText = "Skipped / উত্তর দেওয়া হয়নি";
+        let statusColor = [100, 116, 139]; // Slate gray
+        let markText = "0.00 Marks";
+
+        if (userAnswer !== "") {
+          if (userAnswer === correctAnswer) {
+            statusColor = [16, 185, 129]; // Emerald green
+            statusText = "Correct / সঠিক উত্তর";
+            markText = `+${markPerQuestion.toFixed(2)} Marks`;
+          } else {
+            statusColor = [239, 68, 68]; // Rose red
+            statusText = "Incorrect / ভুল উত্তর";
+            markText = `-${penaltyMark.toFixed(2)} Marks`;
+          }
+        }
+
+        // Check page limit before printing question header
+        checkPage(42);
+
+        // Draw question box header with light color band
+        doc.setFillColor(248, 250, 252);
+        doc.setDrawColor(241, 245, 249);
+        doc.rect(15, y, pageWidth - 30, 8, "FD");
+        
+        doc.setFontSize(9.5);
+        doc.setTextColor(15, 23, 42);
+        doc.text(`Q${idx + 1}. ${q.question}`, 17, y + 5.5);
+        y += 10;
+
+        // Print Options A, B, C, D
+        const optionsList = [
+          { key: "a", val: q.optionA },
+          { key: "b", val: q.optionB },
+          { key: "c", val: q.optionC },
+          { key: "d", val: q.optionD }
+        ];
+
+        optionsList.forEach((opt) => {
+          checkPage(10);
+          
+          let optPrefix = `[ ] Option (${opt.key.toUpperCase()}): `;
+          if (userAnswer === opt.key) {
+            optPrefix = `[x] Option (${opt.key.toUpperCase()}): `;
+          }
+          
+          doc.setFontSize(9);
+          if (correctAnswer === opt.key) {
+            doc.setTextColor(16, 185, 129); // green for correct
+            doc.text(`${optPrefix}${opt.val} (Correct Answer)`, 18, y + 4);
+          } else if (userAnswer === opt.key && userAnswer !== correctAnswer) {
+            doc.setTextColor(239, 68, 68); // red for incorrect selection
+            doc.text(`${optPrefix}${opt.val} (Your Selection)`, 18, y + 4);
+          } else {
+            doc.setTextColor(71, 85, 105); // standard slate-600
+            doc.text(`${optPrefix}${opt.val}`, 18, y + 4);
+          }
+          y += 6.5;
+        });
+
+        // Question status summary card underneath options
+        checkPage(18);
+        y += 2;
+        doc.setFillColor(254, 254, 255);
+        doc.setDrawColor(226, 232, 240);
+        doc.rect(15, y, pageWidth - 30, 10, "FD");
+        
+        doc.setFontSize(8.5);
+        doc.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
+        doc.text(`Result: ${statusText} | Obtained: ${markText}`, 18, y + 6.5);
+        y += 13;
+
+        // Print explanation if exists
+        if (q.explanation && q.explanation.trim()) {
+          checkPage(20);
+          doc.setFillColor(254, 243, 199); // amber-50
+          doc.setDrawColor(251, 191, 36); // amber-400
+          
+          // Split explanation text to prevent line overflow in PDF!
+          const splitExplanation = doc.splitTextToSize(`Explanation: ${q.explanation}`, pageWidth - 36);
+          const boxHeight = (splitExplanation.length * 4.5) + 6;
+          
+          checkPage(boxHeight + 5);
+          doc.rect(15, y, pageWidth - 30, boxHeight, "FD");
+          doc.setFontSize(8.5);
+          doc.setTextColor(180, 83, 9); // amber-800
+          
+          let lineY = y + 5;
+          splitExplanation.forEach((line: string) => {
+            doc.text(line, 18, lineY);
+            lineY += 4.5;
+          });
+          y += boxHeight + 6;
+        } else {
+          y += 2;
+        }
+      });
+
+      // Footer notice / copyright
+      checkPage(15);
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text("Official Exam Portal Report. All rights reserved.", 15, y + 6);
+      doc.text("Page " + doc.internal.pages.length, pageWidth - 30, y + 6);
+
+      // Save PDF to downloads
+      const fileSafeName = exam.name.replace(/[^a-zA-Z0-9]/g, "_") + "_result.pdf";
+      doc.save(fileSafeName);
+
+      // Show beautiful success indication
+      alert(`পিডিএফ ফাইলটি "${fileSafeName}" নামে সফলভাবে ডাউনলোড করা হয়েছে! (Result PDF downloaded successfully)`);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      alert("দুঃখিত, পিডিএফ ডাউনলোড করার সময় একটি সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।");
+    }
+  };
+
+  // Derived states
+  const uniqueTopics = Array.from(new Set(questions.map(q => q.topic).filter(Boolean))) as string[];
+  const filteredQuestions = selectedTopic
+    ? questions.filter(q => q.topic === selectedTopic)
+    : questions;
+
   // Render Loader
   if (loading) {
     return (
       <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center space-y-4 font-sans">
         <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto" />
         <div>
-          <p className="text-gray-900 font-bold text-lg">পরীক্ষার প্রশ্নাবলী লোড করা হচ্ছে</p>
-          <p className="text-gray-400 text-xs mt-1">গুগল শিট থেকে প্রশ্নাবলী সংগৃহীত হচ্ছে...</p>
+          <p className="text-gray-900 font-bold text-lg">পরীক্ষা লোড হচ্ছে...</p>
+          <p className="text-gray-500 text-xs mt-1 font-mono">অনুগ্রহ করে কিছুক্ষণ অপেক্ষা করুন।</p>
         </div>
       </div>
     );
@@ -399,92 +735,137 @@ Well done! Join the challenge here: ${window.location.href}`;
   // Render Result Screen
   if (isSubmitted) {
     const scorePct = Math.round((score / totalQuestions) * 100);
+    const isViewResultOnly = mode === "view_result" || mode === "view_questions";
+    const isRetakeOnly = mode === "retake";
+
     return (
       <div className="space-y-8 font-sans">
         {/* Hero banner */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center space-y-6 relative overflow-hidden">
-          <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-emerald-500 to-teal-500" />
+          <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 print-hidden" />
           
-          <div className="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner border border-emerald-100">
+          <div className="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner border border-emerald-100 print-hidden">
             <Award className="w-10 h-10" />
           </div>
 
           <div className="space-y-2">
-            <span className="text-xs uppercase tracking-widest font-black text-emerald-600 font-mono">পরীক্ষা সফলভাবে জমা দেওয়া হয়েছে (Submitted)</span>
-            <h2 className="text-2xl font-bold text-gray-900">{exam.name} এর ফলাফল</h2>
-            <p className="text-sm text-gray-400 font-mono">অংশগ্রহণ আইডি (Attempt ID): {attemptId}</p>
+            <span className="text-xs uppercase tracking-widest font-black text-emerald-600 font-mono block">
+              {mode === "view_questions"
+                ? "অফিশিয়াল প্রশ্নপত্র পর্যালোচনা (Question Paper Review)"
+                : isViewResultOnly 
+                  ? "অফিশিয়াল সমাধানপত্র পর্যালোচনা (Answer Key Review)" 
+                  : isRetakeOnly 
+                    ? "পুনরায় পরীক্ষা সম্পন্ন হয়েছে (Practice Attempt Completed)" 
+                    : "পরীক্ষা সফলভাবে জমা দেওয়া হয়েছে (Submitted)"}
+            </span>
+            <h2 className="text-2xl font-bold text-gray-900">{exam.name} {mode === "view_questions" ? "- প্রশ্ন ও সমাধান" : isViewResultOnly ? "- সঠিক সমাধান" : "- ফলাফল ও সমাধান"}</h2>
+            {!isViewResultOnly && !isRetakeOnly && (
+              <p className="text-sm text-gray-400 font-mono">অংশগ্রহণ আইডি (Attempt ID): {attemptId}</p>
+            )}
+            {isRetakeOnly && (
+              <p className="text-sm text-indigo-500 font-bold font-mono">অনুশীলন মোড (Practice Mode - Result Not Saved)</p>
+            )}
           </div>
 
-          {/* Score Stats Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-              <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">মোট প্রাপ্ত নম্বর (Net Obtained)</span>
-              <span className="text-2xl font-black text-indigo-600 mt-1 block">
-                {totalObtainedMark.toFixed(2)} / {examTotalMark}
-              </span>
-              <span className="text-[9px] text-slate-400 block mt-0.5">সঠিক: {correctCountState}, ভুল: {wrongCountState}</span>
-            </div>
+          {/* Score Stats Cards - Only visible if taking/retaking, or if not view_result mode */}
+          {!isViewResultOnly && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">মোট প্রাপ্ত নম্বর (Net Obtained)</span>
+                <span className="text-2xl font-black text-indigo-600 mt-1 block">
+                  {totalObtainedMark.toFixed(2)} / {examTotalMark}
+                </span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">সঠিক: {correctCountState}, ভুল: {wrongCountState}</span>
+              </div>
 
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-              <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">সঠিক উত্তর সংখ্যা</span>
-              <span className="text-2xl font-black text-emerald-600 mt-1 block">
-                {correctCountState} / {totalQuestions}
-              </span>
-              <span className="text-[9px] text-slate-400 block mt-0.5">প্রতিটি প্রশ্ন: {markPerQuestion} নম্বর</span>
-            </div>
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">সঠিক উত্তর সংখ্যা</span>
+                <span className="text-2xl font-black text-emerald-600 mt-1 block">
+                  {correctCountState} / {totalQuestions}
+                </span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">প্রতিটি প্রশ্ন: {markPerQuestion} নম্বর</span>
+              </div>
 
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-              <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">ভুল ও পেনাল্টি মার্কস</span>
-              <span className="text-2xl font-black text-rose-600 mt-1 block">
-                -{(wrongCountState * penaltyMark).toFixed(2)}
-              </span>
-              <span className="text-[9px] text-slate-400 block mt-0.5">কাটা গেছে: {penaltyMark} প্রতি ভুল</span>
-            </div>
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">ভুল ও পেনাল্টি মার্কস</span>
+                <span className="text-2xl font-black text-rose-600 mt-1 block">
+                  -{(wrongCountState * penaltyMark).toFixed(2)}
+                </span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">কাটা গেছে: {penaltyMark} প্রতি ভুল</span>
+              </div>
 
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-              <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">ব্যয়িত সময়</span>
-              <span className="text-2xl font-black text-slate-800 mt-1 block flex items-center justify-center gap-1">
-                <Timer className="w-5 h-5 text-slate-400 shrink-0" />
-                <span>{formatTime(timeTaken)}</span>
-              </span>
-              <span className="text-[9px] text-slate-400 block mt-0.5">সীমা: {exam.timeLimit} মিনিট</span>
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">ব্যয়িত সময়</span>
+                <span className="text-2xl font-black text-slate-800 mt-1 block flex items-center justify-center gap-1">
+                  <Timer className="w-5 h-5 text-slate-400 shrink-0" />
+                  <span>{formatTime(timeTaken)}</span>
+                </span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">সীমা: {exam.timeLimit} মিনিট</span>
+              </div>
             </div>
-          </div>
+          )}
 
-          <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
-            অভিনন্দন, <span className="font-bold text-gray-700">{username}</span>! আপনার ফলাফল সফলভাবে সংরক্ষণ করা হয়েছে। আপনার ইমেইল <span className="font-medium text-gray-700">{emailInput}</span> ঠিকানায় বিস্তারিত রিপোর্ট পাঠানো হয়েছে।
-          </p>
+          {isViewResultOnly && (
+            <div className="max-w-2xl mx-auto p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 text-slate-700 text-xs sm:text-sm leading-relaxed">
+              নিচের প্রশ্নাবলী ও তাদের সঠিক সমাধানসমূহ পর্যালোচনা করুন। প্রতিটি প্রশ্নের জন্য অফিশিয়াল ব্যাখ্যা ও সঠিক উত্তর হাইলাইট করে দেওয়া হয়েছে।
+            </div>
+          )}
+
+          {!isViewResultOnly && (
+            <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
+              {isRetakeOnly 
+                ? `অনুশীলন পরীক্ষা সম্পন্ন হয়েছে! অভিনন্দন, ${username}! আপনার অর্জিত স্কোর ও ফলাফল নিচে প্রদর্শন করা হলো।`
+                : `অভিনন্দন, ${username}! আপনার ফলাফল সফলভাবে সংরক্ষণ করা হয়েছে। আপনার ইমেইল ${emailInput} ঠিকানায় বিস্তারিত রিপোর্ট পাঠানো হয়েছে।`
+              }
+            </p>
+          )}
 
           {/* Social sharing and Navigation buttons */}
-          <div className="flex flex-wrap justify-center gap-3 pt-2">
+          <div className="flex flex-wrap justify-center gap-3 pt-2 print-hidden">
+            {!isViewResultOnly && (
+              <>
+                <button
+                  onClick={shareResultTwitter}
+                  className="px-5 py-3 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 font-medium rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  <Twitter className="w-4 h-4" />
+                  <span>টুইটার</span>
+                </button>
+                <button
+                  onClick={shareResultFacebook}
+                  className="px-5 py-3 bg-sky-50 text-blue-700 hover:bg-sky-100 hover:text-blue-800 font-medium rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  <Facebook className="w-4 h-4 text-blue-600" />
+                  <span>ফেসবুক</span>
+                </button>
+                <button
+                  onClick={copyResultSummary}
+                  className="px-5 py-3 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-gray-800 font-medium rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  {copied ? <CheckCircle className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                  <span>{copied ? "কপি হয়েছে!" : "সারসংক্ষেপ কপি"}</span>
+                </button>
+              </>
+            )}
+            
+            {/* Print Result / Download PDF Button */}
             <button
-              onClick={shareResultTwitter}
-              className="px-5 py-3 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 font-medium rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
+              onClick={handlePrintOrDownload}
+              className="px-5 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
             >
-              <Twitter className="w-4 h-4" />
-              <span>টুইটারে শেয়ার করুন</span>
+              <Printer className="w-4 h-4 text-slate-500" />
+              <span>প্রিন্ট করুন / PDF ডাউনলোড</span>
             </button>
-            <button
-              onClick={shareResultFacebook}
-              className="px-5 py-3 bg-sky-50 text-blue-700 hover:bg-sky-100 hover:text-blue-800 font-medium rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
-            >
-              <Facebook className="w-4 h-4 text-blue-600" />
-              <span>ফেসবুকে শেয়ার করুন</span>
-            </button>
-            <button
-              onClick={copyResultSummary}
-              className="px-5 py-3 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-gray-800 font-medium rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
-            >
-              {copied ? <CheckCircle className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-              <span>{copied ? "কপি হয়েছে!" : "সারসংক্ষেপ কপি করুন"}</span>
-            </button>
-            <button
-              onClick={onViewLeaderboard}
-              className="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl text-xs flex items-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer"
-            >
-              <Award className="w-4 h-4" />
-              <span>লাইভ মেধা তালিকা</span>
-            </button>
+
+            {!isViewResultOnly && !isRetakeOnly && (
+              <button
+                onClick={onViewLeaderboard}
+                className="px-5 py-3 bg-indigo-650 hover:bg-indigo-700 text-white font-medium rounded-xl text-xs flex items-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer"
+              >
+                <Award className="w-4 h-4" />
+                <span>লাইভ মেধা তালিকা</span>
+              </button>
+            )}
             <button
               onClick={onExit}
               className="px-5 py-3 bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-medium rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
@@ -497,77 +878,108 @@ Well done! Join the challenge here: ${window.location.href}`;
 
         {/* Detailed Review Section with Explanations */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-indigo-500" />
-              <span>বিস্তারিত প্রশ্ন পর্যালোচনা (Review)</span>
-            </h3>
-            <p className="text-xs text-gray-500 mt-1">
-              আপনার উত্তরসমূহ যাচাই করুন এবং সঠিক ব্যাখ্যামূলক সমাধানটি পড়ে নিন।
-            </p>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-indigo-500" />
+                <span>বিস্তারিত প্রশ্ন পর্যালোচনা (Review)</span>
+              </h3>
+              <p className="text-xs text-gray-500 mt-1">
+                আপনার উত্তরসমূহ যাচাই করুন এবং সঠিক ব্যাখ্যামূলক সমাধানটি পড়ে নিন।
+              </p>
+            </div>
+            
+            {uniqueTopics.length > 0 && (
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs text-gray-400 font-semibold">টপিক ফিল্টার:</span>
+                <select
+                  value={selectedTopic}
+                  onChange={(e) => setSelectedTopic(e.target.value)}
+                  className="px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="">সব টপিক (All Topics)</option>
+                  {uniqueTopics.map((topic) => (
+                    <option key={topic} value={topic}>{topic}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           <div className="space-y-6 divide-y divide-gray-100">
-            {questions.map((q, idx) => {
-              const qNo = (q.questionNo !== undefined && q.questionNo !== "") ? Number(q.questionNo) : (idx + 1);
-              const userAnswer = (selectedAnswers[qNo] || "").toLowerCase().trim();
-              const correctAnswer = (q.correctAnswer || "").toLowerCase().trim();
-              const isCorrect = userAnswer === correctAnswer;
+            {filteredQuestions.length === 0 ? (
+              <div className="text-center py-10 text-gray-500 text-sm">
+                এই টপিকে কোনো প্রশ্ন পর্যালোচনা করার জন্য পাওয়া যায়নি।
+              </div>
+            ) : (
+              filteredQuestions.map((q, idx) => {
+                const qNo = (q.questionNo !== undefined && q.questionNo !== "") ? Number(q.questionNo) : (questions.indexOf(q) + 1);
+                const userAnswer = (selectedAnswers[qNo] || "").toLowerCase().trim();
+                const correctAnswer = (q.correctAnswer || "").toLowerCase().trim();
+                const isCorrect = userAnswer === correctAnswer;
 
-              return (
-                <div key={idx} className={`pt-6 ${idx === 0 ? "pt-0" : ""} space-y-4`}>
-                  <div className="flex items-start gap-3">
-                    <span className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 ${
-                      isCorrect 
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
-                        : userAnswer 
-                        ? "bg-rose-50 text-rose-700 border border-rose-200" 
-                        : "bg-gray-100 text-gray-500 border border-gray-200"
-                    }`}>
-                      {qNo}
-                    </span>
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-900 leading-relaxed">{q.question}</h4>
+                return (
+                  <div key={idx} className={`pt-6 ${idx === 0 ? "pt-0" : ""} space-y-4`}>
+                    <div className="flex items-start gap-3">
+                      <span className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 ${
+                        isCorrect 
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
+                          : userAnswer 
+                          ? "bg-rose-50 text-rose-700 border border-rose-200" 
+                          : "bg-gray-100 text-gray-500 border border-gray-200"
+                      }`}>
+                        {qNo}
+                      </span>
+                      <div>
+                        {q.topic && (
+                          <div className="mb-1">
+                            <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                              {q.topic}
+                            </span>
+                          </div>
+                        )}
+                        <h4 className="text-sm font-semibold text-gray-900 leading-relaxed">{q.question}</h4>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Options List */}
-                  <div className="grid sm:grid-cols-2 gap-3 pl-9">
-                    {[
-                      { key: "a", text: q.optionA },
-                      { key: "b", text: q.optionB },
-                      { key: "c", text: q.optionC },
-                      { key: "d", text: q.optionD }
-                    ].map((opt) => {
-                      const isOptionSelected = userAnswer === opt.key;
-                      const isOptionCorrect = correctAnswer === opt.key;
-                      
-                      let optStyle = "bg-gray-50/50 border-gray-100 text-gray-700";
-                      if (isOptionCorrect) {
-                        optStyle = "bg-emerald-50 border-emerald-200 text-emerald-800 font-medium";
-                      } else if (isOptionSelected && !isCorrect) {
-                        optStyle = "bg-rose-50 border-rose-200 text-rose-800 font-medium";
-                      }
+                    {/* Options List */}
+                    <div className="grid sm:grid-cols-2 gap-3 pl-9">
+                      {[
+                        { key: "a", text: q.optionA },
+                        { key: "b", text: q.optionB },
+                        { key: "c", text: q.optionC },
+                        { key: "d", text: q.optionD }
+                      ].map((opt) => {
+                        const isOptionSelected = userAnswer === opt.key;
+                        const isOptionCorrect = correctAnswer === opt.key;
+                        
+                        let optStyle = "bg-gray-50/50 border-gray-100 text-gray-700";
+                        if (isOptionCorrect) {
+                          optStyle = "bg-emerald-50 border-emerald-200 text-emerald-800 font-medium";
+                        } else if (isOptionSelected && !isCorrect) {
+                          optStyle = "bg-rose-50 border-rose-200 text-rose-800 font-medium";
+                        }
 
-                      return (
-                        <div key={opt.key} className={`p-3 rounded-xl border text-xs flex gap-2 items-center ${optStyle}`}>
-                          <span className="uppercase font-bold shrink-0">{opt.key}.</span>
-                          <span className="break-words">{opt.text}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Explanation Block (Invisible before submit, beautifully displayed here!) */}
-                  {q.explanation && (
-                    <div className="ml-9 p-4 bg-indigo-50/30 rounded-xl border border-indigo-50/60 text-xs text-indigo-950/80 leading-relaxed space-y-1">
-                      <span className="font-extrabold text-[10px] text-indigo-700 uppercase tracking-widest block font-sans">ব্যাখ্যা (Explanation):</span>
-                      <p>{q.explanation}</p>
+                        return (
+                          <div key={opt.key} className={`p-3 rounded-xl border text-xs flex gap-2 items-center ${optStyle}`}>
+                            <span className="uppercase font-bold shrink-0">{opt.key}.</span>
+                            <span className="break-words">{opt.text}</span>
+                          </div>
+                        );
+                      })}
                     </div>
-                  )}
-                </div>
-              );
-            })}
+
+                    {/* Explanation Block (Invisible before submit, beautifully displayed here!) */}
+                    {q.explanation && (
+                      <div className="ml-9 p-4 bg-indigo-50/30 rounded-xl border border-indigo-50/60 text-xs text-indigo-950/80 leading-relaxed space-y-1">
+                        <span className="font-extrabold text-[10px] text-indigo-700 uppercase tracking-widest block font-sans">ব্যাখ্যা (Explanation):</span>
+                        <p>{q.explanation}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>
@@ -624,64 +1036,106 @@ Well done! Join the challenge here: ${window.location.href}`;
         </div>
       </div>
 
+      {/* Topic Filter Section */}
+      {uniqueTopics.length > 0 && (
+        <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm p-5 space-y-3 print-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+              <BookOpen className="w-4 h-4 text-indigo-500" />
+              <span className="text-xs font-extrabold uppercase tracking-wider">
+                টপিক অনুযায়ী প্রশ্ন ফিল্টার করুন (Filter Questions by Topic)
+              </span>
+            </div>
+            <select
+              value={selectedTopic}
+              onChange={(e) => setSelectedTopic(e.target.value)}
+              className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-w-[220px]"
+            >
+              <option value="">সব টপিক (All Topics) ({questions.length})</option>
+              {uniqueTopics.map((topic) => {
+                const count = questions.filter(q => q.topic === topic).length;
+                return (
+                  <option key={topic} value={topic}>
+                    {topic} ({count})
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+        </div>
+      )}
+
       {/* ALL Questions in one single page */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-8">
-        <div className="space-y-6 divide-y divide-gray-100">
-          {questions.map((q, idx) => {
-            const qNo = (q.questionNo !== undefined && q.questionNo !== "") ? Number(q.questionNo) : (idx + 1);
-            const isAnswered = selectedAnswers[qNo] !== undefined;
+        {filteredQuestions.length === 0 ? (
+          <div className="text-center py-10 text-gray-500 text-sm">
+            এই টপিকে কোনো প্রশ্ন পাওয়া যায়নি।
+          </div>
+        ) : (
+          <div className="space-y-6 divide-y divide-gray-100">
+            {filteredQuestions.map((q, idx) => {
+              const qNo = (q.questionNo !== undefined && q.questionNo !== "") ? Number(q.questionNo) : (questions.indexOf(q) + 1);
+              const isAnswered = selectedAnswers[qNo] !== undefined;
 
-            return (
-              <div key={idx} className={`pt-6 ${idx === 0 ? "pt-0" : ""} space-y-4`}>
-                <div className="flex items-start gap-3">
-                  <span className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 ${
-                    isAnswered 
-                      ? "bg-indigo-600 text-white shadow-sm" 
-                      : "bg-gray-100 text-gray-500 border border-gray-200"
-                  }`}>
-                    {qNo}
-                  </span>
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 leading-relaxed">{q.question}</h3>
+              return (
+                <div key={idx} className={`pt-6 ${idx === 0 ? "pt-0" : ""} space-y-4`}>
+                  <div className="flex items-start gap-3">
+                    <span className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 ${
+                      isAnswered 
+                        ? "bg-indigo-600 text-white shadow-sm" 
+                        : "bg-gray-100 text-gray-500 border border-gray-200"
+                    }`}>
+                      {qNo}
+                    </span>
+                    <div>
+                      {q.topic && (
+                        <div className="mb-1 flex">
+                          <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                            {q.topic}
+                          </span>
+                        </div>
+                      )}
+                      <h3 className="text-sm font-semibold text-gray-900 leading-relaxed">{q.question}</h3>
+                    </div>
+                  </div>
+
+                  {/* Options List */}
+                  <div className="grid sm:grid-cols-2 gap-3 pl-9">
+                    {[
+                      { key: "a", text: q.optionA },
+                      { key: "b", text: q.optionB },
+                      { key: "c", text: q.optionC },
+                      { key: "d", text: q.optionD }
+                    ].map((opt) => {
+                      const isSelected = selectedAnswers[qNo] === opt.key;
+                      return (
+                        <button
+                          key={opt.key}
+                          type="button"
+                          onClick={() => handleOptionSelect(qNo, opt.key)}
+                          className={`p-3.5 rounded-xl border text-xs text-left flex gap-3 items-center transition-all cursor-pointer ${
+                            isSelected 
+                              ? "bg-indigo-50/70 border-indigo-400 text-indigo-900 shadow-sm font-semibold" 
+                              : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50/50 hover:border-gray-300"
+                          }`}
+                        >
+                          <span className={`w-5 h-5 rounded-md border text-[10px] font-bold uppercase flex items-center justify-center shrink-0 transition-colors ${
+                            isSelected 
+                              ? "bg-indigo-600 border-indigo-600 text-white" 
+                              : "bg-gray-50 border-gray-300 text-gray-500"
+                          }`}>
+                            {opt.key}
+                          </span>
+                          <span className="break-words leading-relaxed">{opt.text}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-
-                {/* Options List */}
-                <div className="grid sm:grid-cols-2 gap-3 pl-9">
-                  {[
-                    { key: "a", text: q.optionA },
-                    { key: "b", text: q.optionB },
-                    { key: "c", text: q.optionC },
-                    { key: "d", text: q.optionD }
-                  ].map((opt) => {
-                    const isSelected = selectedAnswers[qNo] === opt.key;
-                    return (
-                      <button
-                        key={opt.key}
-                        type="button"
-                        onClick={() => handleOptionSelect(qNo, opt.key)}
-                        className={`p-3.5 rounded-xl border text-xs text-left flex gap-3 items-center transition-all cursor-pointer ${
-                          isSelected 
-                            ? "bg-indigo-50/70 border-indigo-400 text-indigo-900 shadow-sm font-semibold" 
-                            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50/50 hover:border-gray-300"
-                        }`}
-                      >
-                        <span className={`w-5 h-5 rounded-md border text-[10px] font-bold uppercase flex items-center justify-center shrink-0 transition-colors ${
-                          isSelected 
-                            ? "bg-indigo-600 border-indigo-600 text-white" 
-                            : "bg-gray-50 border-gray-300 text-gray-500"
-                        }`}>
-                          {opt.key}
-                        </span>
-                        <span className="break-words leading-relaxed">{opt.text}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Submit footer button */}
@@ -776,6 +1230,34 @@ Well done! Join the challenge here: ${window.location.href}`;
           </div>
         )}
       </AnimatePresence>
+
+      {showPremiumPrintModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in font-sans">
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-2xl p-6 max-w-sm w-full text-center space-y-4 animate-scale-up"
+          >
+            <div className="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto">
+              <Info className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-gray-900 dark:text-white">প্রিমিয়াম মেম্বারশিপ প্রয়োজন</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                দুঃখিত, এই পিডিএফ ডাউনলোড অপশনটি শুধুমাত্র প্রিমিয়াম মেম্বারদের জন্য সংরক্ষিত। দয়া করে আপনার মেম্বারশিপ প্রিমিয়ামে উন্নীত করুন।
+              </p>
+            </div>
+            <div className="flex gap-2.5 pt-2">
+              <button
+                onClick={() => setShowPremiumPrintModal(false)}
+                className="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-600 dark:text-gray-300 font-semibold rounded-xl text-xs transition-colors cursor-pointer"
+              >
+                বন্ধ করুন
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

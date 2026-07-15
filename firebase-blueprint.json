@@ -126,6 +126,26 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["noticeText", "user", "isLive", "createdAt"]
+    },
+    "blog": {
+      "title": "Blog",
+      "description": "Educational blog posts managed by admin",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "blogTitle": { "type": "string" },
+        "blogSlug": { "type": "string" },
+        "blogSummary": { "type": "string" },
+        "blogText": { "type": "string" },
+        "blogImageUrl": { "type": "string" },
+        "blogViewCount": { "type": "number" },
+        "isBlogVisible": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string" },
+        "tags": { "type": "array" }
+      },
+      "required": ["id", "blogTitle", "blogSlug", "blogText", "isBlogVisible", "createdAt"]
     }
   },
   "firestore": {
@@ -164,6 +184,10 @@
     "/notices/{noticeId}": {
       "schema": "notice",
       "description": "Notice board entries for users or all"
+    },
+    "/blogs/{blogId}": {
+      "schema": "blog",
+      "description": "Educational blog articles"
     }
   }
 }

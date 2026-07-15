@@ -53,7 +53,8 @@ export const APPS_SCRIPT_CODE = `function doGet(e) {
         optionC: String(row[4]),
         optionD: String(row[5]),
         correctAnswer: String(row[6]).trim().toLowerCase(),
-        explanation: String(row[7] || "")
+        explanation: String(row[7] || ""),
+        topic: String(row[8] || "")
       });
     }
     return jsonResponse({ questions: questions });
@@ -104,7 +105,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "class",
       optionD: "define",
       correctAnswer: "b",
-      explanation: "The 'type' keyword allows defining type aliases, which can represent object shapes, primitive union types, intersections, and more, whereas 'interface' is limited to object structures."
+      explanation: "The 'type' keyword allows defining type aliases, which can represent object shapes, primitive union types, intersections, and more, whereas 'interface' is limited to object structures.",
+      topic: "Types"
     },
     {
       questionNo: 2,
@@ -114,7 +116,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "function myFunction(): undefined",
       optionD: "function myFunction(): never",
       correctAnswer: "a",
-      explanation: "The 'void' type represents the absence of any return value. 'never' represents a function that never terminates or always throws an error."
+      explanation: "The 'void' type represents the absence of any return value. 'never' represents a function that never terminates or always throws an error.",
+      topic: "Functions"
     },
     {
       questionNo: 3,
@@ -124,7 +127,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "'unknown' is type-safe because you cannot perform operations on it without narrowing the type first, unlike 'any'",
       optionD: "'any' is type-safe while 'unknown' turns off all type-checking completely",
       correctAnswer: "c",
-      explanation: "The 'unknown' type is the type-safe counterpart of 'any'. Anything is assignable to 'unknown', but 'unknown' is not assignable to anything else without a type assertion or control flow analysis."
+      explanation: "The 'unknown' type is the type-safe counterpart of 'any'. Anything is assignable to 'unknown', but 'unknown' is not assignable to anything else without a type assertion or control flow analysis.",
+      topic: "Types"
     },
     {
       questionNo: 4,
@@ -134,7 +138,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "tsconfig.json",
       optionD: "compiler.config",
       correctAnswer: "c",
-      explanation: "The 'tsconfig.json' file specifies the root files and the compiler options required to compile the TypeScript project."
+      explanation: "The 'tsconfig.json' file specifies the root files and the compiler options required to compile the TypeScript project.",
+      topic: "Configuration"
     },
     {
       questionNo: 5,
@@ -144,7 +149,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "It hides the property from being displayed in JSON output",
       optionD: "It forces the property to always be a string",
       correctAnswer: "b",
-      explanation: "Properties marked with 'readonly' can only be modified when the object is first created or in a constructor, preventing future mutations."
+      explanation: "Properties marked with 'readonly' can only be modified when the object is first created or in a constructor, preventing future mutations.",
+      topic: "Interfaces"
     }
   ],
   "GK_Questions": [
@@ -156,7 +162,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "Jupiter",
       optionD: "Saturn",
       correctAnswer: "b",
-      explanation: "Mars is known as the Red Planet due to iron oxide (rust) on its surface, giving it a reddish appearance."
+      explanation: "Mars is known as the Red Planet due to iron oxide (rust) on its surface, giving it a reddish appearance.",
+      topic: "Astronomy"
     },
     {
       questionNo: 2,
@@ -166,7 +173,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "Fe",
       optionD: "Gd",
       correctAnswer: "b",
-      explanation: "The chemical symbol for Gold is 'Au', from the Latin word 'aurum', meaning shining dawn."
+      explanation: "The chemical symbol for Gold is 'Au', from the Latin word 'aurum', meaning shining dawn.",
+      topic: "Chemistry"
     },
     {
       questionNo: 3,
@@ -176,7 +184,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "Albert Einstein",
       optionD: "Nikola Tesla",
       correctAnswer: "c",
-      explanation: "Albert Einstein published the theory of general relativity in 1915, describing gravity as a geometric property of space and time."
+      explanation: "Albert Einstein published the theory of general relativity in 1915, describing gravity as a geometric property of space and time.",
+      topic: "Physics"
     },
     {
       questionNo: 4,
@@ -186,7 +195,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "Arctic Ocean",
       optionD: "Pacific Ocean",
       correctAnswer: "d",
-      explanation: "The Pacific Ocean is the largest and deepest of Earth's oceanic divisions, extending from the Arctic Ocean in the north to the Southern Ocean in the south."
+      explanation: "The Pacific Ocean is the largest and deepest of Earth's oceanic divisions, extending from the Arctic Ocean in the north to the Southern Ocean in the south.",
+      topic: "Geography"
     },
     {
       questionNo: 5,
@@ -196,7 +206,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "Heart",
       optionD: "Kidneys",
       correctAnswer: "c",
-      explanation: "The heart is a muscular organ that pumps blood through the blood vessels of the circulatory system."
+      explanation: "The heart is a muscular organ that pumps blood through the blood vessels of the circulatory system.",
+      topic: "Biology"
     }
   ],
   "React_Questions": [
@@ -208,7 +219,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "To cache expensive calculation values dynamically",
       optionD: "To perform manual operations on DOM elements directly",
       correctAnswer: "b",
-      explanation: "useState is a Hook that lets you add React state to function components, enabling them to track and re-render based on local data changes."
+      explanation: "useState is a Hook that lets you add React state to function components, enabling them to track and re-render based on local data changes.",
+      topic: "Hooks"
     },
     {
       questionNo: 2,
@@ -218,7 +230,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "lg:",
       optionD: "xl:",
       correctAnswer: "b",
-      explanation: "Tailwind's 'md:' prefix targets screens that are 768px wide or larger, commonly used for tablets and smaller desktops."
+      explanation: "Tailwind's 'md:' prefix targets screens that are 768px wide or larger, commonly used for tablets and smaller desktops.",
+      topic: "Responsive Design"
     },
     {
       questionNo: 3,
@@ -228,7 +241,8 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
       optionC: "JSON XML Exchange",
       optionD: "JavaScript Extensible Style",
       correctAnswer: "a",
-      explanation: "JSX stands for JavaScript XML or JavaScript Syntax Extension. It allows developers to write HTML-like elements and layouts directly within JavaScript/TypeScript."
+      explanation: "JSX stands for JavaScript XML or JavaScript Syntax Extension. It allows developers to write HTML-like elements and layouts directly within JavaScript/TypeScript.",
+      topic: "Syntax"
     }
   ]
 };

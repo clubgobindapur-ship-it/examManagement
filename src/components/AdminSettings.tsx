@@ -13,7 +13,7 @@ interface AdminSettingsProps {
 }
 
 export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminSettingsProps) {
-  const [activeTab, setActiveTab] = useState<"sheets" | "security">("sheets");
+  const [activeTab, setActiveTab] = useState<"sheets" | "security" | "pricing">("sheets");
   const [googleAppsScriptUrl, setGoogleAppsScriptUrl] = useState(() => {
     return localStorage.getItem("googleAppsScriptUrl") || "";
   });
@@ -39,6 +39,7 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
     "সকল প্রিমিয়াম পরীক্ষা আনলকড (Unlock All Exams)\nপ্রতিটি প্রশ্নের বিস্তারিত সমাধান ও ব্যাখ্যা (Explanations)\nলাইভ মেধা তালিকায় নিজের অবস্থান যাচাই (Leaderboard)\nপরীক্ষায় একাধিকবার অংশ নেওয়ার সুবিধা\n১০০% বিজ্ঞাপন মুক্ত পোর্টাল (Ad-free Interface)\nনতুন মডেল টেস্ট ও কুইজের ইনস্ট্যান্ট অ্যাক্সেস\n২৪/৭ ডেডিকেটেড লাইভ ও কাস্টমার সাপোর্ট"
   );
   const [isSavingPricing, setIsSavingPricing] = useState(false);
+  const [isPrintFree, setIsPrintFree] = useState(true);
 
   useEffect(() => {
     // Load credentials and config from Firestore settings/admin and settings/general
@@ -73,6 +74,11 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
           if (Array.isArray(pData.descriptions)) {
             setDescriptions(pData.descriptions.join("\n"));
           }
+        }
+
+        const printSnap = await getDoc(doc(db, "settings", "printSettings"));
+        if (printSnap.exists()) {
+          setIsPrintFree(printSnap.data().isPrintFree !== false);
         }
       } catch (err) {
         console.warn("Could not load credentials/settings from Firestore", err);
@@ -161,11 +167,16 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
         descriptions: descList
       }, { merge: true });
 
-      setSuccess("সাবস্ক্রিপশন প্যাকেজের মূল্য তালিকা সফলভাবে সংরক্ষিত হয়েছে!");
-      trackEvent("admin_save_pricing_success", { monthlyPrice, yearlyPrice });
+      const printRef = doc(db, "settings", "printSettings");
+      await setDoc(printRef, {
+        isPrintFree: isPrintFree
+      }, { merge: true });
+
+      setSuccess("পোর্টালে সাবস্ক্রিপশন মূল্য এবং রেজাল্ট পিডিএফ প্রিন্ট সেটিংস সফলভাবে সংরক্ষিত হয়েছে!");
+      trackEvent("admin_save_pricing_success", { monthlyPrice, yearlyPrice, isPrintFree });
     } catch (err: any) {
       console.error(err);
-      setError("মূল্য তালিকা সংরক্ষণ করতে ব্যর্থ হয়েছে: " + err.message);
+      setError("পোর্টাল সেটিংস সংরক্ষণ করতে ব্যর্থ হয়েছে: " + err.message);
       trackEvent("admin_save_pricing_failure", { error: err.message });
     } finally {
       setIsSavingPricing(false);
@@ -249,6 +260,20 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
         >
           <CloudLightning className="w-4 h-4" />
           <span>Google Sheets & Script Setup</span>
+        </button>
+        <button
+          onClick={() => {
+            setActiveTab("pricing");
+            trackEvent("admin_settings_tab_pricing");
+          }}
+          className={`flex-1 py-4 px-6 text-xs font-bold border-b-2 transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            activeTab === "pricing" 
+              ? "border-blue-600 text-blue-600 bg-white" 
+              : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          <span>Portal & Print Settings</span>
         </button>
         <button
           onClick={() => {
@@ -485,6 +510,88 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
                 >
                   <Save className="w-4 h-4" />
                   <span>{isSavingAdmin ? "আপডেট হচ্ছে..." : "লগইন তথ্য আপডেট করুন"}</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        )}
+
+        {activeTab === "pricing" && (
+          <form onSubmit={handleSavePricing} className="space-y-6 text-xs font-semibold">
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-500" />
+                <span>Portal Pricing & Print Settings</span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                প্রিমিয়াম সাবস্ক্রিপশনের মূল্য নির্ধারণ করুন এবং পরীক্ষা শেষে রেজাল্ট প্রিন্ট/ডাউনলোড করার অনুমতি নিয়ন্ত্রণ করুন।
+              </p>
+            </div>
+
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-5">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 uppercase tracking-wide block">মাসিক প্রিমিয়াম মূল্য (Monthly Price in BDT)</label>
+                  <input
+                    type="number"
+                    required
+                    value={monthlyPrice}
+                    onChange={(e) => setMonthlyPrice(Number(e.target.value))}
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 uppercase tracking-wide block">বার্ষিক প্রিমিয়াম মূল্য (Yearly Price in BDT)</label>
+                  <input
+                    type="number"
+                    required
+                    value={yearlyPrice}
+                    onChange={(e) => setYearlyPrice(Number(e.target.value))}
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-slate-500 uppercase tracking-wide block">প্রিমিয়াম মেম্বারশিপের সুবিধাসমূহ (Features - প্রতি লাইনে একটি সুবিধা)</label>
+                <textarea
+                  value={descriptions}
+                  onChange={(e) => setDescriptions(e.target.value)}
+                  rows={6}
+                  className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono"
+                  placeholder="যেমন: সকল প্রিমিয়াম পরীক্ষা আনলকড..."
+                />
+              </div>
+
+              {/* Print settings checkbox */}
+              <div className="pt-4 border-t border-slate-200 space-y-3">
+                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider block">পিডিএফ প্রিন্ট এবং ডাউনলোড সেটিংস (Print & PDF Permissions)</h4>
+                
+                <label className="flex items-start gap-3 bg-white p-4 rounded-xl border border-slate-150 cursor-pointer shadow-xs">
+                  <input
+                    type="checkbox"
+                    checked={isPrintFree}
+                    onChange={(e) => setIsPrintFree(e.target.checked)}
+                    className="w-4.5 h-4.5 text-blue-600 border-slate-300 rounded focus:ring-blue-500 mt-0.5 shrink-0"
+                  />
+                  <div>
+                    <span className="text-slate-800 font-extrabold text-xs block">সকলের জন্য রেজাল্ট পিডিএফ প্রিন্ট ও ডাউনলোড উন্মুক্ত রাখুন (Print/Download is Free)</span>
+                    <span className="text-[10px] text-slate-500 font-medium leading-relaxed block mt-1">
+                      যদি এই অপশনটি চালু করা থাকে, তাহলে যেকোনো পরীক্ষার্থী তার ফলাফল শেষে ফ্রীতে পিডিএফ প্রিন্ট ও ডাউনলোড করতে পারবেন। যদি এটি বন্ধ থাকে, তবে শুধুমাত্র প্রিমিয়াম মেম্বার এবং সেই নির্দিষ্ট পরীক্ষায় উত্তীর্ণ/সাবস্ক্রাইবড ইউজাররা রেজাল্ট প্রিন্ট করতে পারবেন।
+                    </span>
+                  </div>
+                </label>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={isSavingPricing}
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>{isSavingPricing ? "সংরক্ষণ..." : "পোর্টাল সেটিংস সংরক্ষণ করুন"}</span>
                 </button>
               </div>
             </div>

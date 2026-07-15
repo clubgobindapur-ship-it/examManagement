@@ -26,6 +26,8 @@ import AdminPackagesSettings from "./components/AdminPackagesSettings";
 import AdminNotices from "./components/AdminNotices";
 import MyResults from "./components/MyResults";
 import MySubscriptions from "./components/MySubscriptions";
+import AdminBlogManager from "./components/AdminBlogManager";
+import BlogUser from "./components/BlogUser";
 
 // Analytics
 import { trackEvent, initGA } from "./lib/analytics";
@@ -74,7 +76,7 @@ const parseExamDate = (dateStr?: string): number => {
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [currentView, setCurrentView] = useState<"home" | "live" | "routine" | "archive" | "leaderboard" | "active_exam" | "admin" | "pricing" | "results" | "my_results" | "my_subscriptions">(() => {
+  const [currentView, setCurrentView] = useState<"home" | "live" | "routine" | "archive" | "leaderboard" | "active_exam" | "admin" | "pricing" | "results" | "my_results" | "my_subscriptions" | "blog">(() => {
     try {
       if (typeof window !== "undefined" && window.location.pathname === "/admin") {
         return "admin";
@@ -83,7 +85,7 @@ export default function App() {
     return "home";
   });
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const [activeAdminTab, setActiveAdminTab] = useState<"users" | "ads" | "exams" | "exam_configs" | "packages" | "payments" | "notices">("users");
+  const [activeAdminTab, setActiveAdminTab] = useState<"users" | "ads" | "exams" | "exam_configs" | "packages" | "payments" | "notices" | "blogs">("users");
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   
   // Theme settings
@@ -129,6 +131,7 @@ export default function App() {
   // Active Exam state
   const [activeExam, setActiveExam] = useState<Exam | null>(null);
   const [activeCandidateName, setActiveCandidateName] = useState("");
+  const [activeExamMode, setActiveExamMode] = useState<"take" | "retake" | "view_questions" | "view_result">("take");
 
   // Helper to load attempted exam IDs for current user or guest
   const fetchUserAttempts = async (user: User | null) => {
@@ -429,16 +432,18 @@ export default function App() {
     }
   }, [currentView]);
 
-  const handleStartExam = (exam: Exam, username: string) => {
-    trackEvent("start_exam", { examId: exam.id, examName: exam.name, username });
+  const handleStartExam = (exam: Exam, username: string, mode: "take" | "retake" | "view_questions" | "view_result" = "take") => {
+    trackEvent("start_exam", { examId: exam.id, examName: exam.name, username, mode });
     setActiveExam(exam);
     setActiveCandidateName(username);
+    setActiveExamMode(mode);
     setCurrentView("active_exam");
   };
 
   const handleExitExam = () => {
     setActiveExam(null);
     setActiveCandidateName("");
+    setActiveExamMode("take");
     setCurrentView("home");
     loadExams(); // Reload any updates
     fetchUserAttempts(currentUser); // Refresh completed attempts
@@ -447,6 +452,7 @@ export default function App() {
   const handleViewLeaderboardAfterQuiz = () => {
     setActiveExam(null);
     setActiveCandidateName("");
+    setActiveExamMode("take");
     setCurrentView("leaderboard");
     fetchUserAttempts(currentUser); // Refresh completed attempts
   };
@@ -584,6 +590,20 @@ export default function App() {
                   Notice Board
                 </button>
 
+                <button
+                  onClick={() => {
+                    setActiveAdminTab("blogs");
+                    trackEvent("admin_nav_blogs_click");
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                    activeAdminTab === "blogs"
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  Blog Articles
+                </button>
+
                 <div className="w-[1px] h-5 bg-slate-800 mx-1 shrink-0" />
 
                 <button
@@ -610,12 +630,18 @@ export default function App() {
             } else {
               trackEvent(`${view}_click`);
             }
-            if (activeExam) {
+            const isExamActive = activeExam && (activeExamMode === "take" || activeExamMode === "retake");
+            if (isExamActive) {
               if (window.confirm("আপনি একটি সক্রিয় পরীক্ষা দিচ্ছেন। চলে গেলে আপনার অগ্রগতি হারিয়ে যাবে। আপনি কি নিশ্চিত?")) {
                 handleExitExam();
                 setCurrentView(view as any);
               }
             } else {
+              if (activeExam) {
+                setActiveExam(null);
+                setActiveCandidateName("");
+                setActiveExamMode("take");
+              }
               setCurrentView(view as any);
             }
           }} 
@@ -943,6 +969,8 @@ export default function App() {
                 googleAppsScriptUrl={googleAppsScriptUrl}
                 onExit={handleExitExam}
                 onViewLeaderboard={handleViewLeaderboardAfterQuiz}
+                mode={activeExamMode}
+                userPremiumUntil={userPremiumUntil}
               />
             </motion.div>
           )}
@@ -1018,6 +1046,17 @@ export default function App() {
             </motion.div>
           )}
 
+          {currentView === "blog" && (
+            <motion.div
+              key="blog"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+            >
+              <BlogUser />
+            </motion.div>
+          )}
+
           {currentView === "admin" && (
             <motion.div
               key="admin"
@@ -1073,6 +1112,9 @@ export default function App() {
                   {activeAdminTab === "notices" && (
                     <AdminNotices />
                   )}
+                  {activeAdminTab === "blogs" && (
+                    <AdminBlogManager />
+                  )}
                 </div>
               )}
             </motion.div>
@@ -1101,14 +1143,20 @@ export default function App() {
               <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-2">
                 <li>
                   <button onClick={() => {
-                    if (activeExam) {
+                    const isExamActive = activeExam && (activeExamMode === "take" || activeExamMode === "retake");
+                    if (isExamActive) {
                       if (window.confirm("আপনি একটি সক্রিয় পরীক্ষা দিচ্ছেন। চলে গেলে আপনার অগ্রগতি হারিয়ে যাবে। আপনি কি নিশ্চিত?")) {
                         handleExitExam();
-                        setCurrentView("exams");
+                        setCurrentView("live");
                         setActiveExamTab("live");
                       }
                     } else {
-                      setCurrentView("exams");
+                      if (activeExam) {
+                        setActiveExam(null);
+                        setActiveCandidateName("");
+                        setActiveExamMode("take");
+                      }
+                      setCurrentView("live");
                       setActiveExamTab("live");
                     }
                   }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
@@ -1117,14 +1165,20 @@ export default function App() {
                 </li>
                 <li>
                   <button onClick={() => {
-                    if (activeExam) {
+                    const isExamActive = activeExam && (activeExamMode === "take" || activeExamMode === "retake");
+                    if (isExamActive) {
                       if (window.confirm("আপনি একটি সক্রিয় পরীক্ষা দিচ্ছেন। চলে গেলে আপনার অগ্রগতি হারিয়ে যাবে। আপনি কি নিশ্চিত?")) {
                         handleExitExam();
-                        setCurrentView("exams");
+                        setCurrentView("routine");
                         setActiveExamTab("routine");
                       }
                     } else {
-                      setCurrentView("exams");
+                      if (activeExam) {
+                        setActiveExam(null);
+                        setActiveCandidateName("");
+                        setActiveExamMode("take");
+                      }
+                      setCurrentView("routine");
                       setActiveExamTab("routine");
                     }
                   }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
@@ -1133,14 +1187,20 @@ export default function App() {
                 </li>
                 <li>
                   <button onClick={() => {
-                    if (activeExam) {
+                    const isExamActive = activeExam && (activeExamMode === "take" || activeExamMode === "retake");
+                    if (isExamActive) {
                       if (window.confirm("আপনি একটি সক্রিয় পরীক্ষা দিচ্ছেন। চলে গেলে আপনার অগ্রগতি হারিয়ে যাবে। আপনি কি নিশ্চিত?")) {
                         handleExitExam();
-                        setCurrentView("exams");
+                        setCurrentView("archive");
                         setActiveExamTab("archive");
                       }
                     } else {
-                      setCurrentView("exams");
+                      if (activeExam) {
+                        setActiveExam(null);
+                        setActiveCandidateName("");
+                        setActiveExamMode("take");
+                      }
+                      setCurrentView("archive");
                       setActiveExamTab("archive");
                     }
                   }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
@@ -1149,12 +1209,18 @@ export default function App() {
                 </li>
                 <li>
                   <button onClick={() => {
-                    if (activeExam) {
+                    const isExamActive = activeExam && (activeExamMode === "take" || activeExamMode === "retake");
+                    if (isExamActive) {
                       if (window.confirm("আপনি একটি সক্রিয় পরীক্ষা দিচ্ছেন। চলে গেলে আপনার অগ্রগতি হারিয়ে যাবে। আপনি কি নিশ্চিত?")) {
                         handleExitExam();
                         setCurrentView("leaderboard");
                       }
                     } else {
+                      if (activeExam) {
+                        setActiveExam(null);
+                        setActiveCandidateName("");
+                        setActiveExamMode("take");
+                      }
                       setCurrentView("leaderboard");
                     }
                   }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">

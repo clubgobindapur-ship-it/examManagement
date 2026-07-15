@@ -123,5 +123,18 @@ service cloud.firestore {
       // Only admin can publish notices
       allow write: if isAdmin();
     }
+
+    // Blogs collection rules
+    match /blogs/{blogId} {
+      // Readable by anyone if the blog is visible, or if the requester is an admin
+      allow get, list: if resource.data.isBlogVisible == true || isAdmin();
+      // Only admins can create or delete blogs
+      allow create, delete: if isAdmin();
+      // Admins can update anything. Normal users can only update by incrementing blogViewCount by exactly 1.
+      allow update: if isAdmin() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['blogViewCount']) &&
+        request.resource.data.blogViewCount == resource.data.blogViewCount + 1
+      );
+    }
   }
 }

@@ -13,14 +13,16 @@ import {
   Check,
   Calendar,
   DollarSign,
-  HelpCircle
+  HelpCircle,
+  Award,
+  RefreshCw
 } from "lucide-react";
 
 interface ExamCardProps {
   key?: string | number;
   exam: Exam;
   currentUser: any;
-  onStartExam: (exam: Exam, username: string) => void;
+  onStartExam: (exam: Exam, username: string, mode?: "take" | "retake" | "view_questions" | "view_result") => void;
   isAttempted?: boolean;
   isLocked?: boolean;
   onUnlock?: (exam: Exam) => void;
@@ -153,9 +155,47 @@ export default function ExamCard({
             </span>
           </div>
         ) : isAttempted ? (
-          <div className="w-full py-3 px-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/35 text-emerald-700 dark:text-emerald-450 font-bold rounded-xl flex items-center justify-center gap-2 text-xs">
-            <Check className="w-4 h-4 text-emerald-600" />
-            <span>ইতিমধ্যে সম্পন্ন করেছেন</span>
+          <div className="space-y-2.5">
+            <div className="w-full py-2 px-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-450 font-bold rounded-xl flex items-center justify-center gap-2 text-xs">
+              <Check className="w-3.5 h-3.5 text-emerald-600" />
+              <span>ইতিমধ্যে সম্পন্ন করেছেন</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              {exam.showResult && (
+                <button
+                  onClick={() => {
+                    const name = currentUser?.displayName || currentUser?.email?.split("@")[0] || "পরীক্ষার্থী";
+                    onStartExam(exam, name, "view_result");
+                  }}
+                  className="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/20 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-blue-200 dark:border-blue-800/60 transition-all cursor-pointer"
+                >
+                  <Award className="w-3.5 h-3.5 text-blue-500" />
+                  <span>ফলাফল দেখুন</span>
+                </button>
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    const name = currentUser?.displayName || currentUser?.email?.split("@")[0] || "পরীক্ষার্থী";
+                    onStartExam(exam, name, "view_questions");
+                  }}
+                  className="py-2 px-3 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
+                >
+                  <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
+                  <span>প্রশ্ন দেখুন</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const name = currentUser?.displayName || currentUser?.email?.split("@")[0] || "পরীক্ষার্থী";
+                    onStartExam(exam, name, "retake");
+                  }}
+                  className="py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>পুনরায় পরীক্ষা</span>
+                </button>
+              </div>
+            </div>
           </div>
         ) : isLocked ? (
           <button

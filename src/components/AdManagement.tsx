@@ -161,7 +161,7 @@ export default function AdManagement() {
         id: editingId || "ad_" + Date.now().toString().slice(-6),
         type: adType,
         imageUrl: imageUrl.trim(),
-        redirectionUrl: redirectionUrl.trim() || undefined,
+        redirectionUrl: redirectionUrl.trim() || "",
         ...(adType === "text" ? {
           badge: badge.trim(),
           title: title.trim(),

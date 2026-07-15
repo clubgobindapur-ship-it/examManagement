@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   LogIn, Trophy, GraduationCap, Calendar, Archive, Home, Sparkles, Sun, 
-  Moon, Menu, X, Bell, CheckCheck, ArrowRight, Inbox, Eye, Award
+  Moon, Menu, X, Bell, CheckCheck, ArrowRight, Inbox, Eye, Award, BookOpen
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
@@ -10,7 +10,7 @@ import { db } from "../firebase";
 interface NavbarProps {
   currentUser: any;
   onOpenAuth: () => void;
-  onViewChange: (view: "home" | "live" | "routine" | "archive" | "leaderboard" | "pricing" | "results" | "my_results" | "my_subscriptions") => void;
+  onViewChange: (view: "home" | "live" | "routine" | "archive" | "leaderboard" | "pricing" | "results" | "my_results" | "my_subscriptions" | "blog") => void;
   currentView: string;
   liveCount: number;
   routineCount: number;
@@ -158,6 +158,13 @@ export default function Navbar({
       label: "আমার সাবস্ক্রিপশন",
       icon: <Sparkles className="w-4 h-4 text-amber-500 shrink-0 animate-pulse" />,
       activeClass: "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 font-bold border border-amber-100 dark:border-amber-900/35",
+      inactiveClass: "text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+    },
+    {
+      id: "blog",
+      label: "ব্লগ ও গাইডলাইন (Blog)",
+      icon: <BookOpen className="w-4 h-4 text-emerald-500 shrink-0" />,
+      activeClass: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-100 dark:border-emerald-900/35",
       inactiveClass: "text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
     },
     {

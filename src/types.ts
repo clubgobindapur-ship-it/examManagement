@@ -25,6 +25,7 @@ export interface Question {
   optionD: string;
   correctAnswer: "a" | "b" | "c" | "d" | "A" | "B" | "C" | "D" | string;
   explanation?: string;
+  topic?: string;
 }
 
 export interface Attempt {
