@@ -253,7 +253,14 @@ export default function App() {
   // 1. Firebase auth listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+      setCurrentUser((prevUser) => {
+        if (prevUser && !user) {
+          // This is a logout transition!
+          setCurrentView("home");
+          setIsAdminLoggedIn(false);
+        }
+        return user;
+      });
       if (!user) {
         try {
           localStorage.removeItem("localAttemptedExams");
@@ -264,6 +271,7 @@ export default function App() {
         setUserAttempts([]);
         setUserPremiumUntil(null);
         setUserSubscriptions({});
+        setIsAdminLoggedIn(false);
       } else {
         fetchUserAttempts(user);
         fetchUserPremiumAndSubscriptions(user);
@@ -472,10 +480,13 @@ export default function App() {
             <div className="flex justify-between items-center h-16 gap-4">
               {/* Brand Logo */}
               <div 
-                onClick={() => {
-                  setIsAdminLoggedIn(false);
-                  setCurrentView("home");
-                  trackEvent("admin_navbar_logo_click");
+                onClick={async () => {
+                  try {
+                    await signOut(auth);
+                    trackEvent("admin_navbar_logo_click");
+                  } catch (e) {
+                    console.error("Logout failed on logo click:", e);
+                  }
                 }}
                 className="flex items-center gap-3 cursor-pointer hover:opacity-95 transition-opacity shrink-0"
               >
@@ -607,10 +618,13 @@ export default function App() {
                 <div className="w-[1px] h-5 bg-slate-800 mx-1 shrink-0" />
 
                 <button
-                  onClick={() => {
-                    setIsAdminLoggedIn(false);
-                    setCurrentView("home");
-                    trackEvent("admin_logout_click");
+                  onClick={async () => {
+                    try {
+                      await signOut(auth);
+                      trackEvent("admin_logout_click");
+                    } catch (e) {
+                      console.error("Admin logout failed:", e);
+                    }
                   }}
                   className="px-3 py-1.5 bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0"
                 >

@@ -206,19 +206,19 @@ export default function BlogUser() {
                 <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">নতুন ব্লগ ও কন্টেন্ট লোড করা হচ্ছে...</p>
               </div>
             ) : filteredBlogs.length > 0 ? (
-              <div className="grid sm:grid-cols-2 gap-6">
+              <div className="space-y-4 max-w-4xl mx-auto">
                 {filteredBlogs.map((blog, idx) => (
                   <motion.article
                     key={blog.id}
-                    initial={{ opacity: 0, y: 15 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
+                    transition={{ delay: idx * 0.04 }}
                     onClick={() => handleBlogClick(blog)}
-                    className="group bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col cursor-pointer"
+                    className="group bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800/80 rounded-2xl p-4 sm:p-5 hover:border-emerald-500/30 dark:hover:border-emerald-500/30 hover:shadow-xs hover:shadow-emerald-500/5 transition-all flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center cursor-pointer"
                   >
-                    {/* Cover image or placeholder */}
+                    {/* Cover thumbnail */}
                     {blog.blogImageUrl ? (
-                      <div className="w-full h-44 overflow-hidden border-b border-slate-100 dark:border-slate-850">
+                      <div className="w-full sm:w-32 h-36 sm:h-24 shrink-0 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800">
                         <img
                           src={blog.blogImageUrl}
                           alt={blog.blogTitle}
@@ -227,55 +227,55 @@ export default function BlogUser() {
                         />
                       </div>
                     ) : (
-                      <div className="w-full h-44 bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-300 dark:text-slate-700 border-b border-slate-100 dark:border-slate-850 space-y-1">
-                        <BookOpen className="w-10 h-10" />
-                        <span className="text-[10px] font-bold tracking-widest uppercase font-mono">Quiz Portal Article</span>
+                      <div className="w-full sm:w-32 h-36 sm:h-24 shrink-0 rounded-xl bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-300 dark:text-slate-700 border border-slate-100 dark:border-slate-800 space-y-1">
+                        <BookOpen className="w-6 h-6 text-slate-400 dark:text-slate-600" />
+                        <span className="text-[8px] font-bold tracking-wider uppercase font-mono text-slate-400 dark:text-slate-500">ARTICLE</span>
                       </div>
                     )}
 
-                    {/* Blog details block */}
-                    <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                      <div className="space-y-2">
-                        {/* Tags */}
-                        {blog.tags && blog.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5">
-                            {blog.tags.slice(0, 3).map((t, i) => (
-                              <span key={i} className="text-[8px] bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded font-extrabold uppercase">
-                                #{t}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        
-                        <h3 className="text-sm font-extrabold text-slate-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors leading-snug">
-                          {blog.blogTitle}
-                        </h3>
+                    {/* Blog text details block */}
+                    <div className="flex-1 min-w-0 space-y-2">
+                      {/* Tags */}
+                      {blog.tags && blog.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {blog.tags.slice(0, 3).map((t, i) => (
+                            <span key={i} className="text-[9px] bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded font-extrabold uppercase">
+                              #{t}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <h3 className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors leading-snug">
+                        {blog.blogTitle}
+                      </h3>
 
-                        {blog.blogSummary ? (
-                          <p className="text-slate-500 dark:text-slate-400 text-xs line-clamp-2 leading-relaxed">
-                            {blog.blogSummary}
-                          </p>
-                        ) : (
-                          <p className="text-slate-400 dark:text-slate-500 text-xs italic line-clamp-2 leading-relaxed">
-                            কন্টেন্ট সম্পর্কে জানতে এই পোস্টে ক্লিক করুন...
-                          </p>
-                        )}
-                      </div>
+                      {blog.blogSummary ? (
+                        <p className="text-slate-500 dark:text-slate-400 text-xs line-clamp-2 leading-relaxed">
+                          {blog.blogSummary}
+                        </p>
+                      ) : (
+                        <p className="text-slate-400 dark:text-slate-500 text-xs italic line-clamp-2 leading-relaxed">
+                          কন্টেন্ট সম্পর্কে জানতে এই পোস্টে ক্লিক করুন...
+                        </p>
+                      )}
 
-                      {/* Footer info row */}
-                      <div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 pt-3 border-t border-slate-100 dark:border-slate-850 font-medium">
+                      {/* Footer stats row */}
+                      <div className="flex items-center gap-4 text-[10px] text-slate-400 dark:text-slate-500 pt-1.5 font-medium">
                         <div className="flex items-center gap-1 font-mono">
                           <Calendar className="w-3.5 h-3.5" />
                           <span>{new Date(blog.createdAt).toLocaleDateString("bn-BD")}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="flex items-center gap-1 font-mono">
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>{blog.blogViewCount || 0}</span>
-                          </span>
-                          <ChevronRight className="w-3.5 h-3.5 text-slate-300 dark:text-slate-700 group-hover:translate-x-1 transition-transform" />
+                        <div className="flex items-center gap-1 font-mono">
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>{blog.blogViewCount || 0}</span>
                         </div>
                       </div>
+                    </div>
+
+                    {/* Chevron trigger icon */}
+                    <div className="hidden sm:block shrink-0 pl-2">
+                      <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-700 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
                     </div>
                   </motion.article>
                 ))}
