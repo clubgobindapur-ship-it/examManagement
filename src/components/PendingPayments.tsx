@@ -229,7 +229,6 @@ export default function PendingPayments() {
           deeplink: "live",
           createdAt: new Date().toISOString()
         }, { merge: true });
-        console.log("Automated activation notice created successfully for user:", tx.userId);
       } catch (noticeAutoErr) {
         console.error("Failed to create automated notice:", noticeAutoErr);
       }

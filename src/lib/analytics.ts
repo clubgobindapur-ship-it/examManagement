@@ -46,7 +46,6 @@ export const initGA = (measurementId: string) => {
     });
 
     (window as any)._ga_initialized = true;
-    console.log(`%c📈 GA Initialized (Cookieless iframe-compatible, debug_mode enabled): ${measurementId}`, "background: #2563EB; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold;");
   } catch (e) {
     console.error("Failed to initialize Google Analytics:", e);
   }
@@ -54,15 +53,7 @@ export const initGA = (measurementId: string) => {
 
 export const trackEvent = (eventName: string, params: Record<string, any> = {}) => {
   const timestamp = new Date().toISOString();
-  
-  // 1. Log with beautiful styling in the console for instant verification
-  console.log(
-    `%c📊 GA EVENT: ${eventName}`,
-    "background: #10B981; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-family: monospace;",
-    { ...params, timestamp }
-  );
-
-  // 2. Dispatch to standard Google Analytics window.gtag if it exists
+  // Dispatch to standard Google Analytics window.gtag if it exists
   try {
     if (typeof (window as any).gtag === "function") {
       (window as any).gtag("event", eventName, {

@@ -151,7 +151,6 @@ export default function AdminPackagesSettings() {
 
       if (list.length === 0) {
         // Seed initial default packages
-        console.log("No packages found, seeding defaults...");
         for (const pkg of DEFAULT_PACKAGES) {
           await setDoc(doc(db, "packages", pkg.id), pkg);
           list.push(pkg);

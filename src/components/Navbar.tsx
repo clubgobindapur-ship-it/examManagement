@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { 
   LogIn, Trophy, GraduationCap, Calendar, Archive, Home, Sparkles, Sun, 
-  Moon, Menu, X, Bell, CheckCheck, ArrowRight, Inbox, Eye, Award, BookOpen
+  Moon, Menu, X, Bell, CheckCheck, ArrowRight, Inbox, Eye, Award, BookOpen,
+  HelpCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
@@ -10,7 +11,7 @@ import { db } from "../firebase";
 interface NavbarProps {
   currentUser: any;
   onOpenAuth: () => void;
-  onViewChange: (view: "home" | "live" | "routine" | "archive" | "leaderboard" | "pricing" | "results" | "my_results" | "my_subscriptions" | "blog") => void;
+  onViewChange: (view: "home" | "live" | "routine" | "archive" | "leaderboard" | "pricing" | "results" | "my_results" | "my_subscriptions" | "blog" | "helpline") => void;
   currentView: string;
   liveCount: number;
   routineCount: number;
@@ -165,6 +166,13 @@ export default function Navbar({
       label: "ব্লগ ও গাইডলাইন (Blog)",
       icon: <BookOpen className="w-4 h-4 text-emerald-500 shrink-0" />,
       activeClass: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-100 dark:border-emerald-900/35",
+      inactiveClass: "text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+    },
+    {
+      id: "helpline",
+      label: "হেল্পলাইন (Helpline)",
+      icon: <HelpCircle className="w-4 h-4 text-rose-550 dark:text-rose-400 shrink-0" />,
+      activeClass: "bg-rose-50 dark:bg-rose-950/20 text-rose-605 dark:text-rose-400 font-bold border border-rose-100 dark:border-rose-900/35",
       inactiveClass: "text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
     },
     {

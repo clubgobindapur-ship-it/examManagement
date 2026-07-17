@@ -28,6 +28,7 @@ import MyResults from "./components/MyResults";
 import MySubscriptions from "./components/MySubscriptions";
 import AdminBlogManager from "./components/AdminBlogManager";
 import BlogUser from "./components/BlogUser";
+import Helpline from "./components/Helpline";
 
 // Analytics
 import { trackEvent, initGA } from "./lib/analytics";
@@ -46,6 +47,8 @@ import {
   Calendar,
   Archive,
   Clock,
+  ChevronRight,
+  Lock,
   Facebook,
   Youtube,
   Twitter,
@@ -74,9 +77,54 @@ const parseExamDate = (dateStr?: string): number => {
   return isNaN(parsed) ? Infinity : parsed;
 };
 
+// Robust helper to extract day of the week (Bengali & English) and format the date
+const getBanglaDayAndDate = (dateStr?: string): { dayName: string; formattedDate: string } => {
+  if (!dateStr) return { dayName: "নির্ধারিত নয়", formattedDate: "" };
+  
+  const banglaDays = [
+    "রবিবার (Sunday)",
+    "সোমবার (Monday)",
+    "মঙ্গলবার (Tuesday)",
+    "বুধবার (Wednesday)",
+    "বৃহস্পতিবার (Thursday)",
+    "শুক্রবার (Friday)",
+    "শনিবার (Saturday)"
+  ];
+  
+  try {
+    let dateObj: Date;
+    const parts = dateStr.split("/");
+    if (parts.length === 3) {
+      let month = parseInt(parts[0], 10);
+      let day = parseInt(parts[1], 10);
+      let year = parseInt(parts[2], 10);
+      if (year < 100) {
+        year += 2000;
+      }
+      dateObj = new Date(year, month - 1, day);
+    } else {
+      dateObj = new Date(dateStr);
+    }
+
+    if (isNaN(dateObj.getTime())) {
+      return { dayName: "অন্যান্য দিন", formattedDate: dateStr };
+    }
+
+    const dayName = banglaDays[dateObj.getDay()];
+    const day = String(dateObj.getDate()).padStart(2, "0");
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const year = dateObj.getFullYear();
+    const formattedDate = `${day}/${month}/${year}`;
+    
+    return { dayName, formattedDate };
+  } catch (e) {
+    return { dayName: "অন্যান্য দিন", formattedDate: dateStr };
+  }
+};
+
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [currentView, setCurrentView] = useState<"home" | "live" | "routine" | "archive" | "leaderboard" | "active_exam" | "admin" | "pricing" | "results" | "my_results" | "my_subscriptions" | "blog">(() => {
+  const [currentView, setCurrentView] = useState<"home" | "live" | "routine" | "archive" | "leaderboard" | "active_exam" | "admin" | "pricing" | "results" | "my_results" | "my_subscriptions" | "blog" | "helpline">(() => {
     try {
       if (typeof window !== "undefined" && window.location.pathname === "/admin") {
         return "admin";
@@ -109,6 +157,11 @@ export default function App() {
   // Locked exam unlock/purchase state
   const [selectedUnlockExam, setSelectedUnlockExam] = useState<Exam | null>(null);
   const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
+
+  // Guest start exam state
+  const [guestExamToStart, setGuestExamToStart] = useState<Exam | null>(null);
+  const [guestName, setGuestName] = useState("");
+  const [guestError, setGuestError] = useState("");
 
   // App settings & Exams state
   const [googleAppsScriptUrl, setGoogleAppsScriptUrl] = useState(() => {
@@ -365,7 +418,6 @@ export default function App() {
           });
         } else {
           // Collection is empty, let's seed it with DEFAULT_EXAMS!
-          console.log("examList collection is empty, seeding with DEFAULT_EXAMS...");
           for (const exam of DEFAULT_EXAMS) {
             const examDocRef = doc(db, "examList", exam.id);
             const examData = {
@@ -803,7 +855,7 @@ export default function App() {
                     <Calendar className="w-6 h-6 text-blue-500" />
                     <span>পরীক্ষার রুটিন (Exam Routine)</span>
                   </h2>
-                  <p className="text-xs text-slate-450 dark:text-slate-400 mt-1">আসন্ন পরীক্ষার তালিকা এবং প্রকাশের তারিখসমূহ।</p>
+                  <p className="text-xs text-slate-455 dark:text-slate-400 mt-1">আসন্ন পরীক্ষার তালিকা এবং প্রকাশের তারিখসমূহ।</p>
                 </div>
                 <button 
                   onClick={() => loadExams()}
@@ -829,77 +881,162 @@ export default function App() {
                       <p className="text-xs text-slate-400">নতুন পরীক্ষার তারিখ নির্ধারণের জন্য গুগল শিটে examDate কলামে তারিখ (mm/dd/yy) যুক্ত করুন।</p>
                     </div>
                   ) : (
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {routineExams.map((exam) => (
-                        <ExamCard
-                          key={exam.id}
-                          exam={exam}
-                          currentUser={currentUser}
-                          onStartExam={handleStartExam}
-                          isAttempted={attemptedExamIds.includes(exam.id)}
-                          isLocked={isExamLockedForUser(exam)}
-                          onUnlock={(lockedExam) => {
-                            if (!currentUser) {
-                              setIsAuthOpen(true);
-                              return;
-                            }
-                            setSelectedUnlockExam(lockedExam);
-                            setIsUnlockModalOpen(true);
-                          }}
-                        />
-                      ))}
+                    <div className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm overflow-hidden">
+                      <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-800">
+                        <table className="w-full text-left border-collapse text-xs">
+                          <thead>
+                            <tr className="bg-slate-50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-350 font-bold border-b border-slate-100 dark:border-slate-800 uppercase">
+                              <th className="py-4 px-4 font-bold text-[11px]">পরীক্ষার দিন</th>
+                              <th className="py-4 px-4 font-bold text-[11px]">তারিখ</th>
+                              <th className="py-4 px-4 font-bold text-[11px]">পরীক্ষার নাম</th>
+                              <th className="py-4 px-4 font-bold text-[11px] text-center">সময়সীমা ও পূর্ণমান</th>
+                              <th className="py-4 px-4 font-bold text-[11px] text-center">ফি</th>
+                              <th className="py-4 px-4 font-bold text-[11px] text-center">অ্যাকশন / অবস্থা</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-650 dark:text-slate-300">
+                            {routineExams.map((exam) => {
+                              const { dayName, formattedDate } = getBanglaDayAndDate(exam.examDate);
+                              const isLive = exam.status === "live";
+                              const isAttempted = attemptedExamIds.includes(exam.id);
+                              const isLocked = isExamLockedForUser(exam);
+                              const isFree = exam.isFree !== false;
+                              
+                              return (
+                                <tr key={exam.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
+                                  <td className="py-4 px-4 font-bold text-indigo-650 dark:text-indigo-400 text-xs whitespace-nowrap">
+                                    {dayName}
+                                  </td>
+                                  <td className="py-4 px-4 font-semibold text-slate-500 dark:text-slate-400 font-mono text-xs whitespace-nowrap">
+                                    {formattedDate}
+                                  </td>
+                                  <td className="py-4 px-4">
+                                    <div className="space-y-1">
+                                      <p className="font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-sm max-w-sm line-clamp-2 leading-relaxed">
+                                        {exam.name}
+                                      </p>
+                                      <div className="flex items-center gap-1.5">
+                                        <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                                          isLive 
+                                            ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400" 
+                                            : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                                        }`}>
+                                          {isLive ? "চলতি পরীক্ষা" : "আসন্ন পরীক্ষা"}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="py-4 px-4 font-mono font-bold text-center whitespace-nowrap">
+                                    <div className="space-y-0.5">
+                                      <span className="text-xs">{exam.timeLimit} মিনিট</span>
+                                      {exam.questionCount !== undefined && exam.questionCount > 0 && (
+                                        <span className="block text-[10px] text-slate-400 font-medium">({exam.questionCount}টি প্রশ্ন)</span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className="py-4 px-4 text-center whitespace-nowrap">
+                                    {!isFree ? (
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-100/50 dark:border-amber-900/30 font-mono">
+                                        {exam.price} ৳
+                                      </span>
+                                    ) : (
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-900/30">
+                                        ফ্রি
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="py-4 px-4 text-center whitespace-nowrap">
+                                    {!isLive ? (
+                                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 dark:bg-slate-800 text-slate-450 rounded-lg text-[11px] font-bold">
+                                        <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                        <span>অপ্রকাশিত (আসন্ন)</span>
+                                      </span>
+                                    ) : isAttempted ? (
+                                      <div className="flex items-center justify-center gap-1.5">
+                                        {exam.showResult && (
+                                          <button
+                                            onClick={() => {
+                                              const name = currentUser?.displayName || currentUser?.email?.split("@")[0] || "পরীক্ষার্থী";
+                                              handleStartExam(exam, name, "view_result");
+                                              trackEvent("routine_view_result_click");
+                                            }}
+                                            className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/20 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold rounded-lg text-[10px] flex items-center gap-1 border border-blue-100 dark:border-blue-900/40 cursor-pointer"
+                                            title="ফলাফল দেখুন"
+                                          >
+                                            <Award className="w-3.5 h-3.5 text-blue-500" />
+                                            <span>ফলাফল</span>
+                                          </button>
+                                        )}
+                                        <button
+                                          onClick={() => {
+                                            const name = currentUser?.displayName || currentUser?.email?.split("@")[0] || "পরীক্ষার্থী";
+                                            handleStartExam(exam, name, "view_questions");
+                                            trackEvent("routine_view_questions_click");
+                                          }}
+                                          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg text-[10px] flex items-center gap-1 cursor-pointer"
+                                          title="প্রশ্ন ও সমাধান দেখুন"
+                                        >
+                                          <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
+                                          <span>প্রশ্ন</span>
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            const name = currentUser?.displayName || currentUser?.email?.split("@")[0] || "পরীক্ষার্থী";
+                                            handleStartExam(exam, name, "retake");
+                                            trackEvent("routine_retake_click");
+                                          }}
+                                          className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-[10px] flex items-center gap-1 cursor-pointer"
+                                          title="পুনরায় পরীক্ষা দিন"
+                                        >
+                                          <RefreshCw className="w-3.5 h-3.5" />
+                                          <span>পুনরায়</span>
+                                        </button>
+                                      </div>
+                                    ) : isLocked ? (
+                                      <button
+                                        onClick={() => {
+                                          if (!currentUser) {
+                                            setIsAuthOpen(true);
+                                            return;
+                                          }
+                                          setSelectedUnlockExam(exam);
+                                          setIsUnlockModalOpen(true);
+                                          trackEvent("routine_unlock_click");
+                                        }}
+                                        className="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-xs cursor-pointer"
+                                      >
+                                        <Lock className="w-3 h-3" />
+                                        <span>আনলক করুন ({exam.price} ৳)</span>
+                                      </button>
+                                    ) : (
+                                      <button
+                                        onClick={() => {
+                                          trackEvent("routine_start_exam_click");
+                                          if (currentUser) {
+                                            handleStartExam(exam, currentUser.displayName || currentUser.email.split("@")[0]);
+                                          } else {
+                                            setGuestExamToStart(exam);
+                                          }
+                                        }}
+                                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 shadow-xs cursor-pointer"
+                                      >
+                                        <span>অংশ নিন</span>
+                                        <ChevronRight className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                      
+                      <div className="bg-amber-50/50 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed mt-5">
+                        💡 <b>রুটিন নির্দেশিকা:</b> নির্ধারিত দিনে সংশ্লিষ্ট পরীক্ষাটি চালু করা হবে। পরীক্ষা শেষ হওয়ার পর প্রতিটি প্রশ্নের সমাধান ও ফলাফল স্বয়ংক্রিয়ভাবে প্রকাশ পাবে।
+                      </div>
                     </div>
                   )}
-
-                  {/* Persistent Weekly Schedule Table */}
-                  <div className="mt-12 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 max-w-4xl mx-auto shadow-sm">
-                    <div className="flex items-center gap-2 pb-4 border-b border-slate-100 dark:border-slate-800">
-                      <div className="p-2 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl text-indigo-600 dark:text-indigo-400">
-                        <Calendar className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">সাপ্তাহিক নিয়মিত পরীক্ষার রুটিন</h3>
-                        <p className="text-xs text-slate-400 mt-0.5">BCS, প্রাইমারি ও অন্যান্য সরকারি চাকরি পরীক্ষার নিয়মিত সময়সূচী</p>
-                      </div>
-                    </div>
-
-                    <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-800">
-                      <table className="w-full text-left border-collapse text-xs">
-                        <thead>
-                          <tr className="bg-slate-50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-350 font-bold border-b border-slate-100 dark:border-slate-800 uppercase">
-                            <th className="py-3 px-4 font-bold">পরীক্ষার দিন</th>
-                            <th className="py-3 px-4 font-bold">বিষয় ও অধ্যায়</th>
-                            <th className="py-3 px-4 font-bold">সময়সীমা ও পূর্ণমান</th>
-                            <th className="py-3 px-4 font-bold text-center">পরীক্ষার সময়</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-600 dark:text-slate-350">
-                          <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
-                            <td className="py-4 px-4 font-bold text-indigo-600 dark:text-indigo-400">শনিবার (Saturday)</td>
-                            <td className="py-4 px-4 font-semibold">বাংলা ভাষা, ব্যাকরণ ও বাংলা সাহিত্য এবং মানসিক দক্ষতা</td>
-                            <td className="py-4 px-4 font-mono font-medium">৩০ মিনিট | ৫০ নম্বর</td>
-                            <td className="py-4 px-4 text-center"><span className="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 font-bold rounded-lg">রাত ০৯:০০ টা</span></td>
-                          </tr>
-                          <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
-                            <td className="py-4 px-4 font-bold text-indigo-600 dark:text-indigo-400">সোমবার (Monday)</td>
-                            <td className="py-4 px-4 font-semibold">সাধারণ জ্ঞান, বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলী এবং সাম্প্রতিক</td>
-                            <td className="py-4 px-4 font-mono font-medium">৩০ মিনিট | ৫০ নম্বর</td>
-                            <td className="py-4 px-4 text-center"><span className="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 font-bold rounded-lg">রাত ০৯:০০ টা</span></td>
-                          </tr>
-                          <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
-                            <td className="py-4 px-4 font-bold text-indigo-600 dark:text-indigo-400">বুধবার (Wednesday)</td>
-                            <td className="py-4 px-4 font-semibold">ইংরেজি ভাষা ও সাহিত্য, গাণিতিক যুক্তি ও শর্টকাট টেকনিকস</td>
-                            <td className="py-4 px-4 font-mono font-medium">৩০ মিনিট | ৫০ নম্বর</td>
-                            <td className="py-4 px-4 text-center"><span className="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 font-bold rounded-lg">রাত ০৯:০০ টা</span></td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-
-                    <div className="bg-amber-50/50 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
-                      💡 <b>রুটিন নির্দেশিকা:</b> নির্ধারিত দিনে রাত ০৯:০০ মিনিটে লাইভ পরীক্ষা চালু করা হবে। পরীক্ষা শেষ হওয়ার পর প্রতিটি প্রশ্নের সমাধান ও ফলাফল স্বয়ংক্রিয়ভাবে প্রকাশ পাবে।
-                    </div>
-                  </div>
                 </>
               )}
             </motion.div>
@@ -1068,6 +1205,17 @@ export default function App() {
               exit={{ opacity: 0, y: -15 }}
             >
               <BlogUser />
+            </motion.div>
+          )}
+
+          {currentView === "helpline" && (
+            <motion.div
+              key="helpline"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+            >
+              <Helpline />
             </motion.div>
           )}
 
@@ -1241,6 +1389,26 @@ export default function App() {
                     • লাইভ মেধা তালিকা (Leaderboard)
                   </button>
                 </li>
+                <li>
+                  <button onClick={() => {
+                    const isExamActive = activeExam && (activeExamMode === "take" || activeExamMode === "retake");
+                    if (isExamActive) {
+                      if (window.confirm("আপনি একটি সক্রিয় পরীক্ষা দিচ্ছেন। চলে গেলে আপনার অগ্রগতি হারিয়ে যাবে। আপনি কি নিশ্চিত?")) {
+                        handleExitExam();
+                        setCurrentView("helpline");
+                      }
+                    } else {
+                      if (activeExam) {
+                        setActiveExam(null);
+                        setActiveCandidateName("");
+                        setActiveExamMode("take");
+                      }
+                      setCurrentView("helpline");
+                    }
+                  }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
+                    • হেল্পলাইন (Helpline)
+                  </button>
+                </li>
               </ul>
             </div>
 
@@ -1304,6 +1472,86 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Guest Name Modal */}
+      {guestExamToStart && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }}
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs"
+            onClick={() => {
+              setGuestExamToStart(null);
+              setGuestName("");
+              setGuestError("");
+            }}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl p-6 space-y-4 text-left z-10"
+          >
+            <h3 className="text-base font-black text-slate-800 dark:text-white">পরীক্ষায় অংশ নিন (Guest Access)</h3>
+            <p className="text-xs text-slate-500">আপনার পরীক্ষা এবং অগ্রগতি ট্র্যাক করতে আপনার ডাকনাম লিখুন।</p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!guestName.trim()) {
+                  setGuestError("পরীক্ষার্থীর নাম আবশ্যক।");
+                  return;
+                }
+                if (guestName.trim().length < 2) {
+                  setGuestError("নাম অন্তত ২ অক্ষরের হতে হবে।");
+                  return;
+                }
+                const nameToUse = guestName.trim();
+                const exam = guestExamToStart;
+                setGuestExamToStart(null);
+                setGuestName("");
+                setGuestError("");
+                handleStartExam(exam, nameToUse);
+              }}
+              className="space-y-4"
+            >
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">আপনার নাম লিখুন</label>
+                <input
+                  type="text"
+                  required
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  placeholder="যেমন: সাকিব হাসান"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold"
+                />
+              </div>
+              {guestError && (
+                <p className="text-[11px] font-medium text-rose-600">
+                  {guestError}
+                </p>
+              )}
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGuestExamToStart(null);
+                    setGuestName("");
+                    setGuestError("");
+                  }}
+                  className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-xs transition-colors cursor-pointer"
+                >
+                  বাতিল করুন
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-sm transition-all cursor-pointer"
+                >
+                  শুরু করুন
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
 
       {/* Auth Modal component */}
       <AuthModal 

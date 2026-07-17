@@ -27,8 +27,6 @@ async function testConnection() {
   } catch (error) {
     if (error instanceof Error && error.message.includes("client is offline")) {
       console.warn("Firebase client is offline. Firestore connection will resume when online.");
-    } else {
-      console.log("Firebase connection status active (test document query attempted).");
     }
   }
 }
