@@ -263,7 +263,7 @@ export default function Navbar({
           </div>
           <div className="min-w-0">
             <h2 className="text-base font-extrabold tracking-tight text-slate-800 dark:text-white leading-tight truncate">
-              কুইজ মাস্টার <span className="text-blue-600 dark:text-blue-400 font-black">প্রো</span>
+              Exam <span className="text-blue-600 dark:text-blue-400 font-black">Nest</span>
             </h2>
           </div>
         </div>
@@ -287,7 +287,7 @@ export default function Navbar({
 
         {/* Simplified clean Sidebar bottom footer */}
         <div className="pt-6 border-t border-slate-150 dark:border-slate-800 shrink-0 text-center">
-          <p className="text-[10px] text-slate-400 font-medium">© ২০২৬ কুইজ মাস্টার প্রো</p>
+          <p className="text-[10px] text-slate-400 font-medium">© ২০২৬ এক্সাম নেস্ট</p>
         </div>
       </aside>
 
@@ -306,7 +306,7 @@ export default function Navbar({
               </div>
               <div>
                 <span className="text-base font-bold tracking-tight text-slate-800 dark:text-white">
-                  কুইজ মাস্টার <span className="text-blue-600 dark:text-blue-400 font-extrabold">প্রো</span>
+                  Exam <span className="text-blue-600 dark:text-blue-400 font-extrabold">Nest</span>
                 </span>
               </div>
             </div>

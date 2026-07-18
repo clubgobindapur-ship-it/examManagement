@@ -41,22 +41,12 @@ export default function AdCarousel() {
           {
             id: "default-1",
             type: "text",
-            badge: "স্পেশাল অফার",
-            title: "বিসিএস প্রিলিমিনারি কুইজ প্যাক ২০২৬",
-            description: "স্পেশাল ৫০% ছাড়ে আজই আমাদের মেম্বারশিপে জয়েন করুন এবং ১০,০০০+ বাছাইকৃত প্রশ্ন ও ব্যাখ্যাসহ সমাধান আনলক করুন!",
-            cta: "অফারটি লুফে নিন",
+            badge: "বিসিএস প্রস্তুতি",
+            title: "বিসিএস প্রিলিমিনারি Question Bank 10 - 50 Exam",
+            description: "বিসিএস প্রিলিমিনারি পরীক্ষার জন্য ১০ থেকে ৫০তম বিসিএসের প্রশ্নের উপর পরীক্ষা নেওয়া হবে। প্রতিটি প্রশ্নের বিস্তারিত সমাধান এবং ব্যাখ্যা সহ।",
+            cta: "রুটিন দেখুন",
             imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop",
             redirectionUrl: "https://facebook.com"
-          },
-          {
-            id: "default-2",
-            type: "text",
-            badge: "ফ্রি লাইভ মক টেস্ট",
-            title: "প্রাইমারি শিক্ষক নিয়োগ মেগা লাইভ এক্সাম",
-            description: "আগামী ১০ই জুলাই অনুষ্ঠিতব্য ফ্রি অল-বাংলাদেশ মেগা মক টেস্টে অংশ নিয়ে হাজারো পরীক্ষার্থীর মাঝে নিজের র‍্যাংক যাচাই করুন।",
-            cta: "রুটিন দেখুন",
-            imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1200&auto=format&fit=crop",
-            redirectionUrl: "https://youtube.com"
           }
         ];
         setAds(defaultAds);
@@ -75,7 +65,7 @@ export default function AdCarousel() {
     if (ads.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % ads.length);
-    }, 6000);
+    }, 3000);
     return () => clearInterval(timer);
   }, [ads.length]);
 

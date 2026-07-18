@@ -741,13 +741,14 @@ export default function App() {
                 <div className="space-y-4 max-w-xl text-center md:text-left">
                   <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 rounded-full text-xs font-bold font-mono uppercase tracking-wider">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>পরবর্তী প্রজন্মের মূল্যায়ন ইঞ্জিন (Next-Gen Assessment)</span>
+                    <span>প্রস্তুতি হোক আরও গোছানো</span>
                   </div>
                   <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight leading-tight">
                     স্মার্ট অনলাইন পরীক্ষা পদ্ধতি (Smart Quiz System)
                   </h1>
                   <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                    একটি সুনির্দিষ্ট কাঠামোর মধ্যে আপনার লজিক, সাধারণ জ্ঞান এবং দক্ষতার পরীক্ষা নিন। গুগল শিটের সাথে পরীক্ষা সংযুক্ত করুন অথবা আমাদের লাইভ পরীক্ষাগুলোতে অংশ নিয়ে মেধা তালিকায় স্থান অর্জন করুন।
+                    ExamNest হলো একটি আধুনিক, নির্ভরযোগ্য ও ব্যবহারবান্ধব অনলাইন পরীক্ষা প্রস্তুতি প্ল্যাটফর্ম। এখানে বিভিন্ন প্রতিযোগিতামূলক পরীক্ষা, মডেল টেস্ট, কুইজ এবং অনুশীলনের মাধ্যমে সহজে নিজের দক্ষতা যাচাই ও উন্নত করা যায়। নির্ভুল মূল্যায়ন, র‍্যাঙ্কিং, বিশ্লেষণ এবং মানসম্মত প্রশ্নভান্ডারের মাধ্যমে ExamNest আপনার সফলতার পথে বিশ্বস্ত সঙ্গী।
+
                   </p>
                 </div>
 
@@ -1293,9 +1294,9 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-slate-100 dark:border-slate-800">
             {/* About Section */}
             <div className="space-y-3">
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">কুইজ মাস্টার প্রো</h3>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">এক্সাম নেস্ট</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                এটি একটি আধুনিক ও পরবর্তী প্রজন্মের অনলাইন মূল্যায়ন ইঞ্জিন। আমরা শিক্ষার্থীদের মেধা যাচাই ও দক্ষতা বৃদ্ধির লক্ষে বিভিন্ন বিষয়ের উপর লাইভ পরীক্ষা, সময়সূচীভিত্তিক রুটিন এবং আর্কাইভড কুইজ প্রদান করি।
+                ExamNest হলো একটি আধুনিক, নির্ভরযোগ্য ও ব্যবহারবান্ধব অনলাইন পরীক্ষা প্রস্তুতি প্ল্যাটফর্ম। এখানে বিভিন্ন প্রতিযোগিতামূলক পরীক্ষা, মডেল টেস্ট, কুইজ এবং অনুশীলনের মাধ্যমে সহজে নিজের দক্ষতা যাচাই ও উন্নত করা যায়। নির্ভুল মূল্যায়ন, র‍্যাঙ্কিং, বিশ্লেষণ এবং মানসম্মত প্রশ্নভান্ডারের মাধ্যমে ExamNest আপনার সফলতার পথে বিশ্বস্ত সঙ্গী।
               </p>
             </div>
 
@@ -1467,7 +1468,7 @@ export default function App() {
           </div>
 
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest gap-4">
-            <div>কুইজ মাস্টার প্রো © {new Date().getFullYear()}</div>
+            <div>এক্সাম নেস্ট © {new Date().getFullYear()}</div>
             <div>সিস্টেম স্ট্যাটাস (System Status): <span className="text-green-600">সংযুক্ত (Connected)</span></div>
           </div>
         </div>

@@ -576,7 +576,7 @@ Well done! Join the challenge here: ${window.location.href}`;
                   <Timer className="w-5 h-5 text-slate-400 shrink-0" />
                   <span>{formatTime(timeTaken)}</span>
                 </span>
-                <span className="text-[9px] text-slate-400 block mt-0.5">সীমা: {exam.timeLimit} মিনিট</span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">সময় সীমা: {exam.timeLimit} মিনিট</span>
               </div>
             </div>
           )}
@@ -605,7 +605,7 @@ Well done! Join the challenge here: ${window.location.href}`;
                   className="px-5 py-3 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 font-medium rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
                 >
                   <Twitter className="w-4 h-4" />
-                  <span>টুইটার</span>
+                  <span>টুইটার(x)</span>
                 </button>
                 <button
                   onClick={shareResultFacebook}
@@ -636,7 +636,7 @@ Well done! Join the challenge here: ${window.location.href}`;
             {!isViewResultOnly && !isRetakeOnly && (
               <button
                 onClick={onViewLeaderboard}
-                className="px-5 py-3 bg-indigo-650 hover:bg-indigo-700 text-white font-medium rounded-xl text-xs flex items-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer"
+                className="px-5 py-3 bg-indigo-700 hover:bg-indigo-800 text-white font-medium rounded-xl text-xs flex items-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer"
               >
                 <Award className="w-4 h-4" />
                 <span>লাইভ মেধা তালিকা</span>
@@ -673,7 +673,7 @@ Well done! Join the challenge here: ${window.location.href}`;
                   onChange={(e) => setSelectedTopic(e.target.value)}
                   className="px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="">সব টপিক (All Topics)</option>
+                  <option value="">All Topics</option>
                   {uniqueTopics.map((topic) => (
                     <option key={topic} value={topic}>{topic}</option>
                   ))}
@@ -827,7 +827,7 @@ Well done! Join the challenge here: ${window.location.href}`;
               onChange={(e) => setSelectedTopic(e.target.value)}
               className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-w-[220px]"
             >
-              <option value="">সব টপিক (All Topics) ({questions.length})</option>
+              <option value="">All Topics ({questions.length})</option>
               {uniqueTopics.map((topic) => {
                 const count = questions.filter(q => q.topic === topic).length;
                 return (

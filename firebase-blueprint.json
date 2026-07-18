@@ -94,7 +94,8 @@
         "gaMeasurementId": { "type": "string" },
         "monthlyPrice": { "type": "number" },
         "yearlyPrice": { "type": "number" },
-        "descriptions": { "type": "array" }
+        "descriptions": { "type": "array" },
+        "admin" : { "type": "object", "properties": { "email": { "type": "string" }, "password": { "type": "string" } } }
       },
       "required": []
     },

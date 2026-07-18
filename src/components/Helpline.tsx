@@ -68,7 +68,7 @@ export default function Helpline() {
           <span>হেল্পলাইন ও নির্দেশিকা (Helpline & FAQ)</span>
         </h2>
         <p className="text-xs text-slate-450 dark:text-slate-400 mt-1.5 leading-relaxed">
-          কুইজ মাস্টার প্রো প্ল্যাটফর্ম ব্যবহারের নিয়মাবলী, সাধারণ প্রশ্নোত্তর এবং যেকোনো প্রয়োজনে সরাসরি আমাদের সাহায্যকারী টিমের সাথে যোগাযোগ করুন।
+          এক্সাম নেস্ট প্ল্যাটফর্ম ব্যবহারের নিয়মাবলী, সাধারণ প্রশ্নোত্তর এবং যেকোনো প্রয়োজনে সরাসরি আমাদের সাহায্যকারী টিমের সাথে যোগাযোগ করুন।
         </p>
       </div>
 
@@ -84,10 +84,10 @@ export default function Helpline() {
           </div>
           <div className="space-y-1.5 min-w-0">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">হোয়াটসঅ্যাপ সাপোর্ট</h3>
-            <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100">+৮৮০ ১৭০০-০০০০০০</p>
+            <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100">+8801788381680</p>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">যেকোনো পেমেন্ট সংক্রান্ত জটিলতা বা একাউন্ট সংক্রান্ত সহায়তার জন্য চ্যাট করুন।</p>
             <a 
-              href="https://wa.me/8801700000000" 
+              href="https://wa.me/8801788381680" 
               target="_blank" 
               rel="noreferrer"
               onClick={() => trackEvent("helpline_whatsapp_click")}
@@ -109,10 +109,10 @@ export default function Helpline() {
           </div>
           <div className="space-y-1.5 min-w-0">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">ইমেইল সাপোর্ট</h3>
-            <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100">support@quizmasterpro.com</p>
+            <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100">support.examnest@gmail.com</p>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">যেকোনো ব্যবসায়িক যোগাযোগ, পরামর্শ অথবা সুনির্দিষ্ট অভিযোগ ইমেইল করুন।</p>
             <a 
-              href="mailto:support@quizmasterpro.com"
+              href="mailto:support.examnest@gmail.com"
               onClick={() => trackEvent("helpline_email_click")}
               className="inline-flex items-center gap-1 text-[11px] font-black text-blue-600 dark:text-blue-400 hover:underline pt-1.5 cursor-pointer"
             >
@@ -181,7 +181,7 @@ export default function Helpline() {
         <div className="space-y-1">
           <h4 className="text-xs font-extrabold text-amber-800 dark:text-amber-400">সতর্কবার্তা ও গোপনীয়তা</h4>
           <p className="text-[11px] text-amber-700/90 dark:text-amber-400/80 leading-relaxed">
-            কোনো বিকাশ/রকেট/নগদ লেনদেনের ক্ষেত্রে কেবল আমাদের অফিসিয়াল নাম্বারগুলো ব্যবহার করুন। কুইজ মাস্টার প্রো এডমিন কখনো আপনার ব্যক্তিগত ওটিপি (OTP) বা পাসওয়ার্ড জানতে চাইবে না। নিজের অ্যাকাউন্ট সুরক্ষিত রাখুন।
+            কোনো বিকাশ/রকেট/নগদ লেনদেনের ক্ষেত্রে কেবল আমাদের অফিসিয়াল নাম্বারগুলো ব্যবহার করুন। এক্সাম নেস্ট এডমিন কখনো আপনার ব্যক্তিগত ওটিপি (OTP) বা পাসওয়ার্ড জানতে চাইবে না। নিজের অ্যাকাউন্ট সুরক্ষিত রাখুন।
           </p>
         </div>
       </div>
