@@ -159,7 +159,7 @@ export default function AdCarousel() {
 
               <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-center text-white z-10 max-w-2xl space-y-2 sm:space-y-3">
                 <div className="flex items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-600/90 text-[10px] font-black uppercase tracking-wider text-white border border-blue-500/30">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-600/90 text-[12px] font-black uppercase tracking-wider text-white border border-blue-500/30">
                     <Megaphone className="w-3 h-3 text-yellow-300" />
                     {activeAd.badge}
                   </span>
@@ -169,7 +169,7 @@ export default function AdCarousel() {
                   {activeAd.title}
                 </h3>
                 
-                <p className="text-[11px] sm:text-xs text-slate-300 font-medium leading-relaxed line-clamp-2 max-w-xl">
+                <p className="text-[13px] sm:text-xs text-slate-300 font-medium leading-relaxed line-clamp-2 max-w-xl">
                   {activeAd.description}
                 </p>
 
@@ -181,7 +181,7 @@ export default function AdCarousel() {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => handleAdClick(activeAd)}
-                      className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] rounded-xl shadow-xs transition-all"
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[13px] rounded-xl shadow-xs transition-all"
                     >
                       <span>{activeAd.cta}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -189,7 +189,7 @@ export default function AdCarousel() {
                   ) : (
                     <button
                       onClick={() => handleAdClick(activeAd)}
-                      className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] rounded-xl shadow-xs transition-all"
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[13px] rounded-xl shadow-xs transition-all"
                     >
                       <span>{activeAd.cta}</span>
                       <ArrowRight className="w-3.5 h-3.5" />

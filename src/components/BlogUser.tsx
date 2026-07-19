@@ -143,7 +143,7 @@ export default function BlogUser() {
                     {selectedBlog.tags.map((tag, idx) => (
                       <span
                         key={idx}
-                        className="inline-flex items-center gap-1 text-[10px] bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-750 text-slate-500 dark:text-slate-400 font-extrabold px-2.5 py-1 rounded-lg font-mono uppercase tracking-wide"
+                        className="inline-flex items-center gap-1 text-[12px] bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-750 text-slate-500 dark:text-slate-400 font-extrabold px-2.5 py-1 rounded-lg font-mono uppercase tracking-wide"
                       >
                         <Tag className="w-2.5 h-2.5 text-blue-500 shrink-0" />
                         <span>{tag}</span>
@@ -239,7 +239,7 @@ export default function BlogUser() {
                     ) : (
                       <div className="w-full sm:w-32 h-36 sm:h-24 shrink-0 rounded-xl bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-300 dark:text-slate-700 border border-slate-100 dark:border-slate-800 space-y-1">
                         <BookOpen className="w-6 h-6 text-slate-400 dark:text-slate-600" />
-                        <span className="text-[8px] font-bold tracking-wider uppercase font-mono text-slate-400 dark:text-slate-500">ARTICLE</span>
+                        <span className="text-[10px] font-bold tracking-wider uppercase font-mono text-slate-400 dark:text-slate-500">ARTICLE</span>
                       </div>
                     )}
 
@@ -249,7 +249,7 @@ export default function BlogUser() {
                       {blog.tags && blog.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
                           {blog.tags.slice(0, 3).map((t, i) => (
-                            <span key={i} className="text-[9px] bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded font-extrabold uppercase">
+                            <span key={i} className="text-[11px] bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded font-extrabold uppercase">
                               #{t}
                             </span>
                           ))}
@@ -271,7 +271,7 @@ export default function BlogUser() {
                       )}
 
                       {/* Footer stats row */}
-                      <div className="flex items-center gap-4 text-[10px] text-slate-400 dark:text-slate-500 pt-1.5 font-medium">
+                      <div className="flex items-center gap-4 text-[12px] text-slate-400 dark:text-slate-500 pt-1.5 font-medium">
                         <div className="flex items-center gap-1 font-mono">
                           <Calendar className="w-3.5 h-3.5" />
                           <span>{new Date(blog.createdAt).toLocaleDateString("bn-BD")}</span>

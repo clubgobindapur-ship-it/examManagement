@@ -303,7 +303,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
             <div className="overflow-x-auto rounded-xl border border-slate-150 dark:border-slate-800">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-150 dark:border-slate-800">
+                  <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-[12px] tracking-wider border-b border-slate-150 dark:border-slate-800">
                     <th className="py-3 px-4 font-bold text-center w-12">ক্র.</th>
                     <th className="py-3 px-4 font-bold">পরীক্ষার নাম (Exam Name)</th>
                     <th className="py-3 px-4 font-bold">ট্যাব (Tab Name)</th>
@@ -326,7 +326,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
                       </td>
                       <td className="py-4 px-4">
                         <div className="font-bold text-slate-800 dark:text-slate-200">{exam.name}</div>
-                        <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+                        <div className="flex items-center gap-2 mt-0.5 text-[12px] text-slate-400 dark:text-slate-500 font-mono">
                           <span>ID: {exam.id}</span>
                           {exam.questionCount !== undefined && exam.questionCount > 0 && (
                             <>
@@ -342,7 +342,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
                       <td className="py-4 px-4 text-slate-600 dark:text-slate-400 font-semibold">
                         {exam.timeLimit} মিনিট
                         {exam.examDate && (
-                          <div className="text-[9px] text-slate-400 flex items-center gap-0.5 mt-0.5">
+                          <div className="text-[11px] text-slate-400 flex items-center gap-0.5 mt-0.5">
                             <Calendar className="w-2.5 h-2.5" />
                             <span>{exam.examDate}</span>
                           </div>
@@ -354,12 +354,12 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
                       </td>
                       <td className="py-4 px-4">
                         {exam.isFree ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 font-bold rounded-lg text-[10px]">
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 font-bold rounded-lg text-[12px]">
                             <Unlock className="w-3 h-3 text-emerald-500" />
                             <span>ফ্রি</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 font-bold rounded-lg text-[10px]">
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 font-bold rounded-lg text-[12px]">
                             <Lock className="w-3 h-3 text-amber-500" />
                             <span>{exam.price} ৳</span>
                           </span>
@@ -368,23 +368,23 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
                       <td className="py-4 px-4">
                         {exam.showResult ? (
                           <div className="space-y-0.5">
-                            <span className="inline-block px-2 py-1 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-extrabold rounded-lg text-[10px]" title={`Pass percentage: ${exam.passPercentage || 40}%`}>
+                            <span className="inline-block px-2 py-1 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-extrabold rounded-lg text-[12px]" title={`Pass percentage: ${exam.passPercentage || 40}%`}>
                               প্রকাশিত ({exam.passPercentage || 40}%)
                             </span>
                             {exam.minPassMark !== undefined && exam.minPassMark > 0 && (
-                              <div className="text-[9px] text-slate-500 dark:text-slate-400 font-bold">
+                              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-bold">
                                 ন্যূনতম: {exam.minPassMark}
                               </div>
                             )}
                           </div>
                         ) : (
-                          <span className="inline-block px-2 py-1 bg-slate-100 text-slate-500 dark:bg-slate-850 dark:text-slate-450 font-bold rounded-lg text-[10px]">
+                          <span className="inline-block px-2 py-1 bg-slate-100 text-slate-500 dark:bg-slate-850 dark:text-slate-450 font-bold rounded-lg text-[12px]">
                             অপ্রকাশিত
                           </span>
                         )}
                       </td>
                       <td className="py-4 px-4">
-                        <span className={`inline-block px-2 py-1 rounded-lg text-[10px] uppercase font-extrabold ${
+                        <span className={`inline-block px-2 py-1 rounded-lg text-[12px] uppercase font-extrabold ${
                           exam.status === "live"
                             ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400"
                             : exam.status === "archived" || exam.status === "archive"
@@ -431,7 +431,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Exam ID */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     পরীক্ষার আইডি (Exam ID - Unique Slug) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -447,7 +447,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
 
                 {/* Serial No */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     ক্রমিক নম্বর (Serial No / SL No) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -462,7 +462,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
 
                 {/* Name */}
                 <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     পরীক্ষার নাম (Exam Name) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -477,7 +477,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
 
                 {/* Tab Name */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     গুগল শিটের ট্যাব নাম (Tab Name in Google Sheets) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -492,7 +492,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
 
                 {/* Time Limit */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     সময়সীমা (Time Limit in Minutes) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -507,7 +507,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
 
                 {/* Number of Questions */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     প্রশ্নের সংখ্যা (Number of Questions) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -522,7 +522,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
 
                 {/* Exam Date */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     পরীক্ষার তারিখ (Exam Date - Optional)
                   </label>
                   <input
@@ -536,7 +536,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
 
                 {/* Status */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     পরীক্ষার স্ট্যাটাস (Status)
                   </label>
                   <select
@@ -561,7 +561,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Mark per question */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     প্রতিটি সঠিক উত্তরের মান (Mark per Question) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -576,7 +576,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
 
                 {/* Penalty mark */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     ভুল উত্তরের জন্য পেনাল্টি মার্ক (Negative/Penalty Mark) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -591,7 +591,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
 
                 {/* Free Toggle */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     অ্যাক্সেস মোড (Access Mode)
                   </label>
                   <button
@@ -624,7 +624,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
 
                 {/* Price */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     পরীক্ষার মূল্য (Price BDT)
                   </label>
                   <input
@@ -643,7 +643,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
 
                 {/* Publish Result Toggle */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     রেজাল্ট পাবলিশ স্ট্যাটাস (Result Status)
                   </label>
                   <button
@@ -661,7 +661,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
 
                 {/* Pass Percentage */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     উত্তীর্ণ শিক্ষার্থীর হার (Pass Percentage: Top x%)
                   </label>
                   <input
@@ -673,14 +673,14 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
                     placeholder="যেমন: 40"
                     className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-semibold"
                   />
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 leading-relaxed">
+                  <p className="text-[12px] text-slate-400 dark:text-slate-500 mt-1 leading-relaxed">
                     প্রাপ্ত নম্বরের ওপর ভিত্তি করে মেধা তালিকার শীর্ষে থাকা শতকরা {formPassPercentage}% শিক্ষার্থী উত্তীর্ণ (Pass) হবে।
                   </p>
                 </div>
 
                 {/* Minimum Pass Mark */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     ন্যূনতম পাস নম্বর (Minimum Pass Mark)
                   </label>
                   <input
@@ -692,7 +692,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
                     placeholder="যেমন: 20"
                     className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-semibold"
                   />
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 leading-relaxed">
+                  <p className="text-[12px] text-slate-400 dark:text-slate-500 mt-1 leading-relaxed">
                     পরীক্ষার্থীকে অবশ্যই ন্যূনতম এই নম্বরটি পেতে হবে এবং একই সাথে শীর্ষ মেধা তালিকায় থাকতে হবে।
                   </p>
                 </div>

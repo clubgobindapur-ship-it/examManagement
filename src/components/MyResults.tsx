@@ -161,7 +161,7 @@ export default function MyResults({ currentUser, onOpenAuth, exams }: MyResultsP
                   <span className="text-xs bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider">পরীক্ষার নাম</span>
                   <h3 className="text-sm font-extrabold text-slate-800 dark:text-white leading-snug">{res.examName}</h3>
                 </div>
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase shrink-0 ${
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-black uppercase shrink-0 ${
                   res.isPass 
                     ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/35" 
                     : "bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/35"
@@ -182,26 +182,26 @@ export default function MyResults({ currentUser, onOpenAuth, exams }: MyResultsP
 
               <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-100 dark:border-slate-850">
                 <div className="space-y-0.5">
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">প্রাপ্ত নম্বর</span>
+                  <span className="text-[12px] text-slate-400 dark:text-slate-500 font-bold">প্রাপ্ত নম্বর</span>
                   <p className="text-sm font-black text-slate-800 dark:text-slate-200">
                     <span className="text-lg text-emerald-600 dark:text-emerald-400">{res.obtainedMark}</span> / {res.totalExamMark}
                   </p>
                 </div>
                 <div className="space-y-0.5 text-right">
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">মেধা স্থান (Rank)</span>
+                  <span className="text-[12px] text-slate-400 dark:text-slate-500 font-bold">মেধা স্থান (Rank)</span>
                   <p className="text-sm font-black text-slate-800 dark:text-slate-200">
                     <span className="text-lg text-indigo-600 dark:text-indigo-400">#{res.rank}</span> / {res.totalParticipants} জন
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-wrap justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-850 font-bold gap-2">
+              <div className="flex flex-wrap justify-between items-center text-[12px] text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-850 font-bold gap-2">
                 <div className="flex gap-2">
                   <span className="text-emerald-600">সঠিক: {res.correctCount}</span>
                   <span className="text-rose-600">ভুল: {res.wrongCount}</span>
                   <span className="text-slate-500">বাদ: {res.skippedCount}</span>
                 </div>
-                <div className="flex items-center gap-1 font-mono text-[9px] text-slate-400">
+                <div className="flex items-center gap-1 font-mono text-[11px] text-slate-400">
                   <Clock className="w-3 h-3" />
                   <span>{new Date(res.completedAt).toLocaleDateString("bn-BD", { year: "numeric", month: "short", day: "numeric" })}</span>
                 </div>

@@ -356,11 +356,11 @@ export default function AdminPackagesSettings() {
                     <div>
                       <div className="flex justify-between items-start gap-2">
                         <div>
-                          <span className="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400 text-[9px] font-mono uppercase font-black rounded-md mb-2">
+                          <span className="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400 text-[11px] font-mono uppercase font-black rounded-md mb-2">
                             {pkg.packagetype}
                           </span>
                           <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">{pkg.packageTitle}</h3>
-                          <p className="text-slate-400 text-[11px] mt-0.5">{pkg.packageSubtitle}</p>
+                          <p className="text-slate-400 text-[13px] mt-0.5">{pkg.packageSubtitle}</p>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <button
@@ -386,7 +386,7 @@ export default function AdminPackagesSettings() {
                         {pkg.discountType !== "none" && pkg.discountValue > 0 && (
                           <>
                             <span className="text-xs text-slate-400 line-through">{pkg.baseprice} ৳</span>
-                            <span className="text-[10px] text-rose-600 font-bold">
+                            <span className="text-[12px] text-rose-600 font-bold">
                               ({pkg.discountType === "flat" ? `${pkg.discountValue} ৳ ছাড়` : `${pkg.discountValue}% ছাড়`})
                             </span>
                           </>
@@ -395,7 +395,7 @@ export default function AdminPackagesSettings() {
 
                       {/* Validity block */}
                       <div className="mt-2 text-xs text-slate-500 flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/60 px-2.5 py-1.5 rounded-lg border border-slate-200/40 dark:border-slate-800">
-                        <span className="font-extrabold text-[10px] uppercase text-slate-400">মেয়াদ (Validity):</span>
+                        <span className="font-extrabold text-[12px] uppercase text-slate-400">মেয়াদ (Validity):</span>
                         <span className="font-bold text-slate-700 dark:text-slate-300">
                           {pkg.validityDays || 0} দিন {pkg.validityHours || 0} ঘণ্টা {pkg.validityMins || 0} মিনিট
                         </span>
@@ -403,8 +403,8 @@ export default function AdminPackagesSettings() {
 
                       {/* Description List */}
                       <div className="mt-4 border-t border-slate-100 dark:border-slate-800 pt-3">
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold block mb-1.5 uppercase tracking-wide">প্যাকেজের সুবিধাসমূহ (Features):</span>
-                        <ul className="space-y-1.5 text-[11px] text-slate-600 dark:text-slate-400">
+                        <span className="text-[12px] text-slate-400 dark:text-slate-500 font-bold block mb-1.5 uppercase tracking-wide">প্যাকেজের সুবিধাসমূহ (Features):</span>
+                        <ul className="space-y-1.5 text-[13px] text-slate-600 dark:text-slate-400">
                           {pkg.discription.map((line, idx) => (
                             <li key={idx} className="flex items-start gap-1.5">
                               <span className="text-emerald-500 font-bold shrink-0">✓</span>
@@ -415,7 +415,7 @@ export default function AdminPackagesSettings() {
                       </div>
                     </div>
 
-                    <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px]">
+                    <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[12px]">
                       <span className="text-slate-400">ID: {pkg.id}</span>
                       <span className={`px-2 py-0.5 rounded-md font-bold ${
                         pkg.isActive 
@@ -443,7 +443,7 @@ export default function AdminPackagesSettings() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Package ID */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     প্যাকেজ আইডি (Package ID - Unique Slug) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -459,7 +459,7 @@ export default function AdminPackagesSettings() {
 
                 {/* Package Type */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     প্যাকেজের মেয়াদ ধরন (Type) <span className="text-rose-500">*</span>
                   </label>
                   <select
@@ -477,7 +477,7 @@ export default function AdminPackagesSettings() {
 
                 {/* Package Title */}
                 <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     প্যাকেজের শিরোনাম (Package Title) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -492,7 +492,7 @@ export default function AdminPackagesSettings() {
 
                 {/* Package Subtitle */}
                 <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     প্যাকেজের উপ-শিরোনাম (Package Subtitle)
                   </label>
                   <input
@@ -506,7 +506,7 @@ export default function AdminPackagesSettings() {
 
                 {/* Base Price */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     মূল মূল্য (Base Price in BDT) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -520,7 +520,7 @@ export default function AdminPackagesSettings() {
 
                 {/* Status Toggle */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     প্যাকেজ স্ট্যাটাস
                   </label>
                   <button
@@ -548,7 +548,7 @@ export default function AdminPackagesSettings() {
 
                 {/* Highlighted Toggle */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     সেরা অফার / হাইলাইটেড প্যাকেজ
                   </label>
                   <button
@@ -576,7 +576,7 @@ export default function AdminPackagesSettings() {
 
                 {/* Discount Type */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     ছাড়ের ধরন (Discount Type)
                   </label>
                   <select
@@ -598,7 +598,7 @@ export default function AdminPackagesSettings() {
 
                 {/* Discount Value */}
                 <div className="space-y-1.5">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px] opacity-100 disabled:opacity-50">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px] opacity-100 disabled:opacity-50">
                     ছাড়ের পরিমাণ (Discount Value)
                   </label>
                   <input
@@ -612,10 +612,10 @@ export default function AdminPackagesSettings() {
 
                 {/* Package Validity Inputs */}
                 <div className="md:col-span-2 border-t border-slate-200 dark:border-slate-800 pt-4 mt-2">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 block mb-3">প্যাকেজের মেয়াদ / মেম্বারশিপের সময়সীমা (Package Validity):</span>
+                  <span className="text-[12px] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 block mb-3">প্যাকেজের মেয়াদ / মেম্বারশিপের সময়সীমা (Package Validity):</span>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="space-y-1.5">
-                      <label className="text-slate-500 dark:text-slate-400 font-bold block text-[10px]">দিন (Days) <span className="text-rose-500">*</span></label>
+                      <label className="text-slate-500 dark:text-slate-400 font-bold block text-[12px]">দিন (Days) <span className="text-rose-500">*</span></label>
                       <input
                         type="number"
                         min="0"
@@ -626,7 +626,7 @@ export default function AdminPackagesSettings() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-slate-500 dark:text-slate-400 font-bold block text-[10px]">ঘণ্টা (Hours)</label>
+                      <label className="text-slate-500 dark:text-slate-400 font-bold block text-[12px]">ঘণ্টা (Hours)</label>
                       <input
                         type="number"
                         min="0"
@@ -638,7 +638,7 @@ export default function AdminPackagesSettings() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-slate-500 dark:text-slate-400 font-bold block text-[10px]">মিনিট (Minutes)</label>
+                      <label className="text-slate-500 dark:text-slate-400 font-bold block text-[12px]">মিনিট (Minutes)</label>
                       <input
                         type="number"
                         min="0"
@@ -654,7 +654,7 @@ export default function AdminPackagesSettings() {
 
                 {/* Features list (array of strings) */}
                 <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[10px]">
+                  <label className="text-slate-500 dark:text-slate-400 font-bold tracking-wide block text-[12px]">
                     প্যাকেজের সুবিধাসমূহ (Features List - প্রতিটি সুবিধা আলাদা লাইনে লিখুন)
                   </label>
                   <textarea

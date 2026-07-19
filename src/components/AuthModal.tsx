@@ -365,7 +365,7 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 flex justify-between items-center py-1.5 border-b border-slate-50 dark:border-slate-800/60">
                       <span className="font-semibold">ইমেইল (Email):</span>
-                      <span className="font-bold text-slate-700 dark:text-slate-350 font-mono text-[10px]">{currentUser.email}</span>
+                      <span className="font-bold text-slate-700 dark:text-slate-350 font-mono text-[12px]">{currentUser.email}</span>
                     </p>
                     {profileData?.phone && (
                       <p className="text-xs text-slate-500 dark:text-slate-400 flex justify-between items-center py-1.5 border-b border-slate-50 dark:border-slate-800/60">
@@ -390,10 +390,10 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
                     <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
                     <span className="font-extrabold text-xs text-amber-800 dark:text-amber-400">প্রিমিয়াম মেম্বারশিপ সক্রিয়!</span>
                   </div>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-350 font-semibold">
+                  <p className="text-[13px] text-slate-600 dark:text-slate-350 font-semibold">
                     প্যাকেজের ধরন: <b className="text-indigo-600 dark:text-indigo-400 uppercase font-black">{profileData.subscriptionType || "Custom"}</b>
                   </p>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-350 font-semibold">
+                  <p className="text-[13px] text-slate-600 dark:text-slate-350 font-semibold">
                     মেয়াদ শেষ হবে: <b className="text-slate-700 dark:text-slate-200 font-bold">
                       {new Date(profileData.premiumUntil).toLocaleString("bn-BD", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </b>
@@ -402,7 +402,7 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
               ) : (
                 <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 p-4 rounded-xl text-left">
                   <span className="font-bold text-xs text-slate-600 dark:text-slate-300 block">বর্তমান স্ট্যাটাস: ফ্রি মেম্বার</span>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">সব প্রিমিয়াম পরীক্ষা ও ব্যাখ্যা আনলক করতে যেকোনো একটি প্রিমিয়াম প্যাকেজ কিনুন।</p>
+                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">সব প্রিমিয়াম পরীক্ষা ও ব্যাখ্যা আনলক করতে যেকোনো একটি প্রিমিয়াম প্যাকেজ কিনুন।</p>
                 </div>
               )}
 
@@ -411,7 +411,7 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
                   <p className="text-xs font-bold text-slate-600 dark:text-slate-350">
                     ফলাফল ও সাবস্ক্রিপশন পৃষ্ঠা এখন সরাসরি মেনুতে পাবেন!
                   </p>
-                  <p className="text-[10px] text-slate-400">
+                  <p className="text-[12px] text-slate-400">
                     বামদিকের প্রধান মেনু থেকে "আমার ফলাফল" এবং "আমার সাবস্ক্রিপশন" দেখতে পাবেন।
                   </p>
                 </div>
@@ -431,20 +431,20 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
                     {loadingResults ? (
                       <div className="py-8 text-center space-y-2">
                         <Loader2 className="w-6 h-6 animate-spin mx-auto text-indigo-500" />
-                        <span className="text-[10px] text-slate-400 font-bold block">ফলাফল তৈরি হচ্ছে...</span>
+                        <span className="text-[12px] text-slate-400 font-bold block">ফলাফল তৈরি হচ্ছে...</span>
                       </div>
                     ) : personalResults.length > 0 ? (
                       <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
                         {personalResults.map((res, idx) => (
                           <div 
                             key={idx} 
-                            className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800 text-[11px] space-y-2 transition-all hover:border-slate-200 dark:hover:border-slate-750"
+                            className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800 text-[13px] space-y-2 transition-all hover:border-slate-200 dark:hover:border-slate-750"
                           >
                             <div className="flex justify-between items-start gap-3">
                               <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs leading-snug">
                                 {res.examName}
                               </span>
-                              <span className={`inline-block px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase shrink-0 ${
+                              <span className={`inline-block px-1.5 py-0.5 rounded-md text-[11px] font-black uppercase shrink-0 ${
                                 res.isPass 
                                   ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" 
                                   : "bg-rose-500/10 text-rose-600 dark:bg-rose-950/40 dark:text-rose-450"
@@ -453,14 +453,14 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
                               </span>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-y-1.5 gap-x-3 text-[10px] text-slate-500 dark:text-slate-400 pt-1.5 border-t border-slate-100 dark:border-slate-800/50 font-bold">
+                            <div className="grid grid-cols-2 gap-y-1.5 gap-x-3 text-[12px] text-slate-500 dark:text-slate-400 pt-1.5 border-t border-slate-100 dark:border-slate-800/50 font-bold">
                               <div>
                                 প্রাপ্ত নম্বর: <span className="font-black text-slate-800 dark:text-slate-200">{res.obtainedMark}</span> / {res.totalExamMark}
                               </div>
                               <div className="text-right">
                                 মেধা স্থান (Rank): <span className="font-black text-indigo-600 dark:text-indigo-400">{res.rank}</span> / {res.totalParticipants}
                               </div>
-                              <div className="col-span-2 flex justify-between text-[9px] text-slate-400 dark:text-slate-500">
+                              <div className="col-span-2 flex justify-between text-[11px] text-slate-400 dark:text-slate-500">
                                 <span>সঠিক: {res.correctCount} | ভুল: {res.wrongCount} | বাদ: {res.skippedCount}</span>
                                 <span>{new Date(res.completedAt).toLocaleDateString("bn-BD")}</span>
                               </div>
@@ -469,7 +469,7 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
                         ))}
                       </div>
                     ) : (
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center py-5 bg-slate-50 dark:bg-slate-800/10 rounded-xl font-bold">কোনো প্রকাশিত পরীক্ষার ফলাফল পাওয়া যায়নি।</p>
+                      <p className="text-[12px] text-slate-400 dark:text-slate-500 text-center py-5 bg-slate-50 dark:bg-slate-800/10 rounded-xl font-bold">কোনো প্রকাশিত পরীক্ষার ফলাফল পাওয়া যায়নি।</p>
                     )}
                   </div>
                 </div>
@@ -491,28 +491,28 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
                         {profileData.subscriptionsList.map((sub, idx) => {
                           const isExpired = new Date(sub.premiumUntil) < new Date();
                           return (
-                            <div key={idx} className="p-3 bg-indigo-50/40 dark:bg-slate-800/80 rounded-xl border border-indigo-100/60 dark:border-slate-850 text-[11px] flex justify-between items-center gap-4">
+                            <div key={idx} className="p-3 bg-indigo-50/40 dark:bg-slate-800/80 rounded-xl border border-indigo-100/60 dark:border-slate-850 text-[13px] flex justify-between items-center gap-4">
                               <div className="space-y-1">
                                 <span className="font-bold text-slate-800 dark:text-slate-200 block flex items-center gap-1.5">
                                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                   {sub.packageName}
                                 </span>
-                                <span className="text-slate-400 text-[10px] block">
+                                <span className="text-slate-400 text-[12px] block">
                                   প্যাকেজ আইডি: <b className="font-mono text-slate-600 dark:text-slate-300">{sub.packageId}</b>
                                 </span>
-                                <span className="text-slate-400 text-[10px] block">
+                                <span className="text-slate-400 text-[12px] block">
                                   শুরু: {new Date(sub.activatedAt).toLocaleDateString("bn-BD")}
                                 </span>
                               </div>
                               <div className="text-right shrink-0 space-y-1">
-                                <span className={`inline-block px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase ${
+                                <span className={`inline-block px-1.5 py-0.5 rounded-md text-[11px] font-black uppercase ${
                                   isExpired 
                                     ? "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400" 
                                     : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400"
                                 }`}>
                                   {isExpired ? "মেয়াদোত্তীর্ণ" : "সক্রিয়"}
                                 </span>
-                                <span className="text-slate-500 dark:text-slate-400 text-[10px] block">
+                                <span className="text-slate-500 dark:text-slate-400 text-[12px] block">
                                   মেয়াদ: {new Date(sub.premiumUntil).toLocaleDateString("bn-BD")}
                                 </span>
                               </div>
@@ -521,7 +521,7 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
                         })}
                       </div>
                     ) : (
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center py-3 bg-slate-50 dark:bg-slate-800/10 rounded-xl">কোনো সক্রিয় প্রিমিয়াম প্যাকেজ পাওয়া যায়নি।</p>
+                      <p className="text-[12px] text-slate-400 dark:text-slate-500 text-center py-3 bg-slate-50 dark:bg-slate-800/10 rounded-xl">কোনো সক্রিয় প্রিমিয়াম প্যাকেজ পাওয়া যায়নি।</p>
                     )}
                   </div>
 
@@ -530,7 +530,7 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
                     {loadingSubscriptions ? (
                       <div className="py-6 text-center space-y-2">
                         <Loader2 className="w-5 h-5 animate-spin mx-auto text-indigo-500" />
-                        <span className="text-[10px] text-slate-400 font-bold block">তালিকা লোড হচ্ছে...</span>
+                        <span className="text-[12px] text-slate-400 font-bold block">তালিকা লোড হচ্ছে...</span>
                       </div>
                     ) : purchasedPacks.length > 0 ? (
                       <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
@@ -538,17 +538,17 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
                           const isVerified = pack.status === "verified";
                           const isRejected = pack.status === "rejected";
                           return (
-                            <div key={pack.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100/80 dark:border-slate-800 text-[11px] flex justify-between items-center gap-4 transition-all hover:border-slate-200 dark:hover:border-slate-750">
+                            <div key={pack.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100/80 dark:border-slate-800 text-[13px] flex justify-between items-center gap-4 transition-all hover:border-slate-200 dark:hover:border-slate-750">
                               <div className="space-y-1">
                                 <span className="font-bold text-slate-800 dark:text-slate-200 block">{pack.name}</span>
-                                <span className="text-slate-400 text-[10px] block">
+                                <span className="text-slate-400 text-[12px] block">
                                   TxID: <b className="font-mono text-slate-600 dark:text-slate-300">{pack.txId}</b> ({pack.method})
                                 </span>
-                                <span className="text-slate-400 text-[10px] block">তারিখ: {pack.date || "N/A"}</span>
+                                <span className="text-slate-400 text-[12px] block">তারিখ: {pack.date || "N/A"}</span>
                               </div>
                               <div className="text-right shrink-0 space-y-1">
                                 <span className="font-black text-slate-900 dark:text-white block">{pack.amount} ৳</span>
-                                <span className={`inline-block px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
+                                <span className={`inline-block px-2 py-0.5 rounded-md text-[11px] font-black uppercase ${
                                   isVerified 
                                     ? "bg-emerald-100 text-emerald-850 dark:bg-emerald-950/40 dark:text-emerald-400" 
                                     : isRejected
@@ -563,7 +563,7 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
                         })}
                       </div>
                     ) : (
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center py-3 bg-slate-50 dark:bg-slate-800/10 rounded-xl">কোনো ক্রয়ের ইতিহাস নেই।</p>
+                      <p className="text-[12px] text-slate-400 dark:text-slate-500 text-center py-3 bg-slate-50 dark:bg-slate-800/10 rounded-xl">কোনো ক্রয়ের ইতিহাস নেই।</p>
                     )}
                   </div>
                 </div>

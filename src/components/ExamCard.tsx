@@ -84,16 +84,16 @@ export default function ExamCard({
           <div className="flex items-center gap-1.5">
             {/* Free/Paid badge */}
             {!isFree ? (
-              <span className="text-[9px] uppercase font-black tracking-wider px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-450 border border-amber-100 dark:border-amber-900/30 flex items-center gap-0.5">
+              <span className="text-[11px] uppercase font-black tracking-wider px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-450 border border-amber-100 dark:border-amber-900/30 flex items-center gap-0.5">
                 <Lock className="w-2.5 h-2.5" />
                 <span>{exam.price} ৳</span>
               </span>
             ) : (
-              <span className="text-[9px] uppercase font-black tracking-wider px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-450 border border-emerald-100 dark:border-emerald-900/30">
+              <span className="text-[11px] uppercase font-black tracking-wider px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-450 border border-emerald-100 dark:border-emerald-900/30">
                 FREE
               </span>
             )}
-            <span className={`text-[9px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full ${
+            <span className={`text-[11px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full ${
               isLive 
                 ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400" 
                 : isArchived
@@ -132,8 +132,8 @@ export default function ExamCard({
           )}
 
           <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 mt-2">
-            <span className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider">নম্বর বিভাজন (Marking Scheme)</span>
-            <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-600 dark:text-slate-405 font-bold font-mono">
+            <span className="text-[12px] uppercase font-extrabold text-slate-400 tracking-wider">নম্বর বিভাজন (Marking Scheme)</span>
+            <div className="grid grid-cols-2 gap-2 text-[12px] text-slate-600 dark:text-slate-405 font-bold font-mono">
               <div className="bg-slate-50 dark:bg-slate-850 px-2 py-1 rounded border border-slate-100/80 dark:border-slate-800/60">
                 সঠিক: <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">+{exam.markPerQuestion !== undefined ? exam.markPerQuestion : 1}</span>
               </div>
@@ -225,7 +225,7 @@ export default function ExamCard({
         ) : (
           <form onSubmit={handleBegin} className="pt-4 space-y-3.5 border-t border-slate-100/60 dark:border-slate-800/60" id={`form-gate-${exam.id}`}>
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+              <label className="text-[12px] font-bold text-slate-500 uppercase tracking-wider block">
                 আপনার নাম লিখুন
               </label>
               <div className="relative">
@@ -243,7 +243,7 @@ export default function ExamCard({
             </div>
 
             {error && (
-              <p className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
+              <p className="text-[13px] font-medium text-rose-600 flex items-center gap-1">
                 <ShieldAlert className="w-3 h-3 shrink-0" />
                 <span>{error}</span>
               </p>

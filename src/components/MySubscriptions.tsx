@@ -151,7 +151,7 @@ export default function MySubscriptions({ currentUser, onOpenAuth, onViewChange 
                   <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-850 p-4 rounded-xl text-center space-y-2">
                     <ShoppingCart className="w-8 h-8 text-slate-400 mx-auto" />
                     <p className="font-bold text-xs text-slate-600 dark:text-slate-300">বর্তমান স্ট্যাটাস: ফ্রি মেম্বার</p>
-                    <p className="text-[11px] text-slate-500 leading-relaxed">সব প্রিমিয়াম পরীক্ষা ও ব্যাখ্যা আনলক করতে যেকোনো একটি প্রিমিয়াম প্যাকেজ কিনুন।</p>
+                    <p className="text-[13px] text-slate-500 leading-relaxed">সব প্রিমিয়াম পরীক্ষা ও ব্যাখ্যা আনলক করতে যেকোনো একটি প্রিমিয়াম প্যাকেজ কিনুন।</p>
                   </div>
                   
                   <button
@@ -173,12 +173,12 @@ export default function MySubscriptions({ currentUser, onOpenAuth, onViewChange 
                   {profileData.subscriptionsList.map((sub, idx) => {
                     const isExpired = new Date(sub.premiumUntil) < new Date();
                     return (
-                      <div key={idx} className="p-2.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-850 rounded-xl text-[11px] flex justify-between items-center">
+                      <div key={idx} className="p-2.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-850 rounded-xl text-[13px] flex justify-between items-center">
                         <div className="space-y-1">
                           <span className="font-extrabold text-slate-800 dark:text-slate-200 block">{sub.packageName}</span>
-                          <span className="text-slate-400 text-[9px] block">শুরু: {new Date(sub.activatedAt).toLocaleDateString("bn-BD")}</span>
+                          <span className="text-slate-400 text-[11px] block">শুরু: {new Date(sub.activatedAt).toLocaleDateString("bn-BD")}</span>
                         </div>
-                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase shrink-0 ${
+                        <span className={`px-1.5 py-0.5 rounded text-[11px] font-black uppercase shrink-0 ${
                           isExpired 
                             ? "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400" 
                             : "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400"
@@ -215,9 +215,9 @@ export default function MySubscriptions({ currentUser, onOpenAuth, onViewChange 
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-2">
                           <span className="font-extrabold text-slate-800 dark:text-white text-sm">{pack.name}</span>
-                          <span className="px-2 py-0.5 bg-indigo-50 dark:bg-slate-800/60 border border-indigo-100/40 dark:border-slate-700/60 text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase rounded-md font-mono">{pack.method}</span>
+                          <span className="px-2 py-0.5 bg-indigo-50 dark:bg-slate-800/60 border border-indigo-100/40 dark:border-slate-700/60 text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase rounded-md font-mono">{pack.method}</span>
                         </div>
-                        <div className="space-y-0.5 text-slate-400 dark:text-slate-500 text-[10px] font-bold">
+                        <div className="space-y-0.5 text-slate-400 dark:text-slate-500 text-[12px] font-bold">
                           <p>Transaction ID: <b className="font-mono text-slate-600 dark:text-slate-300 uppercase">{pack.txId}</b></p>
                           <p>পেমেন্ট তারিখ: {pack.date || "N/A"}</p>
                         </div>
@@ -227,17 +227,17 @@ export default function MySubscriptions({ currentUser, onOpenAuth, onViewChange 
                         <span className="font-black text-slate-900 dark:text-white text-base leading-none">{pack.amount} ৳</span>
                         <div className="mt-1">
                           {isVerified ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/35 rounded-md text-[9px] font-black uppercase">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/35 rounded-md text-[11px] font-black uppercase">
                               <CheckCircle2 className="w-3 h-3" />
                               <span>সক্রিয় (Verified)</span>
                             </span>
                           ) : isRejected ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-450 border border-rose-100 dark:border-rose-900/35 rounded-md text-[9px] font-black uppercase">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-450 border border-rose-100 dark:border-rose-900/35 rounded-md text-[11px] font-black uppercase">
                               <XCircle className="w-3 h-3" />
                               <span>প্রত্যাখ্যাত (Rejected)</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/35 rounded-md text-[9px] font-black uppercase">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/35 rounded-md text-[11px] font-black uppercase">
                               <AlertCircle className="w-3 h-3" />
                               <span>অপেক্ষমান (Pending)</span>
                             </span>

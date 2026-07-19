@@ -287,7 +287,7 @@ export default function Navbar({
 
         {/* Simplified clean Sidebar bottom footer */}
         <div className="pt-6 border-t border-slate-150 dark:border-slate-800 shrink-0 text-center">
-          <p className="text-[10px] text-slate-400 font-medium">© ২০২৬ এক্সাম নেস্ট</p>
+          <p className="text-[12px] text-slate-400 font-medium">© ২০২৬ এক্সাম নেস্ট</p>
         </div>
       </aside>
 
@@ -347,7 +347,7 @@ export default function Navbar({
               {currentUser ? (
                 <button
                   onClick={onOpenAuth}
-                  className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white uppercase cursor-pointer shrink-0"
+                  className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center text-[12px] font-bold text-white uppercase cursor-pointer shrink-0"
                 >
                   {currentUser.displayName ? currentUser.displayName[0] : currentUser.email[0]}
                 </button>
@@ -430,10 +430,10 @@ export default function Navbar({
                       {currentUser.displayName ? currentUser.displayName[0] : currentUser.email[0]}
                     </div>
                     <div className="text-left overflow-hidden">
-                      <span className="font-extrabold text-[11px] text-slate-700 dark:text-slate-200 block truncate">
+                      <span className="font-extrabold text-[13px] text-slate-700 dark:text-slate-200 block truncate">
                         {currentUser.displayName || "পরীক্ষার্থী"}
                       </span>
-                      <span className="text-[9px] text-slate-400 dark:text-slate-500 block truncate font-mono">
+                      <span className="text-[11px] text-slate-400 dark:text-slate-500 block truncate font-mono">
                         {currentUser.email}
                       </span>
                     </div>
@@ -483,7 +483,7 @@ export default function Navbar({
                   <div>
                     <h3 className="text-base font-black text-slate-850 dark:text-white">নোটিশ বোর্ড (Notice Board)</h3>
                     {unreadCount > 0 && (
-                      <span className="text-[10px] bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-450 px-1.5 py-0.5 rounded-md font-bold mt-0.5 inline-block">
+                      <span className="text-[12px] bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-450 px-1.5 py-0.5 rounded-md font-bold mt-0.5 inline-block">
                         {unreadCount}টি নতুন নোটিশ
                       </span>
                     )}
@@ -494,7 +494,7 @@ export default function Navbar({
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllAsRead}
-                      className="text-[10px] font-bold text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1 hover:bg-slate-50 dark:hover:bg-slate-800 px-2 py-1.5 rounded-lg transition-colors cursor-pointer"
+                      className="text-[12px] font-bold text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1 hover:bg-slate-50 dark:hover:bg-slate-800 px-2 py-1.5 rounded-lg transition-colors cursor-pointer"
                     >
                       <CheckCheck className="w-3.5 h-3.5" />
                       <span>সব পঠিত চিহ্নিত করুন</span>
@@ -515,7 +515,7 @@ export default function Navbar({
                   <div className="text-center py-16 text-slate-400 space-y-2">
                     <Inbox className="w-12 h-12 text-slate-200 dark:text-slate-800 mx-auto" />
                     <p className="text-xs font-bold text-slate-400">এই মুহূর্তে কোনো নোটিশ নেই।</p>
-                    <p className="text-[10px] text-slate-405">নতুন নোটিশ প্রকাশিত হলে এখানে দেখতে পারবেন।</p>
+                    <p className="text-[12px] text-slate-405">নতুন নোটিশ প্রকাশিত হলে এখানে দেখতে পারবেন।</p>
                   </div>
                 ) : (
                   notices.map((notice) => {
@@ -535,8 +535,8 @@ export default function Navbar({
                         )}
 
                         <div className="space-y-1.5">
-                          <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium">
-                            <span className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded-md font-mono">
+                          <div className="flex items-center justify-between text-[12px] text-slate-400 font-medium">
+                            <span className="text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded-md font-mono">
                               {new Date(notice.createdAt || Date.now()).toLocaleDateString("bn-BD")}
                             </span>
                             {!isRead && (
@@ -549,7 +549,7 @@ export default function Navbar({
                           </p>
 
                           {notice.deeplink && (
-                            <div className="flex items-center gap-1 text-[10px] font-black text-indigo-500 group-hover:underline pt-1">
+                            <div className="flex items-center gap-1 text-[12px] font-black text-indigo-500 group-hover:underline pt-1">
                               <span>বিস্তারিত দেখুন</span>
                               <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                             </div>
@@ -594,10 +594,10 @@ export default function Navbar({
               </button>
 
               <div className="space-y-2">
-                <span className="inline-flex items-center gap-1 text-[9px] bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1 text-[11px] bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">
                   নোটিফিকেশন বিবরণ
                 </span>
-                <span className="block text-[10px] text-slate-400 font-mono">
+                <span className="block text-[12px] text-slate-400 font-mono">
                   প্রকাশের সময়: {new Date(selectedNotice.createdAt || Date.now()).toLocaleString("bn-BD")}
                 </span>
               </div>

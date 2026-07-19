@@ -397,7 +397,7 @@ export default function PendingPayments() {
           <div className="overflow-x-auto rounded-xl border border-slate-100">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-slate-500 font-bold text-[11px] uppercase tracking-wider border-b border-slate-100">
+                <tr className="bg-slate-50 text-slate-500 font-bold text-[13px] uppercase tracking-wider border-b border-slate-100">
                   <th className="px-5 py-4">User Info</th>
                   <th className="px-5 py-4">Product Info</th>
                   <th className="px-5 py-4">Transaction Details</th>
@@ -413,7 +413,7 @@ export default function PendingPayments() {
                     <td className="px-5 py-4">
                       <div>
                         <span className="font-bold text-slate-800 block">{tx.username}</span>
-                        <span className="text-slate-400 text-[10px] block mt-0.5 font-sans">{tx.email}</span>
+                        <span className="text-slate-400 text-[12px] block mt-0.5 font-sans">{tx.email}</span>
                       </div>
                     </td>
 
@@ -421,7 +421,7 @@ export default function PendingPayments() {
                     <td className="px-5 py-4">
                       <div>
                         <span className="font-bold text-slate-800 block">{tx.examName}</span>
-                        <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[9px] uppercase font-black tracking-wide mt-1 inline-block">
+                        <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[11px] uppercase font-black tracking-wide mt-1 inline-block">
                           {tx.type === "exam" ? "Single Exam" : tx.type.startsWith("premium_") ? tx.type.replace("premium_", "").replace("_", " ").toUpperCase() + " Premium" : "Subscription"}
                         </span>
                       </div>
@@ -430,21 +430,21 @@ export default function PendingPayments() {
                     {/* Txn Details */}
                     <td className="px-5 py-4 space-y-1 font-mono">
                       <div className="flex items-center gap-1.5">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        <span className={`px-2 py-0.5 rounded text-[12px] font-bold ${
                           tx.paymentMethod === "bKash" ? "bg-pink-100 text-pink-700" : "bg-orange-100 text-orange-700"
                         }`}>
                           {tx.paymentMethod}
                         </span>
                         <span className="font-extrabold text-blue-600 text-xs select-all bg-blue-50 px-1 py-0.5 rounded">{tx.transactionId}</span>
                       </div>
-                      <div className="text-[10px] text-slate-400 font-sans">
+                      <div className="text-[12px] text-slate-400 font-sans">
                         Sender: <b className="font-mono text-slate-700">{tx.senderNumber || "N/A"}</b> | Amount: <b className="text-emerald-650 font-sans">{tx.amount} ৳</b>
                       </div>
                     </td>
 
                     {/* Date */}
                     <td className="px-5 py-4">
-                      <span className="text-[11px] font-mono">
+                      <span className="text-[13px] font-mono">
                         {tx.createdAt 
                           ? new Date(tx.createdAt).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
                           : "N/A"
@@ -454,7 +454,7 @@ export default function PendingPayments() {
 
                     {/* Status badge */}
                     <td className="px-5 py-4">
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                      <span className={`px-2 py-1 rounded-full text-[12px] font-black uppercase tracking-wider ${
                         tx.status === "verified"
                           ? "bg-emerald-100 text-emerald-800"
                           : tx.status === "rejected"
@@ -476,14 +476,14 @@ export default function PendingPayments() {
                           <div className="flex items-center justify-center gap-2">
                             <button
                               onClick={() => setConfirmingAction({ tx, action: "verify" })}
-                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-xs"
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[12px] rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-xs"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
                               <span>Verify</span>
                             </button>
                             <button
                               onClick={() => setConfirmingAction({ tx, action: "reject" })}
-                              className="px-3 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-[10px] rounded-lg transition-all cursor-pointer flex items-center gap-1"
+                              className="px-3 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-[12px] rounded-lg transition-all cursor-pointer flex items-center gap-1"
                             >
                               <XCircle className="w-3.5 h-3.5" />
                               <span>Reject</span>

@@ -397,28 +397,28 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
                 {/* Formatting columns */}
                 <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
                   <h4 className="font-bold text-slate-800 flex items-center gap-2">
-                    <span className="w-5 h-5 bg-slate-900 text-white rounded-full flex items-center justify-center text-[10px] font-mono">A</span>
+                    <span className="w-5 h-5 bg-slate-900 text-white rounded-full flex items-center justify-center text-[12px] font-mono">A</span>
                     <span>Spreadsheet Tab Layout</span>
                   </h4>
                   <div className="space-y-4">
                     <div>
                       <span className="font-bold text-slate-800">ট্যাব ১ নাম (অবশ্যই হতে হবে): </span>
-                      <code className="bg-slate-200 py-0.5 px-1.5 rounded font-mono text-[10px]">Exams</code>
-                      <p className="text-[11px] text-slate-500 mt-1">কলামের নামগুলো যথাক্রমে:</p>
-                      <code className="block bg-slate-100 p-2 rounded font-mono text-[10px] text-slate-700 overflow-x-auto mt-1 whitespace-nowrap">
+                      <code className="bg-slate-200 py-0.5 px-1.5 rounded font-mono text-[12px]">Exams</code>
+                      <p className="text-[13px] text-slate-500 mt-1">কলামের নামগুলো যথাক্রমে:</p>
+                      <code className="block bg-slate-100 p-2 rounded font-mono text-[12px] text-slate-700 overflow-x-auto mt-1 whitespace-nowrap">
                         sl no | exam name | google sheet tab | exam time | status
                       </code>
-                      <p className="text-[10px] text-slate-400 mt-0.5">উদাহরণ: 1 | BCS Practice | BCS_GK | 15 | live</p>
+                      <p className="text-[12px] text-slate-400 mt-0.5">উদাহরণ: 1 | BCS Practice | BCS_GK | 15 | live</p>
                     </div>
 
                     <div className="pt-3 border-t border-slate-200">
                       <span className="font-bold text-slate-800">ট্যাব ২ নাম (যেকোনো পছন্দসই ট্যাব): </span>
-                      <code className="bg-slate-200 py-0.5 px-1.5 rounded font-mono text-[10px]">BCS_GK</code>
-                      <p className="text-[11px] text-slate-500 mt-1">কলামের বিন্যাস হতে হবে:</p>
-                      <code className="block bg-slate-100 p-2 rounded font-mono text-[10px] text-slate-700 overflow-x-auto mt-1 whitespace-nowrap">
+                      <code className="bg-slate-200 py-0.5 px-1.5 rounded font-mono text-[12px]">BCS_GK</code>
+                      <p className="text-[13px] text-slate-500 mt-1">কলামের বিন্যাস হতে হবে:</p>
+                      <code className="block bg-slate-100 p-2 rounded font-mono text-[12px] text-slate-700 overflow-x-auto mt-1 whitespace-nowrap">
                         question no | question | option a | option b | option c | option d | correct answer | explanation
                       </code>
-                      <p className="text-[10px] text-slate-400 mt-0.5">উদাহরণ: 1 | বাংলাদেশের রাজধানী কোনটি? | খুলনা | ঢাকা | সিলেট | রাজশাহী | b | ঢাকা বাংলাদেশের রাজধানী।</p>
+                      <p className="text-[12px] text-slate-400 mt-0.5">উদাহরণ: 1 | বাংলাদেশের রাজধানী কোনটি? | খুলনা | ঢাকা | সিলেট | রাজশাহী | b | ঢাকা বাংলাদেশের রাজধানী।</p>
                     </div>
                   </div>
                 </div>
@@ -427,7 +427,7 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
                 <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4 flex flex-col justify-between">
                   <div>
                     <h4 className="font-bold text-slate-800 flex items-center gap-2">
-                      <span className="w-5 h-5 bg-slate-900 text-white rounded-full flex items-center justify-center text-[10px] font-mono">B</span>
+                      <span className="w-5 h-5 bg-slate-900 text-white rounded-full flex items-center justify-center text-[12px] font-mono">B</span>
                       <span>Google Apps Script Implementation</span>
                     </h4>
                     <p className="text-slate-500 leading-relaxed mt-2">
@@ -577,7 +577,7 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
                   />
                   <div>
                     <span className="text-slate-800 font-extrabold text-xs block">সকলের জন্য রেজাল্ট পিডিএফ প্রিন্ট ও ডাউনলোড উন্মুক্ত রাখুন (Print/Download is Free)</span>
-                    <span className="text-[10px] text-slate-500 font-medium leading-relaxed block mt-1">
+                    <span className="text-[12px] text-slate-500 font-medium leading-relaxed block mt-1">
                       যদি এই অপশনটি চালু করা থাকে, তাহলে যেকোনো পরীক্ষার্থী তার ফলাফল শেষে ফ্রীতে পিডিএফ প্রিন্ট ও ডাউনলোড করতে পারবেন। যদি এটি বন্ধ থাকে, তবে শুধুমাত্র প্রিমিয়াম মেম্বার এবং সেই নির্দিষ্ট পরীক্ষায় উত্তীর্ণ/সাবস্ক্রাইবড ইউজাররা রেজাল্ট প্রিন্ট করতে পারবেন।
                     </span>
                   </div>

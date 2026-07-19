@@ -128,7 +128,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                   className="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-              <p className="text-[10px] text-gray-400">Default: <code className="font-mono bg-gray-100 p-0.5 rounded">admin@examportal.com</code></p>
+              <p className="text-[12px] text-gray-400">Default: <code className="font-mono bg-gray-100 p-0.5 rounded">admin@examportal.com</code></p>
             </div>
 
             <div className="space-y-1.5">
@@ -144,7 +144,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                   className="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-              <p className="text-[10px] text-gray-400">Default: <code className="font-mono bg-gray-100 p-0.5 rounded">adminpassword123</code></p>
+              <p className="text-[12px] text-gray-400">Default: <code className="font-mono bg-gray-100 p-0.5 rounded">adminpassword123</code></p>
             </div>
 
             <button
@@ -169,7 +169,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
               <ShieldCheck className="w-6 h-6 mx-auto text-indigo-600" />
               <p className="text-xs font-bold">DEVELOPMENT OTP CODE</p>
               <p className="text-2xl font-black tracking-widest text-indigo-700">{generatedOtp}</p>
-              <p className="text-[10px] text-indigo-500/80">Use the code above or fallback <code className="font-mono bg-white px-1 rounded">123456</code> to log in.</p>
+              <p className="text-[12px] text-indigo-500/80">Use the code above or fallback <code className="font-mono bg-white px-1 rounded">123456</code> to log in.</p>
             </div>
 
             <div className="space-y-1.5">

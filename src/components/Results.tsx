@@ -189,7 +189,7 @@ export default function Results({ exams }: ResultsProps) {
                         <p className={`text-xs font-bold truncate ${isActive ? "text-white" : "text-slate-800 dark:text-slate-200"}`}>
                           {exam.name}
                         </p>
-                        <div className="flex items-center gap-2 text-[10px] opacity-75 font-mono">
+                        <div className="flex items-center gap-2 text-[12px] opacity-75 font-mono">
                           <span>{exam.timeLimit} মিনিট</span>
                           <span>•</span>
                           <span>পাস হার: {exam.passPercentage || 40}%</span>
@@ -211,14 +211,14 @@ export default function Results({ exams }: ResultsProps) {
                 <div className="p-6 border-b border-slate-150 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-black bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                      <span className="text-[12px] font-black bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 px-2 py-0.5 rounded-md uppercase tracking-wider">
                         ফলাফল শিট (Official Results)
                       </span>
-                      <span className="text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-md">
+                      <span className="text-[12px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-md">
                         শীর্ষ {selectedExam.passPercentage || 40}% পাস
                       </span>
                       {selectedExam.minPassMark !== undefined && selectedExam.minPassMark > 0 && (
-                        <span className="text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-md">
+                        <span className="text-[12px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-md">
                           ন্যূনতম পাস নম্বর: {selectedExam.minPassMark}
                         </span>
                       )}
@@ -251,11 +251,11 @@ export default function Results({ exams }: ResultsProps) {
                   {attempts.length > 0 && (
                     <div className="flex gap-4 shrink-0 text-xs font-bold text-slate-500">
                       <div className="bg-slate-50 dark:bg-slate-800 px-3.5 py-2 rounded-xl text-center">
-                        <span className="text-slate-400 block text-[9px] uppercase">মোট পরীক্ষার্থী</span>
+                        <span className="text-slate-400 block text-[11px] uppercase">মোট পরীক্ষার্থী</span>
                         <span className="text-slate-700 dark:text-slate-300 font-mono text-sm">{attempts.length} জন</span>
                       </div>
                       <div className="bg-emerald-50 dark:bg-emerald-950/20 px-3.5 py-2 rounded-xl text-center">
-                        <span className="text-emerald-500/80 block text-[9px] uppercase">মোট উত্তীর্ণ</span>
+                        <span className="text-emerald-500/80 block text-[11px] uppercase">মোট উত্তীর্ণ</span>
                         <span className="text-emerald-700 dark:text-emerald-400 font-mono text-sm">
                           {processedResults.filter(r => r.isPass).length} জন
                         </span>
@@ -275,13 +275,13 @@ export default function Results({ exams }: ResultsProps) {
                     <div className="py-20 text-center space-y-3">
                       <BookOpen className="w-10 h-10 text-slate-300 dark:text-slate-700 mx-auto" />
                       <p className="text-xs text-slate-400 font-semibold">কোনো ফলাফল রেকর্ড পাওয়া যায়নি।</p>
-                      <p className="text-[10px] text-slate-500">পরীক্ষায় অংশ নিয়ে ফলাফলের তালিকায় যুক্ত হোন!</p>
+                      <p className="text-[12px] text-slate-500">পরীক্ষায় অংশ নিয়ে ফলাফলের তালিকায় যুক্ত হোন!</p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse text-xs">
                         <thead>
-                          <tr className="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase text-[9px] tracking-wider border-b border-slate-150 dark:border-slate-800">
+                          <tr className="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase text-[11px] tracking-wider border-b border-slate-150 dark:border-slate-800">
                             <th className="py-3 px-4 text-center w-12 font-bold">মেধা</th>
                             <th className="py-3 px-4 font-bold">পরীক্ষার্থী (Candidate)</th>
                             <th className="py-3 px-4 text-center font-bold">প্রাপ্ত নম্বর</th>
@@ -316,12 +316,12 @@ export default function Results({ exams }: ResultsProps) {
                                 {/* Name & Masked email */}
                                 <td className="py-4 px-4">
                                   <div className="flex items-center gap-2.5">
-                                    <div className={`w-8 h-8 rounded-full ${avatarBg} flex items-center justify-center text-[10px] font-black text-white uppercase shrink-0`}>
+                                    <div className={`w-8 h-8 rounded-full ${avatarBg} flex items-center justify-center text-[12px] font-black text-white uppercase shrink-0`}>
                                       {initials}
                                     </div>
                                     <div className="text-left overflow-hidden">
                                       <p className="font-bold text-slate-800 dark:text-slate-200 truncate">{result.username}</p>
-                                      <p className="text-[9px] text-slate-400 dark:text-slate-500 font-mono truncate">{maskEmail(result.email)}</p>
+                                      <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono truncate">{maskEmail(result.email)}</p>
                                     </div>
                                   </div>
                                 </td>
@@ -329,12 +329,12 @@ export default function Results({ exams }: ResultsProps) {
                                 {/* Score / Marks */}
                                 <td className="py-4 px-4 text-center font-mono font-extrabold text-slate-800 dark:text-slate-200">
                                   <span className="text-indigo-600 dark:text-indigo-400 text-sm">{result.obtainedMark}</span>
-                                  <span className="text-slate-400 font-bold text-[10px]"> / {result.totalExamMark}</span>
+                                  <span className="text-slate-400 font-bold text-[12px]"> / {result.totalExamMark}</span>
                                 </td>
 
                                 {/* Stats */}
                                 <td className="py-4 px-4 text-center">
-                                  <div className="inline-flex gap-1.5 text-[10px] font-mono">
+                                  <div className="inline-flex gap-1.5 text-[12px] font-mono">
                                     <span className="text-emerald-600 font-extrabold" title="Correct Answers">✓{result.correctCount || 0}</span>
                                     <span className="text-rose-500 font-extrabold" title="Wrong Answers">✗{result.wrongCount || 0}</span>
                                     {result.skippedCount !== undefined && (
@@ -351,12 +351,12 @@ export default function Results({ exams }: ResultsProps) {
                                 {/* Pass/Fail badge */}
                                 <td className="py-4 px-4 text-center">
                                   {result.isPass ? (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 font-black rounded-lg text-[9px] uppercase tracking-wider">
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 font-black rounded-lg text-[11px] uppercase tracking-wider">
                                       <CheckCircle className="w-3 h-3 text-emerald-500" />
                                       <span>পাস</span>
                                     </span>
                                   ) : (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 font-black rounded-lg text-[9px] uppercase tracking-wider">
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 font-black rounded-lg text-[11px] uppercase tracking-wider">
                                       <XCircle className="w-3 h-3 text-rose-500" />
                                       <span>ফেল</span>
                                     </span>

@@ -147,11 +147,11 @@ export default function PaymentModal({
               {/* Product Info Summary */}
               <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-150 dark:border-slate-800 flex justify-between items-center text-xs">
                 <div>
-                  <span className="text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold text-[9px]">ক্রয়কৃত আইটেম (Item)</span>
+                  <span className="text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold text-[11px]">ক্রয়কৃত আইটেম (Item)</span>
                   <span className="text-slate-800 dark:text-slate-200 font-bold text-sm mt-0.5 block">{productName}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold text-[9px]">পরিশোধযোগ্য মূল্য (Price)</span>
+                  <span className="text-slate-400 dark:text-slate-500 uppercase tracking-wider block font-bold text-[11px]">পরিশোধযোগ্য মূল্য (Price)</span>
                   <span className="text-blue-600 dark:text-blue-400 font-black text-lg mt-0.5 block">{price} ৳</span>
                 </div>
               </div>
@@ -164,7 +164,7 @@ export default function PaymentModal({
                     নিচের যেকোনো একটি পেমেন্ট মেথড (bKash বা Nagad) নির্বাচন করুন।
                   </li>
                   <li>
-                    আমাদের মোবাইল নম্বর <b className="text-slate-800 dark:text-slate-100 font-mono select-all bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px]">{paymentMethod === "bKash" ? adminNumbers.bKash : adminNumbers.Nagad}</b>-এ <b className="text-blue-600 dark:text-blue-400 font-bold">{price} টাকা</b> "Send Money" করুন।
+                    আমাদের মোবাইল নম্বর <b className="text-slate-800 dark:text-slate-100 font-mono select-all bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-[13px]">{paymentMethod === "bKash" ? adminNumbers.bKash : adminNumbers.Nagad}</b>-এ <b className="text-blue-600 dark:text-blue-400 font-bold">{price} টাকা</b> "Send Money" করুন।
                   </li>
                   <li>
                     টাকা পাঠানো সফল হলে আপনার bKash/Nagad ট্রানজেকশন আইডি (TxnID) এবং যে নম্বর থেকে পাঠিয়েছেন তা নিচের ফর্মে লিখে সাবমিট করুন।
@@ -174,7 +174,7 @@ export default function PaymentModal({
 
               {/* Payment Method Selector */}
               <div className="space-y-1.5">
-                <label className="text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-bold text-[10px]">পেমেন্ট গেটওয়ে সিলেক্ট করুন</label>
+                <label className="text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-bold text-[12px]">পেমেন্ট গেটওয়ে সিলেক্ট করুন</label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
@@ -284,7 +284,7 @@ export default function PaymentModal({
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm mx-auto">
                   আপনার ট্রানজেকশন আইডি <b className="font-mono text-slate-800 dark:text-slate-200 uppercase bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{transactionId.trim().toUpperCase()}</b> সফলভাবে নথিভুক্ত করা হয়েছে। এডমিন পেমেন্টটি যাচাই করার সাথে সাথে আপনার আইটেমটি সক্রিয় করা হবে।
                 </p>
-                <p className="text-[11px] text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-950/20 py-2 px-3 rounded-lg max-w-sm mx-auto border border-amber-100/40 mt-3">
+                <p className="text-[13px] text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-950/20 py-2 px-3 rounded-lg max-w-sm mx-auto border border-amber-100/40 mt-3">
                   ⏰ সাধারণত ভেরিফিকেশনে ১০ থেকে ৩০ মিনিট সময় লাগতে পারে। অনুগ্রহ করে ধৈর্য ধরুন।
                 </p>
               </div>

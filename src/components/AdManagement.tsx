@@ -236,7 +236,7 @@ export default function AdManagement() {
               <Sparkles className="w-4 h-4 text-violet-500" />
               <span>{editingId ? "Edit Ad Banner" : "Create New Ad Banner"}</span>
             </h3>
-            <p className="text-[11px] text-slate-400 mt-1">সবগুলো ফিল্ড সঠিকভাবে পূরণ করে বিজ্ঞাপন তালিকায় সংরক্ষণ করুন।</p>
+            <p className="text-[13px] text-slate-400 mt-1">সবগুলো ফিল্ড সঠিকভাবে পূরণ করে বিজ্ঞাপন তালিকায় সংরক্ষণ করুন।</p>
           </div>
 
           {error && (
@@ -424,7 +424,7 @@ export default function AdManagement() {
                           (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?q=80&w=400";
                         }}
                       />
-                      <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/60 text-white text-[9px] font-bold uppercase tracking-wider">
+                      <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/60 text-white text-[11px] font-bold uppercase tracking-wider">
                         #{idx + 1} • {ad.type}
                       </div>
                     </div>
@@ -435,31 +435,31 @@ export default function AdManagement() {
                         {ad.type === "text" ? (
                           <>
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="px-1.5 py-0.5 bg-violet-100 text-violet-700 font-bold text-[9px] rounded-md">
+                              <span className="px-1.5 py-0.5 bg-violet-100 text-violet-700 font-bold text-[11px] rounded-md">
                                 {ad.badge}
                               </span>
                               {ad.redirectionUrl && (
-                                <span className="text-[10px] text-slate-400 truncate max-w-[150px] font-mono">
+                                <span className="text-[12px] text-slate-400 truncate max-w-[150px] font-mono">
                                   → {ad.redirectionUrl.replace(/^https?:\/\//i, "")}
                                 </span>
                               )}
                             </div>
                             <h4 className="font-bold text-slate-800 line-clamp-1">{ad.title}</h4>
-                            <p className="text-[11px] text-slate-500 line-clamp-1 leading-relaxed">
+                            <p className="text-[13px] text-slate-500 line-clamp-1 leading-relaxed">
                               {ad.description}
                             </p>
                           </>
                         ) : (
                           <>
-                            <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 font-bold text-[9px] rounded-md inline-block mb-1">
+                            <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 font-bold text-[11px] rounded-md inline-block mb-1">
                               Image Banner Layout
                             </span>
                             {ad.redirectionUrl ? (
-                              <p className="text-[10px] text-slate-500 font-mono font-medium truncate">
+                              <p className="text-[12px] text-slate-500 font-mono font-medium truncate">
                                 Redirection: {ad.redirectionUrl}
                               </p>
                             ) : (
-                              <p className="text-[10px] text-slate-400 italic">No redirection link</p>
+                              <p className="text-[12px] text-slate-400 italic">No redirection link</p>
                             )}
                           </>
                         )}

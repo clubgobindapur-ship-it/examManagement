@@ -19,8 +19,8 @@ export default function Helpline() {
       icon: <BookOpen className="w-5 h-5 text-blue-500" />
     },
     {
-      title: "ফলাফল এবং নেতিবাচক নম্বর (Negative Marking)",
-      desc: "প্রতিটি সঠিক উত্তরের জন্য পাবেন ১ বা নির্দিষ্ট মান এবং ভুল উত্তরের জন্য সাধারণত ০.২৫ নম্বর কাটা যাবে। পরীক্ষা সম্পন্ন হওয়ার পর 'ফলাফল' বাটনে ক্লিক করে পূর্ণাঙ্গ সমাধান দেখতে পাবেন।",
+      title: "ফলাফল এবং Negative নম্বর",
+      desc: "প্রতিটি সঠিক উত্তরের জন্য পাবেন ১ বা নির্দিষ্ট মান এবং ভুল উত্তরের জন্য সাধারণত ০.৫ নম্বর কাটা যাবে। পরীক্ষা সম্পন্ন হওয়ার পর 'ফলাফল' বাটনে ক্লিক করে পূর্ণাঙ্গ সমাধান দেখতে পাবেন।",
       icon: <Award className="w-5 h-5 text-emerald-500" />
     },
     {
@@ -68,7 +68,7 @@ export default function Helpline() {
           <span>হেল্পলাইন ও নির্দেশিকা (Helpline & FAQ)</span>
         </h2>
         <p className="text-xs text-slate-450 dark:text-slate-400 mt-1.5 leading-relaxed">
-          এক্সাম নেস্ট প্ল্যাটফর্ম ব্যবহারের নিয়মাবলী, সাধারণ প্রশ্নোত্তর এবং যেকোনো প্রয়োজনে সরাসরি আমাদের সাহায্যকারী টিমের সাথে যোগাযোগ করুন।
+          এক্সাম নেস্ট প্ল্যাটফর্ম ব্যবহারের নিয়মাবলী, সাধারণ প্রশ্নোত্তর এবং যেকোনো প্রয়োজনে সরাসরি আমাদের Facebook Group অথবা Page-এ যোগাযোগ করুন।
         </p>
       </div>
 
@@ -85,13 +85,13 @@ export default function Helpline() {
           <div className="space-y-1.5 min-w-0">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">হোয়াটসঅ্যাপ সাপোর্ট</h3>
             <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100">+8801788381680</p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">যেকোনো পেমেন্ট সংক্রান্ত জটিলতা বা একাউন্ট সংক্রান্ত সহায়তার জন্য চ্যাট করুন।</p>
+            <p className="text-[13px] text-slate-500 dark:text-slate-400 leading-normal">যেকোনো পেমেন্ট সংক্রান্ত জটিলতা বা একাউন্ট সংক্রান্ত সহায়তার জন্য চ্যাট করুন।</p>
             <a 
               href="https://wa.me/8801788381680" 
               target="_blank" 
               rel="noreferrer"
               onClick={() => trackEvent("helpline_whatsapp_click")}
-              className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-600 dark:text-emerald-400 hover:underline pt-1.5 cursor-pointer"
+              className="inline-flex items-center gap-1 text-[13px] font-black text-emerald-600 dark:text-emerald-400 hover:underline pt-1.5 cursor-pointer"
             >
               <span>সরাসরি চ্যাট করুন</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -110,11 +110,11 @@ export default function Helpline() {
           <div className="space-y-1.5 min-w-0">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">ইমেইল সাপোর্ট</h3>
             <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100">support.examnest@gmail.com</p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">যেকোনো ব্যবসায়িক যোগাযোগ, পরামর্শ অথবা সুনির্দিষ্ট অভিযোগ ইমেইল করুন।</p>
+            <p className="text-[13px] text-slate-500 dark:text-slate-400 leading-normal">যেকোনো ব্যবসায়িক যোগাযোগ, পরামর্শ অথবা সুনির্দিষ্ট অভিযোগ ইমেইল করুন।</p>
             <a 
               href="mailto:support.examnest@gmail.com"
               onClick={() => trackEvent("helpline_email_click")}
-              className="inline-flex items-center gap-1 text-[11px] font-black text-blue-600 dark:text-blue-400 hover:underline pt-1.5 cursor-pointer"
+              className="inline-flex items-center gap-1 text-[13px] font-black text-blue-600 dark:text-blue-400 hover:underline pt-1.5 cursor-pointer"
             >
               <span>ইমেইল পাঠান</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -131,7 +131,7 @@ export default function Helpline() {
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">পরীক্ষা দেওয়ার নির্দেশিকা</h3>
-            <p className="text-[11px] text-slate-400 mt-0.5">সহজ ও নিখুঁতভাবে অনলাইন পরীক্ষায় অংশগ্রহণের নিয়মাবলী</p>
+            <p className="text-[13px] text-slate-400 mt-0.5">সহজ ও নিখুঁতভাবে অনলাইন পরীক্ষায় অংশগ্রহণের নিয়মাবলী</p>
           </div>
         </div>
 
@@ -142,7 +142,7 @@ export default function Helpline() {
                 <div className="shrink-0">{guide.icon}</div>
                 <h4 className="text-xs font-bold text-slate-850 dark:text-slate-250">{guide.title}</h4>
               </div>
-              <p className="text-[11px] text-slate-550 dark:text-slate-400 leading-relaxed pl-7">
+              <p className="text-[13px] text-slate-550 dark:text-slate-400 leading-relaxed pl-7">
                 {guide.desc}
               </p>
             </div>
@@ -164,10 +164,10 @@ export default function Helpline() {
               className="bg-slate-50 dark:bg-slate-900/40 border border-slate-150/70 dark:border-slate-800/80 p-5 rounded-2xl space-y-2"
             >
               <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 flex items-start gap-1.5 leading-snug">
-                <span className="font-mono text-[10px] bg-indigo-100/60 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded-md font-extrabold text-indigo-700 dark:text-indigo-400 shrink-0">প্রশ্ন {idx + 1}</span>
+                <span className="font-mono text-[12px] bg-indigo-100/60 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded-md font-extrabold text-indigo-700 dark:text-indigo-400 shrink-0">প্রশ্ন {idx + 1}</span>
                 <span>{faq.q}</span>
               </h4>
-              <p className="text-[11px] text-slate-600 dark:text-slate-350 leading-relaxed pl-13">
+              <p className="text-[13px] text-slate-600 dark:text-slate-350 leading-relaxed pl-13">
                 {faq.a}
               </p>
             </div>
@@ -180,7 +180,7 @@ export default function Helpline() {
         <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5 animate-pulse" />
         <div className="space-y-1">
           <h4 className="text-xs font-extrabold text-amber-800 dark:text-amber-400">সতর্কবার্তা ও গোপনীয়তা</h4>
-          <p className="text-[11px] text-amber-700/90 dark:text-amber-400/80 leading-relaxed">
+          <p className="text-[13px] text-amber-700/90 dark:text-amber-400/80 leading-relaxed">
             কোনো বিকাশ/রকেট/নগদ লেনদেনের ক্ষেত্রে কেবল আমাদের অফিসিয়াল নাম্বারগুলো ব্যবহার করুন। এক্সাম নেস্ট এডমিন কখনো আপনার ব্যক্তিগত ওটিপি (OTP) বা পাসওয়ার্ড জানতে চাইবে না। নিজের অ্যাকাউন্ট সুরক্ষিত রাখুন।
           </p>
         </div>

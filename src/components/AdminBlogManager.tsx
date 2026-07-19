@@ -514,7 +514,7 @@ export default function AdminBlogManager() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-950/40 border-b border-slate-150 dark:border-slate-800/80 text-[10px] uppercase font-black tracking-widest text-slate-400">
+                    <tr className="bg-slate-50 dark:bg-slate-950/40 border-b border-slate-150 dark:border-slate-800/80 text-[12px] uppercase font-black tracking-widest text-slate-400">
                       <th className="px-6 py-4">আর্টিকেল ও শিরোনাম (Blog Details)</th>
                       <th className="px-6 py-4">ভিউজ (Views)</th>
                       <th className="px-6 py-4">অবস্থা (Visibility)</th>
@@ -544,12 +544,12 @@ export default function AdminBlogManager() {
                                 {blog.blogTitle}
                               </h4>
                               {blog.blogSummary ? (
-                                <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">{blog.blogSummary}</p>
+                                <p className="text-[12px] text-slate-400 dark:text-slate-500 truncate">{blog.blogSummary}</p>
                               ) : null}
                               {blog.tags && blog.tags.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   {blog.tags.map((t, i) => (
-                                    <span key={i} className="text-[8px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded font-bold font-mono">
+                                    <span key={i} className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded font-bold font-mono">
                                       #{t}
                                     </span>
                                   ))}
@@ -564,7 +564,7 @@ export default function AdminBlogManager() {
                         <td className="px-6 py-4">
                           <button
                             onClick={() => handleToggleVisibility(blog)}
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase cursor-pointer border transition-colors ${
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black uppercase cursor-pointer border transition-colors ${
                               blog.isBlogVisible 
                                 ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/30 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100" 
                                 : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-100"
@@ -584,7 +584,7 @@ export default function AdminBlogManager() {
                             )}
                           </button>
                         </td>
-                        <td className="px-6 py-4 text-[10px] font-medium text-slate-400">
+                        <td className="px-6 py-4 text-[12px] font-medium text-slate-400">
                           <div className="flex items-center gap-1 font-mono">
                             <Calendar className="w-3 h-3 text-slate-400" />
                             <span>{new Date(blog.createdAt).toLocaleDateString()}</span>

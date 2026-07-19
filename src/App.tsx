@@ -887,12 +887,12 @@ export default function App() {
                         <table className="w-full text-left border-collapse text-xs">
                           <thead>
                             <tr className="bg-slate-50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-350 font-bold border-b border-slate-100 dark:border-slate-800 uppercase">
-                              <th className="py-4 px-4 font-bold text-[11px]">পরীক্ষার দিন</th>
-                              <th className="py-4 px-4 font-bold text-[11px]">তারিখ</th>
-                              <th className="py-4 px-4 font-bold text-[11px]">পরীক্ষার নাম</th>
-                              <th className="py-4 px-4 font-bold text-[11px] text-center">সময়সীমা ও পূর্ণমান</th>
-                              <th className="py-4 px-4 font-bold text-[11px] text-center">ফি</th>
-                              <th className="py-4 px-4 font-bold text-[11px] text-center">অ্যাকশন / অবস্থা</th>
+                              <th className="py-4 px-4 font-bold text-[13px]">পরীক্ষার দিন</th>
+                              <th className="py-4 px-4 font-bold text-[13px]">তারিখ</th>
+                              <th className="py-4 px-4 font-bold text-[13px]">পরীক্ষার নাম</th>
+                              <th className="py-4 px-4 font-bold text-[13px] text-center">সময়সীমা ও পূর্ণমান</th>
+                              <th className="py-4 px-4 font-bold text-[13px] text-center">ফি</th>
+                              <th className="py-4 px-4 font-bold text-[13px] text-center">অ্যাকশন / অবস্থা</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-650 dark:text-slate-300">
@@ -917,7 +917,7 @@ export default function App() {
                                         {exam.name}
                                       </p>
                                       <div className="flex items-center gap-1.5">
-                                        <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                                        <span className={`text-[11px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${
                                           isLive 
                                             ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400" 
                                             : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
@@ -931,24 +931,24 @@ export default function App() {
                                     <div className="space-y-0.5">
                                       <span className="text-xs">{exam.timeLimit} মিনিট</span>
                                       {exam.questionCount !== undefined && exam.questionCount > 0 && (
-                                        <span className="block text-[10px] text-slate-400 font-medium">({exam.questionCount}টি প্রশ্ন)</span>
+                                        <span className="block text-[12px] text-slate-400 font-medium">({exam.questionCount}টি প্রশ্ন)</span>
                                       )}
                                     </div>
                                   </td>
                                   <td className="py-4 px-4 text-center whitespace-nowrap">
                                     {!isFree ? (
-                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-100/50 dark:border-amber-900/30 font-mono">
+                                      <span className="text-[12px] font-bold px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-100/50 dark:border-amber-900/30 font-mono">
                                         {exam.price} ৳
                                       </span>
                                     ) : (
-                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-900/30">
+                                      <span className="text-[12px] font-bold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-900/30">
                                         ফ্রি
                                       </span>
                                     )}
                                   </td>
                                   <td className="py-4 px-4 text-center whitespace-nowrap">
                                     {!isLive ? (
-                                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 dark:bg-slate-800 text-slate-450 rounded-lg text-[11px] font-bold">
+                                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 dark:bg-slate-800 text-slate-450 rounded-lg text-[13px] font-bold">
                                         <Clock className="w-3.5 h-3.5 text-slate-400" />
                                         <span>অপ্রকাশিত (আসন্ন)</span>
                                       </span>
@@ -961,7 +961,7 @@ export default function App() {
                                               handleStartExam(exam, name, "view_result");
                                               trackEvent("routine_view_result_click");
                                             }}
-                                            className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/20 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold rounded-lg text-[10px] flex items-center gap-1 border border-blue-100 dark:border-blue-900/40 cursor-pointer"
+                                            className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/20 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold rounded-lg text-[12px] flex items-center gap-1 border border-blue-100 dark:border-blue-900/40 cursor-pointer"
                                             title="ফলাফল দেখুন"
                                           >
                                             <Award className="w-3.5 h-3.5 text-blue-500" />
@@ -974,7 +974,7 @@ export default function App() {
                                             handleStartExam(exam, name, "view_questions");
                                             trackEvent("routine_view_questions_click");
                                           }}
-                                          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg text-[10px] flex items-center gap-1 cursor-pointer"
+                                          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg text-[12px] flex items-center gap-1 cursor-pointer"
                                           title="প্রশ্ন ও সমাধান দেখুন"
                                         >
                                           <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
@@ -986,7 +986,7 @@ export default function App() {
                                             handleStartExam(exam, name, "retake");
                                             trackEvent("routine_retake_click");
                                           }}
-                                          className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-[10px] flex items-center gap-1 cursor-pointer"
+                                          className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-[12px] flex items-center gap-1 cursor-pointer"
                                           title="পুনরায় পরীক্ষা দিন"
                                         >
                                           <RefreshCw className="w-3.5 h-3.5" />
@@ -1033,7 +1033,7 @@ export default function App() {
                         </table>
                       </div>
                       
-                      <div className="bg-amber-50/50 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed mt-5">
+                      <div className="bg-amber-50/50 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 text-[13px] text-amber-700 dark:text-amber-400 leading-relaxed mt-5">
                         💡 <b>রুটিন নির্দেশিকা:</b> নির্ধারিত দিনে সংশ্লিষ্ট পরীক্ষাটি চালু করা হবে। পরীক্ষা শেষ হওয়ার পর প্রতিটি প্রশ্নের সমাধান ও ফলাফল স্বয়ংক্রিয়ভাবে প্রকাশ পাবে।
                       </div>
                     </div>
@@ -1467,7 +1467,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest gap-4">
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[13px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest gap-4">
             <div>এক্সাম নেস্ট © {new Date().getFullYear()}</div>
             <div>সিস্টেম স্ট্যাটাস (System Status): <span className="text-green-600">সংযুক্ত (Connected)</span></div>
           </div>
@@ -1515,7 +1515,7 @@ export default function App() {
               className="space-y-4"
             >
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">আপনার নাম লিখুন</label>
+                <label className="text-[12px] font-bold text-slate-500 uppercase tracking-wider block">আপনার নাম লিখুন</label>
                 <input
                   type="text"
                   required
@@ -1526,7 +1526,7 @@ export default function App() {
                 />
               </div>
               {guestError && (
-                <p className="text-[11px] font-medium text-rose-600">
+                <p className="text-[13px] font-medium text-rose-600">
                   {guestError}
                 </p>
               )}

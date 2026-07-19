@@ -257,13 +257,13 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
               }`}
             >
               {isHighlighted && (
-                <div className="absolute top-0 right-0 bg-indigo-600 text-white font-extrabold text-[9px] uppercase tracking-widest px-4 py-1.5 rounded-bl-2xl">
+                <div className="absolute top-0 right-0 bg-indigo-600 text-white font-extrabold text-[11px] uppercase tracking-widest px-4 py-1.5 rounded-bl-2xl">
                   Best Value • সাশ্রয়ী
                 </div>
               )}
 
               {pkg.discountType !== "none" && pkg.discountValue > 0 && (
-                <div className="absolute top-0 left-0 bg-rose-600 text-white font-extrabold text-[10px] px-3 py-1 rounded-br-2xl shadow-sm flex items-center gap-1 z-10 animate-pulse">
+                <div className="absolute top-0 left-0 bg-rose-600 text-white font-extrabold text-[12px] px-3 py-1 rounded-br-2xl shadow-sm flex items-center gap-1 z-10 animate-pulse">
                   <Tag className="w-3 h-3" />
                   <span>{pkg.discountType === "flat" ? `${pkg.discountValue}৳ ছাড়!` : `${pkg.discountValue}% ছাড়!`}</span>
                 </div>
@@ -290,7 +290,7 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
                   {pkg.discountType !== "none" && pkg.discountValue > 0 && (
                     <>
                       <span className="text-sm text-slate-400 line-through font-medium">{pkg.baseprice} ৳</span>
-                      <span className="text-[10px] text-rose-600 font-extrabold">
+                      <span className="text-[12px] text-rose-600 font-extrabold">
                         ({pkg.discountType === "flat" ? `${pkg.discountValue} ৳ ছাড়` : `${pkg.discountValue}% ছাড়`})
                       </span>
                     </>
@@ -310,7 +310,7 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
 
                 {/* Dynamic Validity Badge inside Package Card */}
                 <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800/80 p-3 rounded-2xl flex items-center justify-between text-xs mt-4">
-                  <span className="text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider text-[9px]">মেয়াদ (Validity):</span>
+                  <span className="text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider text-[11px]">মেয়াদ (Validity):</span>
                   <span className="font-black text-slate-700 dark:text-slate-300">
                     {pkg.validityDays || 0} দিন {pkg.validityHours || 0} ঘণ্টা {pkg.validityMins || 0} মিনিট
                   </span>

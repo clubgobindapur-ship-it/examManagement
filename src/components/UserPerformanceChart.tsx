@@ -223,7 +223,7 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn,
         {/* Quick Stats boxes */}
         <div className="p-6 bg-slate-50/20 dark:bg-slate-900/20 lg:border-r border-slate-100 dark:border-slate-800 flex flex-col justify-center space-y-4">
           <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-750 shadow-xs">
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider block">মোট পরীক্ষা</span>
+            <span className="text-[12px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider block">মোট পরীক্ষা</span>
             <div className="flex items-baseline gap-1 mt-1">
               <span className="text-2xl font-black text-slate-800 dark:text-white">{summary.total}</span>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">টি</span>
@@ -231,7 +231,7 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn,
           </div>
 
           <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-750 shadow-xs">
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider block">গড় স্কোর (Avg)</span>
+            <span className="text-[12px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider block">গড় স্কোর (Avg)</span>
             <div className="flex items-baseline gap-1 mt-1">
               <span className="text-2xl font-black text-blue-600 dark:text-blue-400">{summary.avgPct}</span>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">%</span>
@@ -239,7 +239,7 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn,
           </div>
 
           <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-750 shadow-xs">
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider block">সর্বোচ্চ স্কোর (Max)</span>
+            <span className="text-[12px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider block">সর্বোচ্চ স্কোর (Max)</span>
             <div className="flex items-baseline gap-1 mt-1">
               <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{summary.bestPct}</span>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">%</span>
@@ -304,7 +304,7 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn,
                         return (
                           <div className="bg-slate-900 text-white p-3.5 rounded-xl shadow-xl border border-slate-800 text-xs space-y-2 font-sans">
                             <p className="font-extrabold text-slate-100">{data.examName}</p>
-                            <p className="text-[10px] text-slate-400 font-semibold">{data.fullDate}</p>
+                            <p className="text-[12px] text-slate-400 font-semibold">{data.fullDate}</p>
                             <div className="h-px bg-slate-800 my-1.5" />
                             <div className="space-y-1 font-semibold">
                               <p className="flex items-center gap-1.5">

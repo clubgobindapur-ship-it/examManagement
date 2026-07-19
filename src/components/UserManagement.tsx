@@ -214,7 +214,7 @@ export default function UserManagement() {
           <div className="overflow-x-auto rounded-xl border border-slate-100">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-slate-500 font-bold text-[11px] uppercase tracking-wider border-b border-slate-100">
+                <tr className="bg-slate-50 text-slate-500 font-bold text-[13px] uppercase tracking-wider border-b border-slate-100">
                   <th className="px-5 py-4 font-sans">Candidate</th>
                   <th className="px-5 py-4 font-sans">Contact Details</th>
                   <th className="px-5 py-4 font-sans">Study & Preferences</th>
@@ -235,7 +235,7 @@ export default function UserManagement() {
                           <span className="font-bold text-slate-800 block text-xs leading-tight">
                             {user.username}
                           </span>
-                          <span className="text-[10px] text-slate-400 uppercase font-extrabold tracking-wider block mt-0.5">
+                          <span className="text-[12px] text-slate-400 uppercase font-extrabold tracking-wider block mt-0.5">
                             ID: {user.uid.slice(0, 8)}...
                           </span>
                         </div>
@@ -259,7 +259,7 @@ export default function UserManagement() {
                     {/* Study and Job preference */}
                     <td className="px-5 py-4 space-y-1.5">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-bold">
+                        <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[12px] font-bold">
                           {user.studyLevel === "hsc" && "HSC / সমমান"}
                           {user.studyLevel === "undergraduate" && "অনার্স / ডিগ্রি"}
                           {user.studyLevel === "postgraduate" && "মাস্টার্স / স্নাতকোত্তর"}
@@ -267,7 +267,7 @@ export default function UserManagement() {
                           {!user.studyLevel && "Not Specified"}
                         </span>
                         {user.gender && (
-                          <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[10px] font-bold capitalize">
+                          <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[12px] font-bold capitalize">
                             {user.gender === "male" && "পুরুষ"}
                             {user.gender === "female" && "নারী"}
                             {user.gender === "other" && "অন্যান্য"}
@@ -275,7 +275,7 @@ export default function UserManagement() {
                         )}
                       </div>
                       {user.jobPreferences && user.jobPreferences.length > 0 && (
-                        <div className="text-[10px] text-slate-400 font-semibold truncate max-w-[200px]">
+                        <div className="text-[12px] text-slate-400 font-semibold truncate max-w-[200px]">
                           জব: {user.jobPreferences.join(", ")}
                         </div>
                       )}
@@ -283,7 +283,7 @@ export default function UserManagement() {
 
                     {/* Joined Date */}
                     <td className="px-5 py-4">
-                      <div className="flex items-center gap-1.5 text-slate-500 font-mono text-[11px]">
+                      <div className="flex items-center gap-1.5 text-slate-500 font-mono text-[13px]">
                         <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span>
                           {user.createdAt 

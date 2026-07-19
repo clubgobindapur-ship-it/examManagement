@@ -535,9 +535,7 @@ Well done! Join the challenge here: ${window.location.href}`;
                     : "পরীক্ষা সফলভাবে জমা দেওয়া হয়েছে (Submitted)"}
             </span>
             <h2 className="text-2xl font-bold text-gray-900">{exam.name} {mode === "view_questions" ? "- প্রশ্ন ও সমাধান" : isViewResultOnly ? "- সঠিক সমাধান" : "- ফলাফল ও সমাধান"}</h2>
-            {!isViewResultOnly && !isRetakeOnly && (
-              <p className="text-sm text-gray-400 font-mono">অংশগ্রহণ আইডি (Attempt ID): {attemptId}</p>
-            )}
+
             {isRetakeOnly && (
               <p className="text-sm text-indigo-500 font-bold font-mono">অনুশীলন মোড (Practice Mode - Result Not Saved)</p>
             )}
@@ -547,43 +545,43 @@ Well done! Join the challenge here: ${window.location.href}`;
           {!isViewResultOnly && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-                <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">মোট প্রাপ্ত নম্বর (Net Obtained)</span>
+                <span className="text-[12px] uppercase font-bold text-slate-500 block tracking-wider">মোট প্রাপ্ত নম্বর (Net Obtained)</span>
                 <span className="text-2xl font-black text-indigo-600 mt-1 block">
                   {totalObtainedMark.toFixed(2)} / {examTotalMark}
                 </span>
-                <span className="text-[9px] text-slate-400 block mt-0.5">সঠিক: {correctCountState}, ভুল: {wrongCountState}</span>
+                <span className="text-[11px] text-slate-400 block mt-0.5">সঠিক: {correctCountState}, ভুল: {wrongCountState}</span>
               </div>
 
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-                <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">সঠিক উত্তর সংখ্যা</span>
+                <span className="text-[12px] uppercase font-bold text-slate-500 block tracking-wider">সঠিক উত্তর সংখ্যা</span>
                 <span className="text-2xl font-black text-emerald-600 mt-1 block">
                   {correctCountState} / {totalQuestions}
                 </span>
-                <span className="text-[9px] text-slate-400 block mt-0.5">প্রতিটি প্রশ্ন: {markPerQuestion} নম্বর</span>
+                <span className="text-[11px] text-slate-400 block mt-0.5">প্রতিটি প্রশ্ন: {markPerQuestion} নম্বর</span>
               </div>
 
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-                <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">ভুল ও পেনাল্টি মার্কস</span>
+                <span className="text-[12px] uppercase font-bold text-slate-500 block tracking-wider">ভুল ও পেনাল্টি মার্কস</span>
                 <span className="text-2xl font-black text-rose-600 mt-1 block">
                   -{(wrongCountState * penaltyMark).toFixed(2)}
                 </span>
-                <span className="text-[9px] text-slate-400 block mt-0.5">কাটা গেছে: {penaltyMark} প্রতি ভুল</span>
+                <span className="text-[11px] text-slate-400 block mt-0.5">কাটা গেছে: {penaltyMark} প্রতি ভুল</span>
               </div>
 
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-                <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">ব্যয়িত সময়</span>
+                <span className="text-[12px] uppercase font-bold text-slate-500 block tracking-wider">ব্যয়িত সময়</span>
                 <span className="text-2xl font-black text-slate-800 mt-1 block flex items-center justify-center gap-1">
                   <Timer className="w-5 h-5 text-slate-400 shrink-0" />
                   <span>{formatTime(timeTaken)}</span>
                 </span>
-                <span className="text-[9px] text-slate-400 block mt-0.5">সময় সীমা: {exam.timeLimit} মিনিট</span>
+                <span className="text-[11px] text-slate-400 block mt-0.5">সময় সীমা: {exam.timeLimit} মিনিট</span>
               </div>
             </div>
           )}
 
           {isViewResultOnly && (
             <div className="max-w-2xl mx-auto p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 text-slate-700 text-xs sm:text-sm leading-relaxed">
-              নিচের প্রশ্নাবলী ও তাদের সঠিক সমাধানসমূহ পর্যালোচনা করুন। প্রতিটি প্রশ্নের জন্য অফিশিয়াল ব্যাখ্যা ও সঠিক উত্তর হাইলাইট করে দেওয়া হয়েছে।
+              নিচের প্রশ্নাবলী ও তাদের সঠিক সমাধানসমূহ পর্যালোচনা করুন। প্রতিটি প্রশ্নের জন্য অফিশিয়াল ব্যাখ্যা ও সঠিক উত্তর হাইলাইট করে দেওয়া হয়েছে। কোন কনফিউশন থাকলে আমাদের ফেসবুক গ্রুপে যোগাযোগ করুন। <span className="font-bold text-indigo-700">সতর্কতা:</span> এই সমাধানপত্রটি শুধুমাত্র রেফারেন্সের জন্য। পরীক্ষার সময় প্রশ্নপত্রে কিছু পরিবর্তন হতে পারে। তাই পরীক্ষার সময় সর্বদা অফিসিয়াল নির্দেশনা অনুসরণ করুন। আমাদের কোন ভুল থাকলে আমাদের কে জানাতে ভুলবেন না।
             </div>
           )}
 
@@ -661,7 +659,7 @@ Well done! Join the challenge here: ${window.location.href}`;
                 <span>বিস্তারিত প্রশ্ন পর্যালোচনা (Review)</span>
               </h3>
               <p className="text-xs text-gray-500 mt-1">
-                আপনার উত্তরসমূহ যাচাই করুন এবং সঠিক ব্যাখ্যামূলক সমাধানটি পড়ে নিন।
+                আপনার উত্তরসমূহ যাচাই করুন এবং সঠিক ব্যাখ্যামূলক সমাধানটি পড়ে নিন। আমাদের কোন ভুল থাকলে আমাদের কে জানাতে ভুলবেন না।
               </p>
             </div>
             
@@ -709,7 +707,7 @@ Well done! Join the challenge here: ${window.location.href}`;
                       <div>
                         {q.topic && (
                           <div className="mb-1">
-                            <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                            <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
                               {q.topic}
                             </span>
                           </div>
@@ -748,7 +746,7 @@ Well done! Join the challenge here: ${window.location.href}`;
                     {/* Explanation Block (Invisible before submit, beautifully displayed here!) */}
                     {q.explanation && (
                       <div className="ml-9 p-4 bg-indigo-50/30 rounded-xl border border-indigo-50/60 text-xs text-indigo-950/80 leading-relaxed space-y-1">
-                        <span className="font-extrabold text-[10px] text-indigo-700 uppercase tracking-widest block font-sans">ব্যাখ্যা (Explanation):</span>
+                        <span className="font-extrabold text-[12px] text-indigo-700 uppercase tracking-widest block font-sans">ব্যাখ্যা (Explanation):</span>
                         <p>{q.explanation}</p>
                       </div>
                     )}
@@ -768,18 +766,12 @@ Well done! Join the challenge here: ${window.location.href}`;
       {/* Header with Dynamic Title, Timer, and Progress */}
       <div className="sticky top-0 z-40 bg-white border border-gray-100 rounded-2xl shadow-sm p-6 flex flex-col md:flex-row gap-4 justify-between items-center">
         <div className="space-y-1 text-center md:text-left">
-          <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+          <span className="text-[12px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
             লাইভ পরীক্ষা কক্ষ (Live Portal)
           </span>
           <h2 className="text-xl font-extrabold text-gray-900">{exam.name}</h2>
           <div className="flex items-center gap-2 justify-center md:justify-start">
             <span className="text-xs text-gray-400">পরীক্ষার্থী: <span className="font-bold text-gray-600">{username}</span></span>
-            {isUsingFallback && (
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded" title="Using built-in question cache">
-                <Info className="w-3 h-3" />
-                <span>Sandbox DB</span>
-              </span>
-            )}
           </div>
         </div>
 
@@ -866,7 +858,7 @@ Well done! Join the challenge here: ${window.location.href}`;
                     <div>
                       {q.topic && (
                         <div className="mb-1 flex">
-                          <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                          <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
                             {q.topic}
                           </span>
                         </div>
@@ -895,7 +887,7 @@ Well done! Join the challenge here: ${window.location.href}`;
                               : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50/50 hover:border-gray-300"
                           }`}
                         >
-                          <span className={`w-5 h-5 rounded-md border text-[10px] font-bold uppercase flex items-center justify-center shrink-0 transition-colors ${
+                          <span className={`w-5 h-5 rounded-md border text-[12px] font-bold uppercase flex items-center justify-center shrink-0 transition-colors ${
                             isSelected 
                               ? "bg-indigo-600 border-indigo-600 text-white" 
                               : "bg-gray-50 border-gray-300 text-gray-500"
@@ -920,7 +912,7 @@ Well done! Join the challenge here: ${window.location.href}`;
           onClick={handleTriggerSubmit}
           className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 text-sm cursor-pointer"
         >
-          <span>পরীক্ষা শেষ ও জমা দিন (Finish)</span>
+          <span>পরীক্ষা শেষ ও জমা দিন (Submit)</span>
           <Send className="w-4 h-4" />
         </button>
       </div>

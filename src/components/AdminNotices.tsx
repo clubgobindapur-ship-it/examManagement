@@ -238,7 +238,7 @@ export default function AdminNotices() {
             <div className="text-center py-16 bg-slate-50 dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl max-w-md mx-auto">
               <Bell className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto mb-2" />
               <p className="text-xs text-slate-500 dark:text-slate-400 font-bold">কোনো নোটিশ খুঁজে পাওয়া যায়নি।</p>
-              <p className="text-[10px] text-slate-400 mt-1">নতুন একটি নোটিশ তৈরি করতে ওপরের বাটনটি ক্লিক করুন।</p>
+              <p className="text-[12px] text-slate-400 mt-1">নতুন একটি নোটিশ তৈরি করতে ওপরের বাটনটি ক্লিক করুন।</p>
             </div>
           ) : (
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
@@ -253,7 +253,7 @@ export default function AdminNotices() {
                 >
                   <div className="space-y-2 flex-1">
                     <div className="flex flex-wrap gap-1.5 items-center">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-black uppercase ${
                         notice.user === "all"
                           ? "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-400"
                           : "bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-400"
@@ -271,7 +271,7 @@ export default function AdminNotices() {
                         )}
                       </span>
 
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black ${
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-black ${
                         notice.isLive
                           ? "bg-emerald-150 text-emerald-850 dark:bg-emerald-950/40 dark:text-emerald-400"
                           : "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-450"
@@ -290,13 +290,13 @@ export default function AdminNotices() {
                       </span>
 
                       {notice.deeplink && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400 rounded-md text-[9px] font-bold">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400 rounded-md text-[11px] font-bold">
                           <ExternalLink className="w-2.5 h-2.5" />
                           <span>লিঙ্ক: {notice.deeplink}</span>
                         </span>
                       )}
 
-                      <span className="text-[9px] text-slate-400 font-mono ml-auto md:ml-0">
+                      <span className="text-[11px] text-slate-400 font-mono ml-auto md:ml-0">
                         {new Date(notice.createdAt).toLocaleString("bn-BD")}
                       </span>
                     </div>
@@ -435,7 +435,7 @@ export default function AdminNotices() {
               />
               <div>
                 <span className="text-xs font-extrabold text-slate-850 dark:text-slate-200 block">এই নোটিশটি সরাসরি লাইভ করুন (Notice Is Live)</span>
-                <span className="text-[10px] text-slate-400 block">চেক করা থাকলে ইউজাররা সাথে সাথে এটি নোটিফিকেশন লিস্টে দেখতে পারবেন।</span>
+                <span className="text-[12px] text-slate-400 block">চেক করা থাকলে ইউজাররা সাথে সাথে এটি নোটিফিকেশন লিস্টে দেখতে পারবেন।</span>
               </div>
             </label>
           </div>

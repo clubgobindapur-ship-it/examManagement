@@ -191,7 +191,7 @@ export default function Leaderboard({ exams, activeExamId }: LeaderboardProps) {
                       <div className="flex items-center gap-1.5">
                         <span className="text-sm font-bold text-slate-100">{user.username}</span>
                         {user.hasVerified && (
-                          <span className="p-0.5 bg-indigo-500/20 text-indigo-400 rounded text-[10px]" title="Verified Registered Account">
+                          <span className="p-0.5 bg-indigo-500/20 text-indigo-400 rounded text-[12px]" title="Verified Registered Account">
                             <UserCheck className="w-3.5 h-3.5" />
                           </span>
                         )}
@@ -205,7 +205,7 @@ export default function Leaderboard({ exams, activeExamId }: LeaderboardProps) {
                     <p className="text-sm font-black text-indigo-400">
                       {user.count} <span className="text-xs text-slate-300 font-bold">টি পরীক্ষা</span>
                     </p>
-                    <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">
+                    <p className="text-[12px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">
                       {user.count} {user.count === 1 ? "Attempt" : "Attempts"} completed
                     </p>
                   </div>
