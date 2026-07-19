@@ -19,39 +19,20 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [adminCreds, setAdminCreds] = useState({
-    email: "admin@examportal.com",
-    password: "adminpassword123"
-  });
+  
+  
 
-  // Load custom admin credentials from Firestore if configured
-  useEffect(() => {
-    const loadCreds = async () => {
-      try {
-        const docRef = doc(db, "settings", "admin");
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.email && data.password) {
-            setAdminCreds({
-              email: data.email,
-              password: data.password
-            });
-          }
-        }
-      } catch (err) {
-        console.warn("Could not load admin credentials from Firestore, using standard defaults.", err);
-      }
-    };
-    loadCreds();
-  }, []);
-
-  const handleStepOne = (e: React.FormEvent) => {
+  const handleStepOne = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    if (email.trim().toLowerCase() === adminCreds.email.toLowerCase() && password === adminCreds.password) {
+    if (!email || !password) {
+      setError("Please enter both Email and Password.");
+      return;
+    }
+
+    if (email.trim().toLowerCase() && password) {
       setLoading(true);
       // Simulate sending OTP
       setTimeout(() => {
@@ -71,40 +52,36 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
     e.preventDefault();
     setError("");
 
-    if (inputOtp === generatedOtp || inputOtp === "123456") {
+    if (inputOtp === generatedOtp) {
       setLoading(true);
       setSuccess("OTP verified! Access granted.");
       
-      try {
+      
         const adminEmail = email.trim().toLowerCase();
-        // Try standard authentication via Firebase Auth to establish a session for security rules
         try {
-          await signInWithEmailAndPassword(auth, adminEmail, password);
-        } catch (authErr: any) {
-          // If the user does not exist in Auth yet, register them dynamically on-the-fly
-          if (
-            authErr.code === "auth/user-not-found" || 
-            authErr.code === "auth/invalid-credential" ||
-            authErr.code === "auth/invalid-login-credentials"
-          ) {
-            try {
-              await createUserWithEmailAndPassword(auth, adminEmail, password);
-            } catch (createErr) {
-              console.warn("Could not register admin user in Firebase Auth. Retrying login...", createErr);
-              // Retry sign in once in case of a race condition
-              await signInWithEmailAndPassword(auth, adminEmail, password);
+          const userCredential = await signInWithEmailAndPassword(auth, adminEmail, password);
+          const uid = userCredential.user.uid;
+          const userDocRef = doc(db, "admin", uid);
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (!userDocSnap.exists()) {
+            await auth.signOut(); // Sign out the user before creating a new account
+            throw new Error("User document does not exist. Please contact support.");
+          }else{
+            const userData = userDocSnap.data();
+            if (userData.uid == uid && userData.email == adminEmail) {
+                onLoginSuccess();
+            }else{
+              await auth.signOut();
+                throw new Error("User document does not match. Please contact support.");
             }
-          } else {
-            throw authErr;
+            
           }
-        }
-        
-        onLoginSuccess();
-      } catch (authErr: any) {
-        console.error("Firebase auth failed for admin, falling back to local credentials", authErr);
-        // Fallback to local login state to keep the admin interface usable even if Firebase Auth fails
-        onLoginSuccess();
-      } finally {
+          
+        } catch (authErr: any) {
+          console.error("Authentication error:", authErr);
+          setError("Authentication failed. Please check your credentials or try again later.");
+        } finally {
         setLoading(false);
       }
     } else {
