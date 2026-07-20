@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { 
   LogIn, Trophy, GraduationCap, Calendar, Archive, Home, Sparkles, Sun, 
   Moon, Menu, X, Bell, CheckCheck, ArrowRight, Inbox, Eye, Award, BookOpen,
-  HelpCircle
+  HelpCircle, Facebook, Users
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
@@ -109,7 +109,7 @@ export default function Navbar({
     },
     {
       id: "live",
-      label: `চলতি পরীক্ষা (${liveCount})`,
+      label: `Live পরীক্ষা (${liveCount})`,
       icon: (
         <span className="relative flex h-2 w-2">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -142,14 +142,14 @@ export default function Navbar({
     },
     {
       id: "results",
-      label: "ফলাফল (Results)",
+      label: "Results",
       icon: <Award className="w-4 h-4 text-emerald-500 shrink-0" />,
       activeClass: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-100 dark:border-emerald-900/35",
       inactiveClass: "text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
     },
     {
       id: "my_results",
-      label: "আমার ফলাফল (My Results)",
+      label: "আমার ফলাফল",
       icon: <Award className="w-4 h-4 text-indigo-500 shrink-0" />,
       activeClass: "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-100 dark:border-indigo-900/35",
       inactiveClass: "text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/40"
@@ -188,6 +188,32 @@ export default function Navbar({
     <>
       {/* Desktop Horizontal Header Navigation - Top Right Corner */}
       <header className="hidden lg:flex fixed top-0 left-64 right-0 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-850 z-30 items-center justify-end px-8 gap-4 transition-colors">
+        {/* Social Media Quick Links */}
+        <div className="flex items-center gap-1.5">
+          <a
+            href="https://www.facebook.com/profile.php?id=61588914674389"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Follow our Facebook Page"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-[#1877F2] dark:bg-[#1877F2]/15 dark:hover:bg-[#1877F2]/25 rounded-lg text-[11px] font-bold transition-all border border-[#1877F2]/20"
+          >
+            <Facebook className="w-3.5 h-3.5 shrink-0" />
+            <span className="hidden xl:inline">Follow Page</span>
+          </a>
+          <a
+            href="https://www.facebook.com/share/g/1DNfR99urC/"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Join our Facebook Group"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-[#1877F2] dark:bg-[#1877F2]/15 dark:hover:bg-[#1877F2]/25 rounded-lg text-[11px] font-bold transition-all border border-[#1877F2]/20"
+          >
+            <Users className="w-3.5 h-3.5 shrink-0" />
+            <span className="hidden xl:inline">Join Group</span>
+          </a>
+        </div>
+
+        <div className="w-[1px] h-5 bg-slate-200 dark:bg-slate-800" />
+
         {/* Notice Bell Icon */}
         <button
           type="button"
@@ -258,8 +284,9 @@ export default function Navbar({
           className="flex items-center gap-3 cursor-pointer hover:opacity-95 transition-opacity mb-8 shrink-0"
           id="brand-logo"
         >
-          <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
-            <GraduationCap className="w-5.5 h-5.5" />
+          <div className="w-15 h-15 bg-white rounded-xl flex items-center justify-center text-white shadow-lg shrink-0">
+            <img src="/assets/images/examNest-transparent.png" alt="ExamNest Logo" className="w-13 h-13" />
+        
           </div>
           <div className="min-w-0">
             <h2 className="text-base font-extrabold tracking-tight text-slate-800 dark:text-white leading-tight truncate">
@@ -421,6 +448,28 @@ export default function Navbar({
                   </button>
                 ))}
               </nav>
+
+              {/* Social Media Links in Drawer */}
+              <div className="flex items-center gap-2 pb-2">
+                <a
+                  href="https://www.facebook.com/profile.php?id=61588914674389"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-[#1877F2] rounded-xl text-[11px] font-bold transition-all border border-[#1877F2]/20"
+                >
+                  <Facebook className="w-3.5 h-3.5" />
+                  <span>Follow Page</span>
+                </a>
+                <a
+                  href="https://www.facebook.com/share/g/1DNfR99urC/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-[#1877F2] rounded-xl text-[11px] font-bold transition-all border border-[#1877F2]/20"
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  <span>Join Group</span>
+                </a>
+              </div>
 
               {/* Drawer Footer / Account section info */}
               <div className="pt-4 border-t border-slate-150 dark:border-slate-800 space-y-3">

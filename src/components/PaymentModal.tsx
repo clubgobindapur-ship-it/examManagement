@@ -114,8 +114,8 @@ export default function PaymentModal({
 
   // Mock Admin accounts
   const adminNumbers = {
-    bKash: "০১৭৮৯-১২৩৪৫৬ (Personal)",
-    Nagad: "০১৮৯৮-৭৬৫ND৩ (Personal)"
+    bKash: "01788381680 (Personal)",
+    Nagad: "01788381680 (Personal)"
   };
 
   return (
@@ -125,7 +125,7 @@ export default function PaymentModal({
         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-indigo-200" />
-            <h3 className="text-base font-bold">ম্যানুয়াল পেমেন্ট ভেরিফিকেশন</h3>
+            <h3 className="text-base font-bold">পেমেন্ট ভেরিফিকেশন</h3>
           </div>
           <button 
             onClick={onClose}
@@ -285,7 +285,7 @@ export default function PaymentModal({
                   আপনার ট্রানজেকশন আইডি <b className="font-mono text-slate-800 dark:text-slate-200 uppercase bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">{transactionId.trim().toUpperCase()}</b> সফলভাবে নথিভুক্ত করা হয়েছে। এডমিন পেমেন্টটি যাচাই করার সাথে সাথে আপনার আইটেমটি সক্রিয় করা হবে।
                 </p>
                 <p className="text-[13px] text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-950/20 py-2 px-3 rounded-lg max-w-sm mx-auto border border-amber-100/40 mt-3">
-                  ⏰ সাধারণত ভেরিফিকেশনে ১০ থেকে ৩০ মিনিট সময় লাগতে পারে। অনুগ্রহ করে ধৈর্য ধরুন।
+                  ⏰ সাধারণত ভেরিফিকেশনে ১০ থেকে ৩০ মিনিট সময় লাগতে পারে। অনুগ্রহ করে ধৈর্য ধরুন। কোন সমস্যা হলে আমাদের ফেসবুক পেজে যোগাযোগ করুন
                 </p>
               </div>
 

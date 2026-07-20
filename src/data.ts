@@ -246,3 +246,4 @@ export const DEFAULT_QUESTIONS: Record<string, Question[]> = {
     }
   ]
 };
+// font-extrabold 

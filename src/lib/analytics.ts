@@ -35,11 +35,10 @@ export const initGA = (measurementId: string) => {
     };
     (window as any).gtag = gtag;
     
-    // 3. Configure Google Analytics with iframe compatibility, cookieless client ID and debug_mode
+    // 3. Configure Google Analytics with iframe compatibility and cookieless client ID
     gtag("js", new Date());
     gtag("config", measurementId, {
       send_page_view: true,
-      debug_mode: true,             // Forces immediate transmission to Realtime/DebugView
       client_storage: "none",        // Prevents GA from trying to set blocked third-party cookies
       client_id: getOrCreateClientId(), // Pass manually generated client ID persisted in LocalStorage
       cookie_flags: "SameSite=None;Secure" // Support iframe environments where secure is available

@@ -50,10 +50,8 @@ import {
   ChevronRight,
   Lock,
   Facebook,
-  Youtube,
-  Twitter,
-  Globe,
-  Instagram
+  Users,
+  Mail
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -739,23 +737,22 @@ export default function App() {
               {/* Introduction Hero Section */}
               <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 sm:p-10 flex flex-col md:flex-row gap-8 items-center justify-between">
                 <div className="space-y-4 max-w-xl text-center md:text-left">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 rounded-full text-xs font-bold font-mono uppercase tracking-wider">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-950/30 text-[#FF6602] rounded-full text-xs font-bold font-mono uppercase tracking-wider">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>প্রস্তুতি হোক আরও গোছানো</span>
+                    <span>কঠিন প্রস্তুতি, সহজ যুদ্ধ</span>
                   </div>
-                  <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight leading-tight">
-                    স্মার্ট অনলাইন পরীক্ষা পদ্ধতি (Smart Quiz System)
+                  <h1 className="text-3xl sm:text-4xl font-extrabold text-emerald-950 dark:text-emerald-200 tracking-tight leading-tight">
+                    ExamNest-এ আপনাকে স্বাগতম
                   </h1>
                   <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                    ExamNest হলো একটি আধুনিক, নির্ভরযোগ্য ও ব্যবহারবান্ধব অনলাইন পরীক্ষা প্রস্তুতি প্ল্যাটফর্ম। এখানে বিভিন্ন প্রতিযোগিতামূলক পরীক্ষা, মডেল টেস্ট, কুইজ এবং অনুশীলনের মাধ্যমে সহজে নিজের দক্ষতা যাচাই ও উন্নত করা যায়। নির্ভুল মূল্যায়ন, র‍্যাঙ্কিং, বিশ্লেষণ এবং মানসম্মত প্রশ্নভান্ডারের মাধ্যমে ExamNest আপনার সফলতার পথে বিশ্বস্ত সঙ্গী।
-
+                    ExamNest হলো বাংলাদেশে BCS, সরকারি চাকরি, ব্যাংক, প্রাথমিক শিক্ষক নিয়োগ, NTRCA, বিশ্ববিদ্যালয় ভর্তি, এবং অন্যান্য প্রতিযোগিতামূলক পরীক্ষার প্রস্তুতির জন্য একটি আধুনিক অনলাইন মক টেস্ট ও প্র্যাকটিস প্ল্যাটফর্ম। এখানে বিষয়ভিত্তিক ও পূর্ণাঙ্গ মডেল টেস্ট, তাৎক্ষণিক ফলাফল, বিস্তারিত পারফরম্যান্স বিশ্লেষণ, মেধাতালিকা এবং মানসম্মত প্রশ্নব্যাংকের মাধ্যমে আপনি নিজের প্রস্তুতি সহজেই যাচাই ও উন্নত করতে পারবেন। নিয়মিত অনুশীলন এবং বাস্তব পরীক্ষার অভিজ্ঞতার মাধ্যমে আত্মবিশ্বাস বাড়িয়ে কাঙ্ক্ষিত সফলতার পথে এগিয়ে যেতে ExamNest হতে পারে আপনার নির্ভরযোগ্য সঙ্গী।
                   </p>
                 </div>
 
                 <div className="w-full md:w-auto max-w-xs">
                   <div className="bg-slate-50 dark:bg-slate-850 p-6 rounded-xl border border-slate-200 dark:border-slate-800 text-center min-w-[160px]">
-                    <span className="text-xs text-slate-400 dark:text-slate-550 font-bold block uppercase tracking-wider">চলতি পরীক্ষা (Live Exams)</span>
-                    <span className="text-3xl font-black text-blue-600 dark:text-blue-400 mt-1 block">
+                    <span className="text-xs text-[#5D3FD3] font-bold block uppercase tracking-wider">চলতি পরীক্ষা (Live Exams)</span>
+                    <span className="text-3xl font-black text-[#FF6602] mt-1 block">
                       {liveExams.length}
                     </span>
                   </div>
@@ -856,7 +853,7 @@ export default function App() {
                     <Calendar className="w-6 h-6 text-blue-500" />
                     <span>পরীক্ষার রুটিন (Exam Routine)</span>
                   </h2>
-                  <p className="text-xs text-slate-455 dark:text-slate-400 mt-1">আসন্ন পরীক্ষার তালিকা এবং প্রকাশের তারিখসমূহ।</p>
+                  <p className="text-xs text-slate-455 dark:text-slate-400 mt-1">আসন্ন পরীক্ষার তালিকা এবং প্রকাশের তারিখ সমূহ।</p>
                 </div>
                 <button 
                   onClick={() => loadExams()}
@@ -946,7 +943,7 @@ export default function App() {
                                       </span>
                                     )}
                                   </td>
-                                  <td className="py-4 px-4 text-center whitespace-nowrap">
+                                  <td className="py-4 px-4 text-center whitespace-nowrap content-center">
                                     {!isLive ? (
                                       <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 dark:bg-slate-800 text-slate-450 rounded-lg text-[13px] font-bold">
                                         <Clock className="w-3.5 h-3.5 text-slate-400" />
@@ -1034,7 +1031,8 @@ export default function App() {
                       </div>
                       
                       <div className="bg-amber-50/50 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 text-[13px] text-amber-700 dark:text-amber-400 leading-relaxed mt-5">
-                        💡 <b>রুটিন নির্দেশিকা:</b> নির্ধারিত দিনে সংশ্লিষ্ট পরীক্ষাটি চালু করা হবে। পরীক্ষা শেষ হওয়ার পর প্রতিটি প্রশ্নের সমাধান ও ফলাফল স্বয়ংক্রিয়ভাবে প্রকাশ পাবে।
+                       <p> 💡 <b className="text-green-500">রুটিন নির্দেশিকা:</b> নির্ধারিত দিনে সংশ্লিষ্ট পরীক্ষাটি চালু করা হবে। পরীক্ষা শেষ হওয়ার পর প্রতিটি প্রশ্নের সমাধান ও ফলাফল স্বয়ংক্রিয়ভাবে প্রকাশ পাবে। 
+                        <br />আপনার ফলাফল দেখুন <b className="text-red-500">আমার ফলাফল</b> ট্যাব-এ, সেন্ট্রাল রেজাল্ট দেখুন <b className="text-red-500">Result</b> ট্যাব-এ।</p>
                       </div>
                     </div>
                   )}
@@ -1296,13 +1294,13 @@ export default function App() {
             <div className="space-y-3">
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">এক্সাম নেস্ট</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                ExamNest হলো একটি আধুনিক, নির্ভরযোগ্য ও ব্যবহারবান্ধব অনলাইন পরীক্ষা প্রস্তুতি প্ল্যাটফর্ম। এখানে বিভিন্ন প্রতিযোগিতামূলক পরীক্ষা, মডেল টেস্ট, কুইজ এবং অনুশীলনের মাধ্যমে সহজে নিজের দক্ষতা যাচাই ও উন্নত করা যায়। নির্ভুল মূল্যায়ন, র‍্যাঙ্কিং, বিশ্লেষণ এবং মানসম্মত প্রশ্নভান্ডারের মাধ্যমে ExamNest আপনার সফলতার পথে বিশ্বস্ত সঙ্গী।
+               ExamNest একটি প্রযুক্তিনির্ভর অনলাইন পরীক্ষা প্রস্তুতি প্ল্যাটফর্ম, যার লক্ষ্য শিক্ষার্থী ও চাকরি প্রত্যাশীদের জন্য সহজ, নির্ভুল এবং কার্যকর অনুশীলনের সুযোগ তৈরি করা। আমরা মানসম্মত প্রশ্ন, বাস্তবধর্মী মডেল টেস্ট, ফলাফল বিশ্লেষণ এবং নিয়মিত আপডেটের মাধ্যমে প্রতিটি পরীক্ষার্থীর প্রস্তুতিকে আরও শক্তিশালী করতে কাজ করছি। আমাদের বিশ্বাস, সঠিক পরিকল্পনা ও নিয়মিত অনুশীলনই সফলতার মূল চাবিকাঠি।
               </p>
             </div>
 
             {/* Quick Stats/Links */}
             <div className="space-y-3">
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">দ্রুত সংযোগ (Quick Links)</h3>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Quick Links</h3>
               <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-2">
                 <li>
                   <button onClick={() => {
@@ -1323,7 +1321,7 @@ export default function App() {
                       setActiveExamTab("live");
                     }
                   }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
-                    • চলতি পরীক্ষা (Live Exam)
+                    • Live Exam
                   </button>
                 </li>
                 <li>
@@ -1345,7 +1343,7 @@ export default function App() {
                       setActiveExamTab("routine");
                     }
                   }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
-                    • পরীক্ষার রুটিন (Exam Routine)
+                    • Exam Routine
                   </button>
                 </li>
                 <li>
@@ -1367,7 +1365,7 @@ export default function App() {
                       setActiveExamTab("archive");
                     }
                   }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
-                    • আর্কাইভ (Archive)
+                    • Archive
                   </button>
                 </li>
                 <li>
@@ -1387,7 +1385,7 @@ export default function App() {
                       setCurrentView("leaderboard");
                     }
                   }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
-                    • লাইভ মেধা তালিকা (Leaderboard)
+                    • Leaderboard
                   </button>
                 </li>
                 <li>
@@ -1407,62 +1405,61 @@ export default function App() {
                       setCurrentView("helpline");
                     }
                   }} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer text-left">
-                    • হেল্পলাইন (Helpline)
+                    • Helpline
                   </button>
                 </li>
               </ul>
             </div>
 
-            {/* Social Media Links */}
+            {/* Social Media & Contact */}
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">সোশ্যাল মিডিয়া (Social Media)</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                আমাদের বিভিন্ন সামাজিক যোগাযোগ মাধ্যমে যুক্ত থাকুন এবং নতুন কুইজ ও আপডেট সম্পর্কে জানুন।
-              </p>
-              <div className="flex items-center gap-3">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Connect & Support</h3>
+              <div className="space-y-3">
+                {/* Facebook Page */}
                 <a
-                  href="https://facebook.com"
+                  href="https://www.facebook.com/profile.php?id=61588914674389"
                   target="_blank"
-                  rel="noreferrer"
-                  className="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-600 dark:hover:text-blue-400 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all cursor-pointer"
-                  title="Facebook"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 group"
                 >
-                  <Facebook className="w-4 h-4" />
+                  <div className="w-9 h-9 bg-[#1877F2] rounded-lg flex items-center justify-center shrink-0 shadow-sm group-hover:brightness-110 transition-all">
+                    <Facebook className="w-4.5 h-4.5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Follow Facebook Page</p>
+                    <p className="text-[11px] text-slate-400 dark:text-slate-500">আমাদের পেজ ফলো করুন</p>
+                  </div>
                 </a>
+                {/* Facebook Group */}
                 <a
-                  href="https://youtube.com"
+                  href="https://www.facebook.com/share/g/1DNfR99urC/"
                   target="_blank"
-                  rel="noreferrer"
-                  className="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all cursor-pointer"
-                  title="YouTube"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 group"
                 >
-                  <Youtube className="w-4 h-4" />
+                  <div className="w-9 h-9 bg-[#1877F2] rounded-lg flex items-center justify-center shrink-0 shadow-sm group-hover:brightness-110 transition-all">
+                    <Users className="w-4.5 h-4.5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Join Facebook Group</p>
+                    <p className="text-[11px] text-slate-400 dark:text-slate-500">গ্রুপে যোগ দিন</p>
+                  </div>
                 </a>
-                <a
-                  href="https://twitter.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950/30 hover:text-sky-500 dark:hover:text-sky-450 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all cursor-pointer"
-                  title="Twitter/X"
-                >
-                  <Twitter className="w-4 h-4" />
-                </a>
-                <a
-                  href="https://instagram.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-pink-50 dark:hover:bg-pink-950/30 hover:text-pink-600 dark:hover:text-pink-400 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all cursor-pointer"
-                  title="Instagram"
-                >
-                  <Instagram className="w-4 h-4" />
-                </a>
-                <a
-                  href="#"
-                  className="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all cursor-pointer"
-                  title="Website"
-                >
-                  <Globe className="w-4 h-4" />
-                </a>
+                {/* Support Email */}
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center shrink-0">
+                    <Mail className="w-4.5 h-4.5 text-slate-500 dark:text-slate-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200">Support Contact</p>
+                    <a
+                      href="mailto:support.examnest@gmail.com"
+                      className="text-[11px] text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 hover:underline transition-colors"
+                    >
+                      support.examnest@gmail.com
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

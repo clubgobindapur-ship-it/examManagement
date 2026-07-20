@@ -155,13 +155,13 @@ export default function UserPerformanceChart({ attempts, onOpenAuth, isLoggedIn,
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="p-6 border-b border-slate-100 dark:border-slate-800/80 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-850/30">
+      <div className="p-6 border-b border-slate-100 dark:border-slate-800/80 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#FF6602]">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white">কর্মদক্ষতা গ্রাফ (Your Performance Analytics)</h2>
+            <TrendingUp className="w-5 h-5 text-white" />
+            <h2 className="text-lg font-bold text-white">Performance গ্রাফ (Your Performance Analytics)</h2>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">পরীক্ষাসমূহে আপনার অর্জিত ফলাফল ও অগ্রগতির তুলনামূলক বিশ্লেষণ।</p>
+          <p className="text-xs text-white">পরীক্ষাসমূহে আপনার অর্জিত ফলাফল ও অগ্রগতির তুলনামূলক বিশ্লেষণ।</p>
         </div>
 
         {/* Filters */}
