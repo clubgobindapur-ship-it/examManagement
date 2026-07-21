@@ -3,64 +3,64 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
   <url>
-    <loc>https://examnest.com/</loc>
+    <loc>https://jobexamnest.vercel.app</loc>
     <lastmod>2026-07-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="bn" href="https://examnest.com/" />
+    <xhtml:link rel="alternate" hreflang="bn" href="https://jobexamnest.vercel.app" />
   </url>
 
   <url>
-    <loc>https://examnest.com/#live</loc>
+    <loc>https://jobexamnest.vercel.app/#live</loc>
     <lastmod>2026-07-21</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://examnest.com/#routine</loc>
+    <loc>https://jobexamnest.vercel.app/#routine</loc>
     <lastmod>2026-07-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://examnest.com/#archive</loc>
+    <loc>https://jobexamnest.vercel.app/#archive</loc>
     <lastmod>2026-07-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://examnest.com/#leaderboard</loc>
+    <loc>https://jobexamnest.vercel.app/#leaderboard</loc>
     <lastmod>2026-07-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://examnest.com/#results</loc>
+    <loc>https://jobexamnest.vercel.app/#results</loc>
     <lastmod>2026-07-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://examnest.com/#pricing</loc>
+    <loc>https://jobexamnest.vercel.app/#pricing</loc>
     <lastmod>2026-07-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://examnest.com/#blog</loc>
+    <loc>https://jobexamnest.vercel.app/#blog</loc>
     <lastmod>2026-07-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://examnest.com/#helpline</loc>
+    <loc>https://jobexamnest.vercel.app/#helpline</loc>
     <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

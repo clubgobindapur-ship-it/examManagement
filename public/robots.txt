@@ -1,5 +1,5 @@
 # ExamNest — BCS ও সরকারি চাকরির অনলাইন মক টেস্ট প্ল্যাটফর্ম
-# https://examnest.com
+# https://jobexamnest.vercel.app/sitemap.xml
 
 User-agent: *
 Allow: /
@@ -12,4 +12,4 @@ Disallow: /api/
 Disallow: /__/
 
 # Sitemap location
-Sitemap: https://examnest.com/sitemap.xml
+Sitemap: https://jobexamnest.vercel.app/sitemap.xml

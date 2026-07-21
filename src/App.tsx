@@ -768,7 +768,7 @@ export default function App() {
                   {
                     icon: "🎯",
                     title: "BCS প্রিলিমিনারি",
-                    desc: "৪৪তম–৪৬তম BCS প্রস্তুতির জন্য বিষয়ভিত্তিক MCQ মক টেস্ট সিরিজ",
+                    desc: "১০তম–৫০তম BCS প্রস্তুতির জন্য বিষয়ভিত্তিক প্রশ্নব্যাংক ও মক টেস্ট সিরিজ",
                     keyword: "BCS Mock Test"
                   },
                   {
