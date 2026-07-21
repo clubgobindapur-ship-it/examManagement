@@ -1,21 +1,18 @@
 import React, { useState } from "react";
 import { Exam, formatExamDate } from "../types";
 import { motion } from "motion/react";
-import { 
-  Clock, 
-  ChevronRight, 
-  Lock, 
-  Unlock,
-  Sparkles, 
-  User, 
+import {
+  Clock,
+  ChevronRight,
+  Lock,
+  User,
   ArrowRight,
   ShieldAlert,
   Check,
   Calendar,
-  DollarSign,
   HelpCircle,
   Award,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
 
 interface ExamCardProps {
@@ -28,13 +25,13 @@ interface ExamCardProps {
   onUnlock?: (exam: Exam) => void;
 }
 
-export default function ExamCard({ 
-  exam, 
-  currentUser, 
-  onStartExam, 
+export default function ExamCard({
+  exam,
+  currentUser,
+  onStartExam,
   isAttempted = false,
   isLocked = false,
-  onUnlock
+  onUnlock,
 }: ExamCardProps) {
   const [showGate, setShowGate] = useState(false);
   const [username, setUsername] = useState("");
@@ -66,170 +63,204 @@ export default function ExamCard({
   const isArchived = exam.status === "archived" || exam.status === "archive";
   const isFree = exam.isFree !== false;
 
+  const accentGradient = isLive
+    ? "from-blue-500 via-blue-500 to-indigo-500"
+    : isArchived
+    ? "from-amber-400 to-orange-400"
+    : "from-slate-300 to-slate-400 dark:from-slate-600 dark:to-slate-700";
+
   return (
     <motion.div
-      whileHover={isLive ? { y: -4 } : {}}
-      className={`bg-white dark:bg-slate-900 border transition-all overflow-hidden flex flex-col justify-between h-full font-sans rounded-2xl ${
-        isLive 
-          ? "border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md shadow-sm" 
-          : "border-slate-200/50 dark:border-slate-800/50 bg-slate-50/40 dark:bg-slate-950/20 opacity-75"
+      whileHover={isLive ? { y: -3 } : {}}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className={`relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden flex flex-col h-full font-sans transition-all duration-200 ${
+        isLive
+          ? "border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-blue-500/8 dark:hover:shadow-blue-500/10 hover:border-blue-200/80 dark:hover:border-blue-800/60"
+          : "border border-slate-200/60 dark:border-slate-800/40 opacity-65"
       }`}
     >
-      <div className="p-6 space-y-4">
-        {/* Sl no and Status Tag */}
+      {/* Top color accent strip */}
+      <div className={`h-[3px] w-full bg-gradient-to-r ${accentGradient} shrink-0`} />
+
+      <div className="flex flex-col flex-1 p-5 gap-4">
+
+        {/* ── Row 1: SL number + status badges ── */}
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold font-mono tracking-wider text-blue-650 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 px-2.5 py-1 rounded-lg">
-            SL {exam.slNo.toString().padStart(2, "0")}
+          <span className="text-[11px] font-mono font-bold tracking-widest text-slate-400 dark:text-slate-500">
+            #{exam.slNo.toString().padStart(2, "0")}
           </span>
+
           <div className="flex items-center gap-1.5">
-            {/* Free/Paid badge */}
+            {/* Free / Paid badge */}
             {!isFree ? (
-              <span className="text-[11px] uppercase font-black tracking-wider px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-450 border border-amber-100 dark:border-amber-900/30 flex items-center gap-0.5">
+              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200/70 dark:border-amber-700/40">
                 <Lock className="w-2.5 h-2.5" />
-                <span>{exam.price} ৳</span>
+                {exam.price}৳
               </span>
             ) : (
-              <span className="text-[11px] uppercase font-black tracking-wider px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-450 border border-emerald-100 dark:border-emerald-900/30">
-                FREE
+              <span className="inline-flex items-center text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-700/40">
+                Free
               </span>
             )}
-            <span className={`text-[11px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full ${
-              isLive 
-                ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400" 
-                : isArchived
-                ? "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400"
-                : "bg-slate-100 dark:bg-slate-850 text-slate-500 dark:text-slate-400"
-            }`}>
-              {isLive ? "চলতি পরীক্ষা" : isArchived ? "আর্কাইভ" : "বন্ধ"}
-            </span>
+
+            {/* Status badge */}
+            {isLive ? (
+              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200/70 dark:border-green-700/40">
+                <span className="relative flex h-1.5 w-1.5 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" />
+                </span>
+                Live
+              </span>
+            ) : isArchived ? (
+              <span className="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200/70 dark:border-amber-700/40">
+                Archive
+              </span>
+            ) : (
+              <span className="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200/70 dark:border-slate-700/40">
+                Closed
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Title */}
-        <div>
-          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 line-clamp-2 leading-snug">{exam.name}</h3>
-        </div>
+        {/* ── Row 2: Exam title ── */}
+        <h3 className="text-[15px] font-extrabold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2 -mt-1">
+          {exam.name}
+        </h3>
 
-        {/* Time Limit & Exam Date */}
-        <div className="space-y-1.5 pt-1">
-          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-350 font-medium">
-            <Clock className="w-4 h-4 text-blue-500" />
-            <span className="text-xs font-semibold">সময়সীমা: {exam.timeLimit} মিনিট</span>
+        {/* ── Row 3: Meta chips ── */}
+        <div className="flex flex-wrap gap-1.5">
+          <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-700/60">
+            <Clock className="w-3 h-3 text-blue-500 shrink-0" />
+            {exam.timeLimit} মিনিট
           </div>
-
-          {exam.examDate && (
-            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-350 font-medium">
-              <Calendar className="w-4 h-4 text-emerald-500" />
-              <span className="text-xs font-semibold">পরীক্ষার তারিখ: {formatExamDate(exam.examDate)}</span>
-            </div>
-          )}
 
           {exam.questionCount !== undefined && exam.questionCount > 0 && (
-            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-350 font-medium">
-              <HelpCircle className="w-4 h-4 text-indigo-500" />
-              <span className="text-xs font-semibold">প্রশ্নের সংখ্যা: {exam.questionCount}টি</span>
+            <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-700/60">
+              <HelpCircle className="w-3 h-3 text-indigo-500 shrink-0" />
+              {exam.questionCount} প্রশ্ন
             </div>
           )}
 
-          <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 mt-2">
-            <span className="text-[12px] uppercase font-extrabold text-slate-400 tracking-wider">নম্বর বিভাজন (Marking Scheme)</span>
-            <div className="grid grid-cols-2 gap-2 text-[12px] text-slate-600 dark:text-slate-405 font-bold font-mono">
-              <div className="bg-slate-50 dark:bg-slate-850 px-2 py-1 rounded border border-slate-100/80 dark:border-slate-800/60">
-                সঠিক: <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">+{exam.markPerQuestion !== undefined ? exam.markPerQuestion : 1}</span>
-              </div>
-              <div className="bg-slate-50 dark:bg-slate-850 px-2 py-1 rounded border border-slate-100/80 dark:border-slate-800/60">
-                ভুল: <span className="text-rose-600 dark:text-rose-450 font-extrabold">-{exam.penaltyMark !== undefined ? exam.penaltyMark : 0.25}</span>
-              </div>
+          {exam.examDate && (
+            <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-700/60">
+              <Calendar className="w-3 h-3 text-emerald-500 shrink-0" />
+              {formatExamDate(exam.examDate)}
             </div>
-          </div>
+          )}
         </div>
-      </div>
 
-      {/* Button/Gate footer */}
-      <div className="p-6 pt-0 border-t-0 bg-slate-50/10">
+        {/* ── Row 4: Marking scheme ── */}
+        <div className="flex items-center gap-3 py-2.5 px-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/60">
+          <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold shrink-0">নম্বর</span>
+          <div className="w-px h-3 bg-slate-200 dark:bg-slate-700 shrink-0" />
+          <span className="text-[12px] font-bold text-emerald-600 dark:text-emerald-400">
+            +{exam.markPerQuestion ?? 1} সঠিক
+          </span>
+          <div className="w-px h-3 bg-slate-200 dark:bg-slate-700 shrink-0" />
+          <span className="text-[12px] font-bold text-rose-500 dark:text-rose-400">
+            −{exam.penaltyMark ?? 0.25} ভুল
+          </span>
+        </div>
+
+        {/* Push CTA to bottom */}
+        <div className="flex-1" />
+
+        {/* ── CTA area ── */}
         {!isLive ? (
-          <div className="flex items-center justify-between text-slate-400 py-3 text-xs font-semibold">
-            <span className="flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5" />
-              <span>{isArchived ? "আর্কাইভ করা হয়েছে" : "শেষ হয়েছে"}</span>
-            </span>
+          /* Archived / Closed state */
+          <div className="flex items-center justify-center gap-1.5 py-3 text-slate-400 dark:text-slate-500 text-[12px] font-semibold select-none">
+            <Lock className="w-3.5 h-3.5 shrink-0" />
+            <span>{isArchived ? "আর্কাইভ করা হয়েছে" : "পরীক্ষা শেষ হয়েছে"}</span>
           </div>
+
         ) : isAttempted ? (
-          <div className="space-y-2.5">
-            <div className="w-full py-2 px-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-450 font-bold rounded-xl flex items-center justify-center gap-2 text-xs">
-              <Check className="w-3.5 h-3.5 text-emerald-600" />
-              <span>ইতিমধ্যে সম্পন্ন করেছেন</span>
+          /* Already attempted */
+          <div className="space-y-2">
+            <div className="w-full py-2 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 font-bold rounded-xl flex items-center justify-center gap-1.5 text-[12px]">
+              <Check className="w-3.5 h-3.5 shrink-0" />
+              সম্পন্ন হয়েছে
             </div>
-            <div className="flex flex-col gap-2">
-              {exam.showResult && (
-                <button
-                  onClick={() => {
-                    const name = currentUser?.displayName || currentUser?.email?.split("@")[0] || "পরীক্ষার্থী";
-                    onStartExam(exam, name, "view_result");
-                  }}
-                  className="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/20 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-blue-200 dark:border-blue-800/60 transition-all cursor-pointer"
-                >
-                  <Award className="w-3.5 h-3.5 text-blue-500" />
-                  <span>ফলাফল দেখুন</span>
-                </button>
-              )}
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => {
-                    const name = currentUser?.displayName || currentUser?.email?.split("@")[0] || "পরীক্ষার্থী";
-                    onStartExam(exam, name, "view_questions");
-                  }}
-                  className="py-2 px-3 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
-                >
-                  <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
-                  <span>প্রশ্ন দেখুন</span>
-                </button>
-                <button
-                  onClick={() => {
-                    const name = currentUser?.displayName || currentUser?.email?.split("@")[0] || "পরীক্ষার্থী";
-                    onStartExam(exam, name, "retake");
-                  }}
-                  className="py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>পুনরায় পরীক্ষা</span>
-                </button>
-              </div>
+
+            {exam.showResult && (
+              <button
+                onClick={() => {
+                  const name = currentUser?.displayName || currentUser?.email?.split("@")[0] || "পরীক্ষার্থী";
+                  onStartExam(exam, name, "view_result");
+                }}
+                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-[12px] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
+              >
+                <Award className="w-3.5 h-3.5 shrink-0" />
+                ফলাফল দেখুন
+              </button>
+            )}
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  const name = currentUser?.displayName || currentUser?.email?.split("@")[0] || "পরীক্ষার্থী";
+                  onStartExam(exam, name, "view_questions");
+                }}
+                className="py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-[12px] flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-slate-200/60 dark:border-slate-700/60"
+              >
+                <HelpCircle className="w-3.5 h-3.5 shrink-0" />
+                প্রশ্ন
+              </button>
+              <button
+                onClick={() => {
+                  const name = currentUser?.displayName || currentUser?.email?.split("@")[0] || "পরীক্ষার্থী";
+                  onStartExam(exam, name, "retake");
+                }}
+                className="py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-[12px] flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              >
+                <RefreshCw className="w-3.5 h-3.5 shrink-0" />
+                পুনরায়
+              </button>
             </div>
           </div>
+
         ) : isLocked ? (
+          /* Locked — needs purchase */
           <button
             id={`btn-unlock-${exam.id}`}
             onClick={() => onUnlock?.(exam)}
-            className="w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-xs shadow-sm cursor-pointer"
+            className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-[12px] shadow-sm cursor-pointer"
           >
-            <Lock className="w-3.5 h-3.5" />
-            <span>আনলক করুন - {exam.price} ৳</span>
+            <Lock className="w-3.5 h-3.5 shrink-0" />
+            আনলক করুন — {exam.price}৳
           </button>
+
         ) : !showGate ? (
+          /* Primary start CTA */
           <button
             id={`btn-start-${exam.id}`}
             onClick={() => {
               if (currentUser) {
-                // If logged in, begin immediately
                 onStartExam(exam, currentUser.displayName || currentUser.email.split("@")[0]);
               } else {
                 setShowGate(true);
               }
             }}
-            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-xs shadow-sm cursor-pointer"
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-[13px] shadow-sm cursor-pointer group"
           >
-            <span>{currentUser ? "পরীক্ষা শুরু করুন" : "পরীক্ষায় অংশ নিন"}</span>
-            <ChevronRight className="w-4 h-4" />
+            <span>{currentUser ? "পরীক্ষা শুরু করুন" : "পরীক্ষায় অংশ নিন"}</span>
+            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-150" />
           </button>
+
         ) : (
-          <form onSubmit={handleBegin} className="pt-4 space-y-3.5 border-t border-slate-100/60 dark:border-slate-800/60" id={`form-gate-${exam.id}`}>
+          /* Guest name gate form */
+          <form
+            onSubmit={handleBegin}
+            className="space-y-3"
+            id={`form-gate-${exam.id}`}
+          >
             <div className="space-y-1.5">
-              <label className="text-[12px] font-bold text-slate-500 uppercase tracking-wider block">
+              <label className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block">
                 আপনার নাম লিখুন
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                 <input
                   id={`input-nick-${exam.id}`}
                   type="text"
@@ -237,36 +268,33 @@ export default function ExamCard({
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="যেমন: সাকিব হাসান"
-                  className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-750 rounded-lg text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
             </div>
 
             {error && (
-              <p className="text-[13px] font-medium text-rose-600 flex items-center gap-1">
-                <ShieldAlert className="w-3 h-3 shrink-0" />
-                <span>{error}</span>
+              <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1.5">
+                <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                {error}
               </p>
             )}
 
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  setShowGate(false);
-                  setError("");
-                }}
-                className="flex-1 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium rounded-lg text-xs transition-colors cursor-pointer"
+                onClick={() => { setShowGate(false); setError(""); }}
+                className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-[12px] transition-colors cursor-pointer"
               >
-                বাতিল করুন
+                বাতিল
               </button>
               <button
                 type="submit"
                 id={`btn-begin-${exam.id}`}
-                className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-xs flex items-center justify-center gap-1 shadow-sm transition-all cursor-pointer"
+                className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-[12px] flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
               >
-                <span>শুরু করুন</span>
-                <ArrowRight className="w-3 h-3" />
+                শুরু
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </form>

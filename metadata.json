@@ -1,6 +1,5 @@
 {
   "name": "Quiz Taking Website",
   "description": "A responsive quiz taking application integrated with Google Sheets and Firebase, featuring real-time timers, leaderboards, and social sharing.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "requestFramePermissions": []
 }

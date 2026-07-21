@@ -26,8 +26,8 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
   // Admin credentials settings
-  const [adminEmail, setAdminEmail] = useState("admin@examportal.com");
-  const [adminPassword, setAdminPassword] = useState("adminpassword123");
+  const [adminEmail, setAdminEmail] = useState("example@gmail.com");
+  const [adminPassword, setAdminPassword] = useState("....");
   const [isSavingAdmin, setIsSavingAdmin] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -484,7 +484,7 @@ export default function AdminSettings({ onSettingsSaved, onReloadExams }: AdminS
                     required
                     value={adminEmail}
                     onChange={(e) => setAdminEmail(e.target.value)}
-                    placeholder="admin@examportal.com"
+                    placeholder="example@gmail.com"
                     className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-semibold"
                   />
                 </div>

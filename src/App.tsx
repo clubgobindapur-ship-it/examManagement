@@ -326,34 +326,11 @@ export default function App() {
       } else {
         fetchUserAttempts(user);
         fetchUserPremiumAndSubscriptions(user);
-
-        // Auto-login as admin if they are authenticated as the admin email
-        if (user.email === "admin@examportal.com" || user.email === "club.gobindapur@gmail.com") {
-          setIsAdminLoggedIn(true);
-        }
+        // Admin status is determined solely by AdminLogin.tsx (Firestore admin collection check)
       }
     });
     return unsubscribe;
   }, []);
-
-  // 1b. Auto-logout standard user when entering admin portal
-  useEffect(() => {
-    if (
-      currentUser && 
-      currentUser.email !== "admin@examportal.com" && 
-      currentUser.email !== "club.gobindapur@gmail.com" && 
-      (currentView === "admin" || window.location.pathname === "/admin")
-    ) {
-      signOut(auth)
-        .then(() => {
-          trackEvent("admin_portal_auto_logout_success", { email: currentUser.email });
-          setCurrentUser(null);
-        })
-        .catch((err) => {
-          console.error("Error signing out user for admin portal", err);
-        });
-    }
-  }, [currentUser, currentView]);
 
   // 2. Load Google Apps Script URL settings & GA4 settings from Firestore and LocalStorage
   const loadSettings = async (): Promise<string> => {
@@ -1121,6 +1098,7 @@ export default function App() {
                 onViewLeaderboard={handleViewLeaderboardAfterQuiz}
                 mode={activeExamMode}
                 userPremiumUntil={userPremiumUntil}
+                isAdmin={isAdminLoggedIn}
               />
             </motion.div>
           )}

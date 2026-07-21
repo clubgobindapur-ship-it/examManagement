@@ -124,11 +124,10 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@examportal.com"
+                  placeholder="example@gmail.com"
                   className="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-              <p className="text-[12px] text-gray-400">Default: <code className="font-mono bg-gray-100 p-0.5 rounded">admin@examportal.com</code></p>
             </div>
 
             <div className="space-y-1.5">
@@ -144,7 +143,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
                   className="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-              <p className="text-[12px] text-gray-400">Default: <code className="font-mono bg-gray-100 p-0.5 rounded">adminpassword123</code></p>
+          
             </div>
 
             <button

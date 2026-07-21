@@ -35,6 +35,7 @@ interface ActiveExamProps {
   onViewLeaderboard: () => void;
   mode?: "take" | "retake" | "view_questions" | "view_result";
   userPremiumUntil?: string | null;
+  isAdmin?: boolean;
 }
 
 export default function ActiveExam({ 
@@ -45,7 +46,8 @@ export default function ActiveExam({
   onExit,
   onViewLeaderboard,
   mode = "take",
-  userPremiumUntil = null
+  userPremiumUntil = null,
+  isAdmin = false
 }: ActiveExamProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
@@ -442,7 +444,6 @@ Well done! Join the challenge here: ${window.location.href}`;
   const handlePrintOrDownload = async () => {
     // 1. Check permissions
     const isPremium = userPremiumUntil ? new Date(userPremiumUntil).getTime() > Date.now() : false;
-    const isAdmin = currentUser?.email === "admin@examportal.com" || currentUser?.email === "club.gobindapur@gmail.com";
     const canPrint = isPrintFree || isPremium || isAdmin;
 
     if (!canPrint) {
