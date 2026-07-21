@@ -130,7 +130,7 @@ export default function AdCarousel() {
               >
                 <img
                   src={activeAd.imageUrl}
-                  alt="Promotion Banner"
+                  alt={activeAd.title ? `${activeAd.title} — ExamNest` : "পরীক্ষা প্রস্তুতি প্রমোশন ব্যানার — ExamNest"}
                   className="w-full h-full object-cover hover:scale-102 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                 />
@@ -139,7 +139,7 @@ export default function AdCarousel() {
               <div className="absolute inset-0 w-full h-full overflow-hidden">
                 <img
                   src={activeAd.imageUrl}
-                  alt="Promotion Banner"
+                  alt={activeAd.title ? `${activeAd.title} — ExamNest` : "পরীক্ষা প্রস্তুতি প্রমোশন ব্যানার — ExamNest"}
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
@@ -151,7 +151,7 @@ export default function AdCarousel() {
               {/* Background cover image */}
               <img
                 src={activeAd.imageUrl}
-                alt="Background"
+                alt={activeAd.title ? `${activeAd.title} — ব্যাকগ্রাউন্ড` : "পরীক্ষা প্রস্তুতি ব্যানার ব্যাকগ্রাউন্ড"}
                 className="absolute inset-0 w-full h-full object-cover opacity-25 filter blur-xs"
                 referrerPolicy="no-referrer"
               />

@@ -459,6 +459,26 @@ export default function App() {
       }
     } catch (e) {}
 
+    // Dynamic page title for SEO
+    const pageTitles: Record<string, string> = {
+      home:             "ExamNest | BCS, সরকারি চাকরি, ব্যাংক ও প্রাথমিক পরীক্ষার অনলাইন মক টেস্ট",
+      live:             "লাইভ পরীক্ষা | BCS ও সরকারি চাকরির MCQ মক টেস্ট — ExamNest",
+      routine:          "পরীক্ষার রুটিন | আসন্ন BCS ও চাকরির পরীক্ষার সময়সূচি — ExamNest",
+      archive:          "আর্কাইভ | সম্পন্ন পরীক্ষা ও উত্তরপত্র — ExamNest",
+      leaderboard:      "লিডারবোর্ড | সেরা পরীক্ষার্থীদের তালিকা — ExamNest",
+      results:          "পরীক্ষার ফলাফল | BCS ও সরকারি চাকরি MCQ ফলাফল — ExamNest",
+      my_results:       "আমার ফলাফল | ব্যক্তিগত পারফরম্যান্স রিপোর্ট — ExamNest",
+      my_subscriptions: "আমার সাবস্ক্রিপশন — ExamNest",
+      pricing:          "প্রিমিয়াম প্যাকেজ | BCS ও সরকারি চাকরির সম্পূর্ণ প্রস্তুতি — ExamNest",
+      blog:             "ব্লগ ও গাইডলাইন | BCS প্রস্তুতির টিপস — ExamNest",
+      helpline:         "হেল্পলাইন | সাপোর্ট — ExamNest",
+      active_exam:      "পরীক্ষা চলছে — ExamNest",
+      admin:            "Admin Dashboard — ExamNest",
+    };
+    try {
+      document.title = pageTitles[currentView] ?? pageTitles.home;
+    } catch (e) {}
+
     // Event tracking on view transitions
     if (currentView === "home") {
       trackEvent("home_landing", { path: "/" });
@@ -716,13 +736,16 @@ export default function App() {
                 <div className="space-y-4 max-w-xl text-center md:text-left">
                   <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-950/30 text-[#FF6602] rounded-full text-xs font-bold font-mono uppercase tracking-wider">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>কঠিন প্রস্তুতি, সহজ যুদ্ধ</span>
+                    <span>কঠিন প্রশিক্ষণ, সহজ যুদ্ধ</span>
                   </div>
                   <h1 className="text-3xl sm:text-4xl font-extrabold text-emerald-950 dark:text-emerald-200 tracking-tight leading-tight">
-                    ExamNest-এ আপনাকে স্বাগতম
+                    BCS ও সরকারি চাকরির সেরা অনলাইন মক টেস্ট প্ল্যাটফর্ম
                   </h1>
+                  <p className="text-[13px] font-semibold text-blue-600 dark:text-blue-400">
+                    ExamNest — Free BCS Mock Test | Bank Job | Primary Exam | NTRCA Preparation Bangladesh
+                  </p>
                   <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                    ExamNest হলো বাংলাদেশে BCS, সরকারি চাকরি, ব্যাংক, প্রাথমিক শিক্ষক নিয়োগ, NTRCA, বিশ্ববিদ্যালয় ভর্তি, এবং অন্যান্য প্রতিযোগিতামূলক পরীক্ষার প্রস্তুতির জন্য একটি আধুনিক অনলাইন মক টেস্ট ও প্র্যাকটিস প্ল্যাটফর্ম। এখানে বিষয়ভিত্তিক ও পূর্ণাঙ্গ মডেল টেস্ট, তাৎক্ষণিক ফলাফল, বিস্তারিত পারফরম্যান্স বিশ্লেষণ, মেধাতালিকা এবং মানসম্মত প্রশ্নব্যাংকের মাধ্যমে আপনি নিজের প্রস্তুতি সহজেই যাচাই ও উন্নত করতে পারবেন। নিয়মিত অনুশীলন এবং বাস্তব পরীক্ষার অভিজ্ঞতার মাধ্যমে আত্মবিশ্বাস বাড়িয়ে কাঙ্ক্ষিত সফলতার পথে এগিয়ে যেতে ExamNest হতে পারে আপনার নির্ভরযোগ্য সঙ্গী।
+                    ExamNest হলো বাংলাদেশের BCS প্রিলিমিনারি, সরকারি চাকরি, ব্যাংক জব, প্রাথমিক সহকারী শিক্ষক নিয়োগ, NTRCA, এবং সকল প্রতিযোগিতামূলক পরীক্ষার প্রস্তুতির জন্য সেরা অনলাইন MCQ মক টেস্ট ও প্র্যাকটিস প্ল্যাটফর্ম। বিষয়ভিত্তিক মডেল টেস্ট, তাৎক্ষণিক ফলাফল, বিস্তারিত ব্যাখ্যা, মেধাতালিকা এবং মানসম্মত প্রশ্নব্যাংক — সবকিছু একটি জায়গায়।
                   </p>
                 </div>
 
@@ -738,6 +761,50 @@ export default function App() {
 
               {/* Carousel Banner for Ad */}
               <AdCarousel />
+
+              {/* SEO: Keyword-rich feature highlights */}
+              <section aria-label="ExamNest-এর বৈশিষ্ট্যসমূহ" className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  {
+                    icon: "🎯",
+                    title: "BCS প্রিলিমিনারি",
+                    desc: "৪৪তম–৪৬তম BCS প্রস্তুতির জন্য বিষয়ভিত্তিক MCQ মক টেস্ট সিরিজ",
+                    keyword: "BCS Mock Test"
+                  },
+                  {
+                    icon: "🏦",
+                    title: "ব্যাংক জব প্রস্তুতি",
+                    desc: "বাংলাদেশ ব্যাংক, সোনালী ব্যাংকসহ সকল ব্যাংক নিয়োগের MCQ পরীক্ষা",
+                    keyword: "Bank Job MCQ"
+                  },
+                  {
+                    icon: "📚",
+                    title: "প্রাথমিক শিক্ষক নিয়োগ",
+                    desc: "সহকারী শিক্ষক নিয়োগ পরীক্ষার জন্য পূর্ণাঙ্গ প্রশ্নব্যাংক ও মডেল টেস্ট",
+                    keyword: "Primary Teacher Exam"
+                  },
+                  {
+                    icon: "🏛️",
+                    title: "সরকারি চাকরি MCQ",
+                    desc: "NTRCA, PSC, মন্ত্রণালয় ও অন্যান্য সকল সরকারি নিয়োগ পরীক্ষার প্রস্তুতি",
+                    keyword: "Govt Job Preparation"
+                  }
+                ].map((feature) => (
+                  <article
+                    key={feature.keyword}
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-2 hover:border-blue-200 dark:hover:border-blue-800 hover:shadow-sm transition-all"
+                  >
+                    <span className="text-2xl" role="img" aria-label={feature.title}>{feature.icon}</span>
+                    <h2 className="text-sm font-extrabold text-slate-800 dark:text-slate-100 leading-snug">
+                      {feature.title}
+                    </h2>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">{feature.desc}</p>
+                    <span className="inline-block text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 px-2 py-0.5 rounded-full">
+                      {feature.keyword}
+                    </span>
+                  </article>
+                ))}
+              </section>
 
               {/* User Performance Analytics / Progress Tracking Section */}
               <UserPerformanceChart 

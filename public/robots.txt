@@ -1,0 +1,15 @@
+# ExamNest — BCS ও সরকারি চাকরির অনলাইন মক টেস্ট প্ল্যাটফর্ম
+# https://examnest.com
+
+User-agent: *
+Allow: /
+
+# Block admin portal from indexing
+Disallow: /admin
+
+# Block API/internal paths
+Disallow: /api/
+Disallow: /__/
+
+# Sitemap location
+Sitemap: https://examnest.com/sitemap.xml
