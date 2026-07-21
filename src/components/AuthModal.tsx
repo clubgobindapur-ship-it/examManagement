@@ -98,7 +98,7 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
           txList.sort((a, b) => b.id.localeCompare(a.id));
           setPurchasedPacks(txList);
         } catch (err) {
-          console.error("Error loading profile subscription data:", err);
+          console.error("Error loading profile subscription data:");
         } finally {
           setLoadingSubscriptions(false);
         }
@@ -187,7 +187,7 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
           resultsList.sort((a, b) => new Date(b.completedAt || 0).getTime() - new Date(a.completedAt || 0).getTime());
           setPersonalResults(resultsList);
         } catch (err) {
-          console.error("Error fetching personal results:", err);
+          console.error("Error fetching personal results:");
         } finally {
           setLoadingResults(false);
         }
@@ -281,7 +281,6 @@ export default function AuthModal({ isOpen, onClose, currentUser, userAttempts =
         }, 1500);
       }
     } catch (err: any) {
-      console.error(err);
       // Clean error messages for user
       let errMsg = err.message || "An authentication error occurred";
       if (err.code === "auth/user-not-found") {

@@ -99,7 +99,7 @@ export default function PaymentModal({
       trackEvent("submit_payment_success", { paymentType, productId, txId: txIdClean });
       setStep("success");
     } catch (err: any) {
-      console.error("Payment submission failed:", err);
+      console.error("Payment submission failed:");
       setError("পেমেন্ট সাবমিট করতে ব্যর্থ হয়েছে। দয়া করে আপনার ইন্টারনেট কানেকশন চেক করে আবার চেষ্টা করুন।");
       trackEvent("submit_payment_failure", { error: err.message });
     } finally {

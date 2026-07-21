@@ -46,7 +46,7 @@ export const initGA = (measurementId: string) => {
 
     (window as any)._ga_initialized = true;
   } catch (e) {
-    console.error("Failed to initialize Google Analytics:", e);
+    console.error("Failed to initialize Google Analytics:");
   }
 };
 
@@ -61,7 +61,7 @@ export const trackEvent = (eventName: string, params: Record<string, any> = {}) 
       });
     }
   } catch (e) {
-    console.warn("Failed to push to standard gtag:", e);
+    console.warn("Failed to push to standard gtag:");
   }
 
   // 3. Save to window context so the application can display a live event tracker

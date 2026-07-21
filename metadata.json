@@ -1,5 +1,5 @@
 {
-  "name": "Quiz Taking Website",
-  "description": "A responsive quiz taking application integrated with Google Sheets and Firebase, featuring real-time timers, leaderboards, and social sharing.",
+  "name": "ExamNest - BCS ও সরকারি চাকরির অনলাইন মক টেস্ট প্ল্যাটফর্ম",
+  "description": "ExamNest — বাংলাদেশের সেরা অনলাইন পরীক্ষা প্রস্তুতি প্ল্যাটফর্ম, BCS, সরকারি চাকরি, ব্যাংক জব, প্রাথমিক শিক্ষক নিয়োগ, NTRCA সহ সকল প্রতিযোগিতামূলক পরীক্ষার জন্য।",
   "requestFramePermissions": []
 }

@@ -67,7 +67,7 @@ export default function Results({ exams }: ResultsProps) {
       }
       setAttempts(list);
     } catch (err) {
-      console.error("Error fetching exam results:", err);
+      console.error("Error fetching exam results:");
     } finally {
       setLoading(false);
     }

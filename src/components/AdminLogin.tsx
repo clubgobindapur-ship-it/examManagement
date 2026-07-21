@@ -79,7 +79,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToHome }: AdminLoginP
           }
           
         } catch (authErr: any) {
-          console.error("Authentication error:", authErr);
+          console.error("Authentication error:");
           setError("Authentication failed. Please check your credentials or try again later.");
         } finally {
         setLoading(false);

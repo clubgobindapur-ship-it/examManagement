@@ -106,7 +106,7 @@ export default function AdminExamsSettings({ exams, onReload }: AdminExamsSettin
       list.sort((a, b) => a.slNo - b.slNo);
       setExamList(list);
     } catch (err: any) {
-      console.error("Error fetching exams:", err);
+      console.error("Error fetching exams:");
       setError("পরীক্ষার তালিকা লোড করতে ব্যর্থ হয়েছে: " + err.message);
     } finally {
       setLoading(false);

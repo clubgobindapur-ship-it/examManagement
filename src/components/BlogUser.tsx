@@ -48,7 +48,7 @@ export default function BlogUser() {
         setBlogs(list);
         trackEvent("blog_feed_load", { count: list.length });
       } catch (err) {
-        console.error("Error fetching user blogs:", err);
+        console.error("Error fetching user blogs:");
       } finally {
         setLoading(false);
       }
@@ -71,7 +71,7 @@ export default function BlogUser() {
       // Locally increment so it updates in UI instantly
       setBlogs(prev => prev.map(b => b.id === blog.id ? { ...b, blogViewCount: (b.blogViewCount || 0) + 1 } : b));
     } catch (err) {
-      console.warn("Could not increment view count:", err);
+      console.warn("Could not increment view count:");
     }
   };
 

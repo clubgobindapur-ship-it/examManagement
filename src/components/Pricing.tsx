@@ -152,7 +152,7 @@ export default function Pricing({ currentUser, onOpenAuth, onSuccessPayment }: P
         }
       }
     } catch (err) {
-      console.error("Error loading pricing/subscription info:", err);
+      console.error("Error loading pricing/subscription info:");
       setPackagesList(DEFAULT_PACKAGES);
     } finally {
       setLoading(false);

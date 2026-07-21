@@ -55,7 +55,7 @@ export default function AdManagement() {
       setAds(defaults);
       trackEvent("admin_seed_ads_success");
     } catch (e) {
-      console.error("Failed to seed default ads", e);
+      console.error("Failed to seed default ads");
     }
   };
 
@@ -80,8 +80,7 @@ export default function AdManagement() {
         await seedDefaultAds();
       }
     } catch (err: any) {
-      console.error(err);
-      setError("Carousel Ads লোড করতে ব্যর্থ হয়েছে।");
+     // setError("Carousel Ads লোড করতে ব্যর্থ হয়েছে।");
       trackEvent("admin_load_ads_failure", { error: err.message });
       try {
         handleFirestoreError(err, OperationType.GET, "settings/carousel");
@@ -171,7 +170,7 @@ export default function AdManagement() {
       resetForm();
       trackEvent("admin_ad_save_success", { adId: newAd.id });
     } catch (err: any) {
-      console.error(err);
+      //console.error(err);
       setError("বিজ্ঞাপন সংরক্ষণ করতে ব্যর্থ হয়েছে: " + err.message);
       trackEvent("admin_ad_save_failure", { error: err.message });
     } finally {
@@ -197,7 +196,6 @@ export default function AdManagement() {
       setSuccess("বিজ্ঞাপনটি সফলভাবে মুছে ফেলা হয়েছে!");
       trackEvent("admin_ad_delete_success", { adId: id });
     } catch (err: any) {
-      console.error(err);
       setError("বিজ্ঞাপন মুছে ফেলতে ব্যর্থ হয়েছে।");
       trackEvent("admin_ad_delete_failure", { adId: id, error: err.message });
     }

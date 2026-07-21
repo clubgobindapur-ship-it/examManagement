@@ -169,7 +169,7 @@ export default function PendingPayments() {
             }
           }
         } catch (packErr) {
-          console.error("Error loading package validity:", packErr);
+          console.error("Error loading package validity:");
         }
 
         // Check if user already has any subscriptionsList to append to
@@ -181,7 +181,7 @@ export default function PendingPayments() {
             existingList = Array.isArray(uData.subscriptionsList) ? uData.subscriptionsList : [];
           }
         } catch (userErr) {
-          console.error("Error fetching user active subscriptions:", userErr);
+          console.error("Error fetching user active subscriptions:");
         }
 
         // Calculate target expiration date by adding dynamic validity to CURRENT time
@@ -230,7 +230,7 @@ export default function PendingPayments() {
           createdAt: new Date().toISOString()
         }, { merge: true });
       } catch (noticeAutoErr) {
-        console.error("Failed to create automated notice:", noticeAutoErr);
+        console.error("Failed to create automated notice:");
       }
 
       setSuccess("পেমেন্ট সফলভাবে ভেরিফাই করা হয়েছে!");

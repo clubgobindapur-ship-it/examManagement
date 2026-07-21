@@ -65,7 +65,7 @@ export default function MySubscriptions({ currentUser, onOpenAuth, onViewChange 
         txList.sort((a, b) => b.id.localeCompare(a.id));
         setPurchasedPacks(txList);
       } catch (err) {
-        console.error("Error loading profile subscription data:", err);
+        console.error("Error loading profile subscription data:");
       } finally {
         setLoading(false);
       }

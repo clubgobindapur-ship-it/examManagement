@@ -100,7 +100,7 @@ export default function ActiveExam({
           }
         }
       } catch (e) {
-        console.error("Error loading print settings:", e);
+        console.error("Error loading print settings:");
       }
     };
     fetchPrintSettings();
@@ -129,7 +129,7 @@ export default function ActiveExam({
           } else if (data && Array.isArray(data.questions)) {
             questionsList = data.questions;
           } else if (data && data.error) {
-            console.warn("Apps Script returned error:", data.error);
+            console.warn("Apps Script returned error:");
           }
 
           if (questionsList.length > 0) {
@@ -372,7 +372,7 @@ export default function ActiveExam({
           localStorage.setItem("localAttemptedExams", JSON.stringify(parsed));
         }
       } catch (e) {
-        console.error("Error saving localAttemptedExams to localStorage:", e);
+        console.error("Error saving localAttemptedExams to localStorage:");
       }
 
       // Trigger Google Analytics Event
@@ -389,14 +389,14 @@ export default function ActiveExam({
           examTotalMark: calcTotal
         });
       } catch (e) {
-        console.warn("GA submit_exam trigger failed:", e);
+        console.warn("GA submit_exam trigger failed:");
       }
 
       // Successfully saved!
       setIsSubmitted(true);
       setShowEmailGate(false);
     } catch (err: any) {
-      console.error("Submission failed details:", err);
+      console.error("Submission failed details:");
       setEmailError("দুঃখিত, উত্তরপত্র জমা দেওয়া সম্ভব হয়নি। দয়া করে ইন্টারনেট সংযোগ পরীক্ষা করে পুনরায় চেষ্টা করুন। (Failed to submit response)");
     } finally {
       setIsSubmittingResult(false);
@@ -460,11 +460,11 @@ Well done! Join the challenge here: ${window.location.href}`;
           username: username
         });
       } catch (e) {
-        console.warn("GA print_exam_result trigger failed:", e);
+        console.warn("GA print_exam_result trigger failed:");
       }
       window.print();
     } catch (err) {
-      console.error("Print failed:", err);
+      console.error("Print failed:");
       alert("দুঃখিত, প্রিন্ট বা পিডিএফ ডাউনলোড করার সময় একটি সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।");
     }
   };

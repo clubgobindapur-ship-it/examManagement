@@ -159,7 +159,7 @@ export default function AdminPackagesSettings() {
 
       setPackages(list);
     } catch (err: any) {
-      console.error("Error fetching packages:", err);
+      console.error("Error fetching packages:");
       setError("প্যাকেজ তালিকা লোড করতে ব্যর্থ হয়েছে: " + err.message);
     } finally {
       setLoading(false);

@@ -94,7 +94,7 @@ export default function MyResults({ currentUser, onOpenAuth, exams }: MyResultsP
 
         setPersonalResults(resultsList);
       } catch (err) {
-        console.error("Error loading personal results:", err);
+        console.error("Error loading personal results:");
       } finally {
         setLoading(false);
       }

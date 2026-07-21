@@ -50,7 +50,7 @@ export default function Leaderboard({ exams, activeExamId }: LeaderboardProps) {
       }
       setAttempts(list);
     } catch (err) {
-      console.error("Error fetching leaderboard attempts:", err);
+      console.error("Error fetching leaderboard attempts:");
     } finally {
       setLoading(false);
     }

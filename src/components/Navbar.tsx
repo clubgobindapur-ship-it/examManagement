@@ -62,7 +62,7 @@ export default function Navbar({
       const filtered = list.filter((n) => n.user === "all" || (userId && n.user === userId));
       setNotices(filtered);
     }, (err) => {
-      console.error("Error listening to notices:", err);
+      console.error("Error listening to notices:");
     });
     return () => unsubscribe();
   }, [currentUser]);
@@ -285,7 +285,7 @@ export default function Navbar({
           id="brand-logo"
         >
           <div className="w-15 h-15 bg-white rounded-xl flex items-center justify-center text-white shadow-lg shrink-0">
-            <img src="/assets/images/examNest-transparent.png" alt="ExamNest — BCS ও সরকারি চাকরির অনলাইন মক টেস্ট প্ল্যাটফর্ম লোগো" className="w-13 h-13" />
+            <img src="/assets/images/examNest.png" alt="ExamNest — BCS ও সরকারি চাকরির অনলাইন মক টেস্ট প্ল্যাটফর্ম লোগো" className="w-13 h-13" />
         
           </div>
           <div className="min-w-0">

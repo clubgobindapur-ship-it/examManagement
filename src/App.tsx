@@ -197,7 +197,7 @@ export default function App() {
         parsed.forEach(id => localAttempted.add(id));
       }
     } catch (e) {
-      console.error("Error reading local attempts:", e);
+      console.error("Error reading local attempts:");
     }
 
     // 2. Read from Firestore attempts collection if authenticated
@@ -216,7 +216,7 @@ export default function App() {
           }
         });
       } catch (err) {
-        console.error("Error fetching user attempts from Firestore:", err);
+        console.error("Error fetching user attempts from Firestore:");
       }
     }
 
@@ -263,7 +263,7 @@ export default function App() {
       });
       setUserSubscriptions(activeSubs);
     } catch (err) {
-      console.error("Error loading user subscriptions/premium:", err);
+      console.error("Error loading user subscriptions/premium:");
     } finally {
       setLoadingSubscriptions(false);
     }
@@ -316,7 +316,7 @@ export default function App() {
         try {
           localStorage.removeItem("localAttemptedExams");
         } catch (e) {
-          console.error("Error clearing local attempts:", e);
+          console.error("Error clearing local attempts:");
         }
         setAttemptedExamIds([]);
         setUserAttempts([]);
@@ -358,7 +358,7 @@ export default function App() {
 
       return savedUrl;
     } catch (err) {
-      console.error("Error loading settings from Firestore/LocalStorage:", err);
+      console.error("Error loading settings from Firestore/LocalStorage:");
       return localStorage.getItem("googleAppsScriptUrl") || "";
     }
   };
@@ -416,7 +416,7 @@ export default function App() {
           }
         }
       } catch (fsListErr) {
-        console.error("Error loading examList from Firestore, falling back:", fsListErr);
+        console.error("Error loading examList from Firestore, falling back:");
         fetchedExams = [...DEFAULT_EXAMS].map(exam => ({
           ...exam,
           markPerQuestion: exam.markPerQuestion !== undefined ? exam.markPerQuestion : 1,
@@ -430,7 +430,7 @@ export default function App() {
       fetchedExams.sort((a, b) => a.slNo - b.slNo);
       setExams(fetchedExams);
     } catch (err) {
-      console.error("Error loading exams:", err);
+      console.error("Error loading exams:");
       setExams(DEFAULT_EXAMS);
     } finally {
       setLoadingExams(false);
@@ -532,7 +532,7 @@ export default function App() {
                     await signOut(auth);
                     trackEvent("admin_navbar_logo_click");
                   } catch (e) {
-                    console.error("Logout failed on logo click:", e);
+                    console.error("Logout failed on logo click:");
                   }
                 }}
                 className="flex items-center gap-3 cursor-pointer hover:opacity-95 transition-opacity shrink-0"
@@ -670,7 +670,7 @@ export default function App() {
                       await signOut(auth);
                       trackEvent("admin_logout_click");
                     } catch (e) {
-                      console.error("Admin logout failed:", e);
+                      console.error("Admin logout failed:");
                     }
                   }}
                   className="px-3 py-1.5 bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0"
@@ -920,7 +920,7 @@ export default function App() {
                     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-12 text-center max-w-md mx-auto space-y-3 my-8">
                       <Calendar className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto" />
                       <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">কোনো পরীক্ষার রুটিন নির্ধারিত নেই।</p>
-                      <p className="text-xs text-slate-400">নতুন পরীক্ষার তারিখ নির্ধারণের জন্য গুগল শিটে examDate কলামে তারিখ (mm/dd/yy) যুক্ত করুন।</p>
+                      <p className="text-xs text-slate-400">অনুগ্র করে পরবর্তী পরীক্ষার তারিখ চেক করুন।</p>
                     </div>
                   ) : (
                     <div className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm overflow-hidden">
